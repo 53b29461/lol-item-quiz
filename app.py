@@ -224,6 +224,14 @@ def next_question_b():
     session.pop('result', None)
     return redirect(url_for('quiz_b'))
 
+@app.route('/etc')
+def etc():
+    return render_template('etc.html', patch_version=patch_version)
+
+@app.route('/math-game')
+def math_game():
+    return render_template('math_game.html', patch_version=patch_version)
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))  # 環境変数PORTからポート番号を取得
     app.run(host='0.0.0.0', port=port, debug=True)

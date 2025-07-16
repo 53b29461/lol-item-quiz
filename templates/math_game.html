@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数学ゲーム - 桁当てゲーム</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='math-game-webapp/styles.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <header class="game-header">
+            <h1>数学ゲーム</h1>
+            <div class="game-info">
+                <span class="question-counter">問題 <span id="currentQuestion">1</span>/10</span>
+                <span class="timer">時間: <span id="timer">00:00</span></span>
+            </div>
+        </header>
+
+        <main class="game-area">
+            <!-- 開始画面 -->
+            <div id="startScreen" class="screen">
+                <h2>桁当てゲーム</h2>
+                <p>計算結果の十の位または一の位を当てるゲームです</p>
+                <p>10問連続で挑戦しましょう！</p>
+                <button id="startButton" class="btn btn-primary">難易度選択</button>
+            </div>
+
+            <!-- 難易度選択画面 -->
+            <div id="difficultyScreen" class="screen" style="display: none;">
+                <h2>難易度を選択</h2>
+                <div class="difficulty-options">
+                    <div class="difficulty-card">
+                        <h3>ノーマル</h3>
+                        <p>・2桁 + 2桁</p>
+                        <p>・3桁 - 2桁</p>
+                        <p>・2桁 × 1桁</p>
+                        <p>適度な難易度で楽しめます</p>
+                        <button id="normalButton" class="btn btn-success">ノーマル</button>
+                    </div>
+                    <div class="difficulty-card">
+                        <h3>ハード</h3>
+                        <p>・3桁 + 1-4桁</p>
+                        <p>・3-4桁 - n桁</p>
+                        <p>・2桁 × 2桁</p>
+                        <p>・3-4桁 ÷ n桁</p>
+                        <p>本格的な暗算力が試されます</p>
+                        <button id="hardButton" class="btn btn-danger">ハード</button>
+                    </div>
+                </div>
+                <button id="backButton" class="btn btn-secondary">戻る</button>
+            </div>
+
+            <!-- ゲーム画面 -->
+            <div id="gameScreen" class="screen" style="display: none;">
+                <div class="problem-display">
+                    <div id="expression" class="expression"></div>
+                    <div id="answerDisplay" class="answer-display"></div>
+                    <div id="instruction" class="instruction"></div>
+                </div>
+
+                <div id="feedback" class="feedback"></div>
+
+                <!-- ソフトキーボード -->
+                <div class="soft-keyboard">
+                    <div class="keyboard-row">
+                        <button class="key" data-digit="1">1</button>
+                        <button class="key" data-digit="2">2</button>
+                        <button class="key" data-digit="3">3</button>
+                        <button class="key" data-digit="4">4</button>
+                        <button class="key" data-digit="5">5</button>
+                    </div>
+                    <div class="keyboard-row">
+                        <button class="key" data-digit="6">6</button>
+                        <button class="key" data-digit="7">7</button>
+                        <button class="key" data-digit="8">8</button>
+                        <button class="key" data-digit="9">9</button>
+                        <button class="key" data-digit="0">0</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 結果画面 -->
+            <div id="resultScreen" class="screen" style="display: none;">
+                <h2>ゲーム終了</h2>
+                <div class="results">
+                    <div class="result-item">
+                        <span class="label">正解数:</span>
+                        <span id="correctCount" class="value"></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">正答率:</span>
+                        <span id="accuracy" class="value"></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">総時間:</span>
+                        <span id="totalTime" class="value"></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">平均時間:</span>
+                        <span id="avgTime" class="value"></span>
+                    </div>
+                </div>
+                <button id="playAgainButton" class="btn btn-primary">もう一度プレイ</button>
+                <br><br>
+                <a href="/etc" class="btn btn-secondary">戻る</a>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='math-game-webapp/js/timer.js') }}"></script>
+    <script src="{{ url_for('static', filename='math-game-webapp/js/gameEngine.js') }}"></script>
+    <script src="{{ url_for('static', filename='math-game-webapp/js/inputHandler.js') }}"></script>
+    <script src="{{ url_for('static', filename='math-game-webapp/js/uiController.js') }}"></script>
+    <script src="{{ url_for('static', filename='math-game-webapp/js/main.js') }}"></script>
+</body>
+
+</html>
