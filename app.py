@@ -94,8 +94,8 @@ def get_extended_family(item_id, trees, items):
             family_member_family_member_family = get_immediate_family(family_member_family_id, trees)
             extended_family.update(family_member_family_member_family)
 
-    # Filter out items with 'gold' less than 500
-    extended_family = [family_id for family_id in extended_family if items[family_id]['gold']['total'] >= 500]
+    # Remove 500G filter to allow basic materials in choices
+    # extended_family = [family_id for family_id in extended_family if items[family_id]['gold']['total'] >= 500]
 
     return extended_family
 
@@ -149,7 +149,13 @@ def quiz_a():
         session['item_id'] = random.choice(list(large_trees.keys()))
         extended_family = get_extended_family(session.get('item_id'), all_trees, all_items)
         extended_family_names = [filtered_items[family_id]['name'] for family_id in extended_family if family_id != session.get('item_id')]
-        session['options'] = random.sample(extended_family_names, min(sentakusi, len(extended_family_names)))
+        
+        # Remove duplicates by converting to set, then back to list
+        unique_extended_family_names = list(set(extended_family_names))
+        
+        # Use all available unique items, up to sentakusi (10) max
+        max_options = min(len(unique_extended_family_names), sentakusi)
+        session['options'] = random.sample(unique_extended_family_names, max_options)
         session['item_tree'] = large_trees[session.get('item_id')]
         session['correct_answers'] = get_tree_item_names(session.get('item_tree'), all_trees)[1:]
         answer_marks = [{ 'name': name, 'is_correct': False, 'checked': False } for name in session.get('options')]
