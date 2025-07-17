@@ -277,12 +277,26 @@
                 edges: fullGraphData.edges.map(d => ({...d}))
             };
             
-            // シミュレーションを初期化
+            // 素材アイテムを正多角形に配置
+            const basicItems = filteredData.nodes.filter(d => d.category === 'basic');
+            const radius = Math.min(width, height) * 0.35;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            
+            basicItems.forEach((d, i) => {
+                const angle = (i / basicItems.length) * 2 * Math.PI;
+                d.fx = centerX + radius * Math.cos(angle);
+                d.fy = centerY + radius * Math.sin(angle);
+            });
+            
+            // シミュレーションを初期化（重複防止強化）
             simulation = d3.forceSimulation(filteredData.nodes)
-                .force('link', d3.forceLink(filteredData.edges).id(d => d.id).distance(80).strength(0.5))
-                .force('charge', d3.forceManyBody().strength(-200))
+                .force('link', d3.forceLink(filteredData.edges).id(d => d.id).distance(100).strength(0.3))
+                .force('charge', d3.forceManyBody().strength(-400))
                 .force('center', d3.forceCenter(width / 2, height / 2))
-                .force('collision', d3.forceCollide().radius(d => getNodeRadius(d) + 5));
+                .force('collision', d3.forceCollide().radius(d => getNodeRadius(d) + 8).strength(1).iterations(3))
+                .force('x', d3.forceX(width / 2).strength(0.1))
+                .force('y', d3.forceY(height / 2).strength(0.1));
             
             // エッジを描画
             const linkGroup = g.append('g').attr('class', 'links');
@@ -336,31 +350,11 @@
                 .style('clip-path', d => `circle(${getNodeRadius(d) - 2}px)`)
                 .style('pointer-events', 'none');
             
-            // アイテム名テキスト
-            nodes.append('text')
-                .text(d => d.label.length > 8 ? d.label.substring(0, 8) + '...' : d.label)
-                .attr('dy', d => getNodeRadius(d) + 12)
-                .attr('text-anchor', 'middle')
-                .attr('font-size', '8px')
-                .attr('fill', '#333')
-                .attr('stroke', '#fff')
-                .attr('stroke-width', '1px')
-                .attr('paint-order', 'stroke')
-                .style('pointer-events', 'none');
+            // テキストラベルを削除（画像のみで表示）
             
-            // ホバーイベント
-            nodes.on('mouseover', function(event, d) {
-                d3.select(this).select('text')
-                    .text(d.label + ` (${d.price}G)`)
-                    .attr('font-size', '10px')
-                    .attr('font-weight', 'bold');
-            })
-            .on('mouseout', function(event, d) {
-                d3.select(this).select('text')
-                    .text(d.label.length > 8 ? d.label.substring(0, 8) + '...' : d.label)
-                    .attr('font-size', '8px')
-                    .attr('font-weight', 'normal');
-            });
+            // ホバーイベント（ツールチップ表示）
+            nodes.append('title')
+                .text(d => `${d.label} (${d.price}G)`);
             
             // シミュレーションの更新処理
             simulation.on('tick', () => {
@@ -406,8 +400,11 @@
         
         function dragended(event, d) {
             if (!event.active) simulation.alphaTarget(0);
-            d.fx = null;
-            d.fy = null;
+            // 素材アイテムは正多角形位置を維持
+            if (d.category !== 'basic') {
+                d.fx = null;
+                d.fy = null;
+            }
         }
         
         
@@ -427,6 +424,21 @@
             // データを更新
             filteredData.nodes = filteredNodes.map(d => ({...d}));
             filteredData.edges = filteredEdges.map(d => ({...d}));
+            
+            // 素材アイテムを正多角形に配置
+            const container = document.getElementById('d3-full-graph');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            const basicItems = filteredData.nodes.filter(d => d.category === 'basic');
+            const radius = Math.min(width, height) * 0.35;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            
+            basicItems.forEach((d, i) => {
+                const angle = (i / basicItems.length) * 2 * Math.PI;
+                d.fx = centerX + radius * Math.cos(angle);
+                d.fy = centerY + radius * Math.sin(angle);
+            });
             
             // シミュレーションを再初期化
             simulation.nodes(filteredData.nodes);
@@ -465,32 +477,15 @@
                 .style('clip-path', d => `circle(${getNodeRadius(d) - 2}px)`)
                 .style('pointer-events', 'none');
             
-            nodeEnter.append('text')
-                .text(d => d.label.length > 8 ? d.label.substring(0, 8) + '...' : d.label)
-                .attr('dy', d => getNodeRadius(d) + 12)
-                .attr('text-anchor', 'middle')
-                .attr('font-size', '8px')
-                .attr('fill', '#333')
-                .attr('stroke', '#fff')
-                .attr('stroke-width', '1px')
-                .attr('paint-order', 'stroke')
-                .style('pointer-events', 'none');
+            // テキストラベルを削除（画像のみで表示）
+            
+            // ツールチップを追加
+            nodeEnter.append('title')
+                .text(d => `${d.label} (${d.price}G)`);
             
             nodes = nodeEnter.merge(nodes);
             
-            // ホバーイベントを再設定
-            nodes.on('mouseover', function(event, d) {
-                d3.select(this).select('text')
-                    .text(d.label + ` (${d.price}G)`)
-                    .attr('font-size', '10px')
-                    .attr('font-weight', 'bold');
-            })
-            .on('mouseout', function(event, d) {
-                d3.select(this).select('text')
-                    .text(d.label.length > 8 ? d.label.substring(0, 8) + '...' : d.label)
-                    .attr('font-size', '8px')
-                    .attr('font-weight', 'normal');
-            });
+            // ホバーイベントはツールチップで十分
             
             // シミュレーションを再開
             simulation.alpha(1).restart();
@@ -508,10 +503,27 @@
         function resetLayout() {
             if (!simulation) return;
             
-            // ノードの固定を解除
+            // 素材アイテム以外の固定を解除
             filteredData.nodes.forEach(d => {
-                d.fx = null;
-                d.fy = null;
+                if (d.category !== 'basic') {
+                    d.fx = null;
+                    d.fy = null;
+                }
+            });
+            
+            // 素材アイテムを正多角形に再配置
+            const container = document.getElementById('d3-full-graph');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            const basicItems = filteredData.nodes.filter(d => d.category === 'basic');
+            const radius = Math.min(width, height) * 0.35;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            
+            basicItems.forEach((d, i) => {
+                const angle = (i / basicItems.length) * 2 * Math.PI;
+                d.fx = centerX + radius * Math.cos(angle);
+                d.fy = centerY + radius * Math.sin(angle);
             });
             
             // シミュレーションを再開
