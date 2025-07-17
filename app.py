@@ -104,6 +104,10 @@ def index():
     session.clear()
     return render_template('index.html', patch_version=patch_version)
 
+@app.route('/quiz_a_algorithm')
+def quiz_a_algorithm():
+    return render_template('quiz_a_algorithm.html', patch_version=patch_version)
+
 @app.route('/quiz_a', methods=['GET', 'POST'])
 def quiz_a():
     submitted = False

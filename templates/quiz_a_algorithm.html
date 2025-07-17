@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>クイズA 出題アルゴリズム解説 - League of Legends Item Quiz</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .algorithm-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .algorithm-section {
+            margin-bottom: 30px;
+        }
+        .algorithm-section h2 {
+            color: #0596aa;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #0596aa;
+            padding-bottom: 10px;
+        }
+        .algorithm-section h3 {
+            color: #333;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .example-box {
+            background: #f0f9ff;
+            border: 1px solid #0596aa;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .example-box h4 {
+            color: #0596aa;
+            margin-bottom: 10px;
+        }
+        .item-example {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .item-example img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+        .code-block {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .flowchart {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .step {
+            background: #0596aa;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 10px auto;
+            display: inline-block;
+        }
+        .arrow {
+            font-size: 24px;
+            color: #0596aa;
+            margin: 10px 0;
+        }
+        ul {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+        .back-link {
+            display: inline-block;
+            background: #0596aa;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 30px;
+        }
+        .back-link:hover {
+            background: #047a8a;
+        }
+    </style>
+</head>
+<body>
+    <div class="algorithm-container">
+        <h1>クイズA 出題アルゴリズム解説</h1>
+        
+        <div class="algorithm-section">
+            <h2>概要</h2>
+            <p>クイズAは「表示されたアイテムの素材アイテムをすべて選択する」クイズです。<br>
+            プレイヤーは、提示された完成アイテムを作るために必要な素材アイテムを、10個の選択肢の中から見つけ出す必要があります。</p>
+        </div>
+
+        <div class="algorithm-section">
+            <h2>出題フロー</h2>
+            <div class="flowchart">
+                <div class="step">1. アイテムデータ取得</div>
+                <div class="arrow">↓</div>
+                <div class="step">2. フィルタリング処理</div>
+                <div class="arrow">↓</div>
+                <div class="step">3. アイテムツリー構築</div>
+                <div class="arrow">↓</div>
+                <div class="step">4. 大きなツリーを持つアイテム選択</div>
+                <div class="arrow">↓</div>
+                <div class="step">5. 拡張ファミリーから選択肢生成</div>
+                <div class="arrow">↓</div>
+                <div class="step">6. クイズ出題</div>
+            </div>
+        </div>
+
+        <div class="algorithm-section">
+            <h2>詳細アルゴリズム</h2>
+            
+            <h3>1. フィルタリング条件</h3>
+            <ul>
+                <li>サモナーズリフト（マップ11）で使用可能なアイテム</li>
+                <li>消耗品、トリンケット、ブーツ、ジャングル、レーン専用アイテムを除外</li>
+                <li>ロングソードなどの基本アイテムを除外</li>
+                <li>オルン専用アイテムを除外</li>
+                <li>特定の除外IDリスト（6693, 6673, 4641, 4637, 1516-1519）に含まれないもの</li>
+            </ul>
+
+            <h3>2. 大きなツリーの定義</h3>
+            <p>アイテムツリー内のアイテム数が5個以上のものを「大きなツリー」として選択対象とします。</p>
+
+            <h3>3. 拡張ファミリーアルゴリズム</h3>
+            <p>選択肢を生成するために「拡張ファミリー」という概念を使用します：</p>
+            <ul>
+                <li>直接の親アイテム（素材）と子アイテム（派生アイテム）</li>
+                <li>その親子アイテムのさらなる親子アイテム（2階層目）</li>
+                <li>さらにその親子アイテム（3階層目）</li>
+                <li>500ゴールド以上のアイテムのみを選択肢として採用</li>
+            </ul>
+        </div>
+
+        <div class="algorithm-section">
+            <h2>具体例</h2>
+            
+            <div class="example-box">
+                <h4>例1: ウォーモグアーマー</h4>
+                <div class="item-example">
+                    <img src="https://ddragon.leagueoflegends.com/cdn/{{ patch_version }}/img/item/3083.png" alt="ウォーモグアーマー">
+                    <strong>ウォーモグアーマー（3300ゴールド）</strong>
+                </div>
+                
+                <p><strong>素材アイテム（正解）：</strong></p>
+                <ul>
+                    <li>ジャイアントベルト（900ゴールド）</li>
+                    <li>キンドルジェム（800ゴールド）</li>
+                    <li>クリスタライズブレーサー（800ゴールド）</li>
+                </ul>
+                
+                <p><strong>選択肢の生成過程：</strong></p>
+                <ol>
+                    <li>直接の素材：ジャイアントベルト、キンドルジェム、クリスタライズブレーサー</li>
+                    <li>派生アイテム：なし（ウォーモグアーマーは最終アイテム）</li>
+                    <li>拡張ファミリー：
+                        <ul>
+                            <li>ジャイアントベルトを使う他のアイテム：サンファイアイージス、ランデュインオーメン、フローズンマレットなど</li>
+                            <li>キンドルジェムを使う他のアイテム：スピリットビサージュ、トリニティフォースなど</li>
+                            <li>クリスタライズブレーサーを使う他のアイテム：ライチャスグローリー、ゼケのコンバージェンスなど</li>
+                        </ul>
+                    </li>
+                    <li>500ゴールド以上でフィルタリング後、ランダムに10個選択</li>
+                </ol>
+                
+                <p><strong>選択肢例：</strong><br>
+                ジャイアントベルト（正解）、キンドルジェム（正解）、クリスタライズブレーサー（正解）、サンファイアイージス、ランデュインオーメン、フローズンマレット、スピリットビサージュ、トリニティフォース、ライチャスグローリー、ゼケのコンバージェンス</p>
+            </div>
+
+            <div class="example-box">
+                <h4>例2: アーデントセンサー</h4>
+                <div class="item-example">
+                    <img src="https://ddragon.leagueoflegends.com/cdn/{{ patch_version }}/img/item/3504.png" alt="アーデントセンサー">
+                    <strong>アーデントセンサー（2300ゴールド）</strong>
+                </div>
+                
+                <p><strong>素材アイテム（正解）：</strong></p>
+                <ul>
+                    <li>フェアリーチャーム（250ゴールド）×2</li>
+                    <li>ブラスティングワンド（850ゴールド）</li>
+                </ul>
+                
+                <p><strong>選択肢の生成過程：</strong></p>
+                <ol>
+                    <li>直接の素材：フェアリーチャーム×2、ブラスティングワンド</li>
+                    <li>派生アイテム：なし（アーデントセンサーは最終アイテム）</li>
+                    <li>拡張ファミリー：
+                        <ul>
+                            <li>フェアリーチャームを使う他のアイテム：フォービドンアイドル、ハーモニックエコー、ミカエルのるつぼなど</li>
+                            <li>ブラスティングワンドを使う他のアイテム：ヘクステックロケットベルト、ヴォイドスタッフ、モレロノミコンなど</li>
+                        </ul>
+                    </li>
+                    <li>500ゴールド以上でフィルタリング後、ランダムに10個選択</li>
+                </ol>
+                
+                <p><strong>選択肢例：</strong><br>
+                フェアリーチャーム（正解）、ブラスティングワンド（正解）、フォービドンアイドル、ハーモニックエコー、ミカエルのるつぼ、ヘクステックロケットベルト、ヴォイドスタッフ、モレロノミコン、リデンプション、ルーデンテンペスト</p>
+            </div>
+        </div>
+
+        <div class="algorithm-section">
+            <h2>難易度調整の仕組み</h2>
+            <ul>
+                <li><strong>拡張ファミリーによる選択肢の多様性</strong>：関連アイテムを幅広く含めることで、単純な暗記では対応できない出題を実現</li>
+                <li><strong>500ゴールド制限</strong>：基本アイテム（ロングソード等）を除外し、中級以上のアイテムのみを選択肢とすることで適度な難易度を維持</li>
+                <li><strong>ランダム性</strong>：同じアイテムでも毎回異なる選択肢が表示され、繰り返しプレイの価値を高める</li>
+            </ul>
+        </div>
+
+        <div class="algorithm-section">
+            <h2>技術的な実装ポイント</h2>
+            <div class="code-block">
+                # アイテムツリーの構築<br>
+                connect_parents(filtered_items, all_trees)<br><br>
+                # 大きなツリーの選定（5個以上のアイテムを持つもの）<br>
+                large_trees = {item_id: tree for item_id, tree in all_trees.items() <br>
+                              if tree and len(get_tree_item_names(tree, all_trees)) >= 5}<br><br>
+                # 拡張ファミリーの取得（3階層まで探索）<br>
+                extended_family = get_extended_family(item_id, all_trees, all_items)<br><br>
+                # 500ゴールド以上でフィルタリング<br>
+                extended_family = [family_id for family_id in extended_family <br>
+                                  if items[family_id]['gold']['total'] >= 500]
+            </div>
+        </div>
+
+        <a href="/" class="back-link">メインページに戻る</a>
+    </div>
+</body>
+<footer>
+    <p>&copy; 2024 LoL Item Quiz. All rights reserved.</p>
+</footer>
+</html>
