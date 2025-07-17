@@ -30,6 +30,50 @@
         .graph-controls button:hover {
             background: #047a8a;
         }
+        .edge-length-control {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0;
+            padding: 15px;
+            background: #f0f8ff;
+            border-radius: 8px;
+            border: 1px solid #b0d4f1;
+        }
+        .edge-length-control label {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .edge-length-slider {
+            width: 200px;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+        }
+        .edge-length-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #0596aa;
+            cursor: pointer;
+        }
+        .edge-length-value {
+            font-weight: bold;
+            color: #0596aa;
+            min-width: 50px;
+            text-align: center;
+        }
+        .reset-button {
+            background: #6c757d !important;
+            padding: 8px 16px !important;
+            font-size: 12px !important;
+        }
+        .reset-button:hover {
+            background: #5a6268 !important;
+        }
         .d3-full-graph {
             width: 100%;
             height: 800px;
@@ -263,6 +307,19 @@
             <button onclick="resetLayout()">レイアウト リセット</button>
             <button onclick="zoomToFit()">全体表示</button>
             <button onclick="pauseSimulation()">アニメーション 停止/再開</button>
+        </div>
+        
+        <div class="edge-length-control">
+            <label for="edge-length-slider">辺の長さ:</label>
+            <input type="range" 
+                   id="edge-length-slider" 
+                   class="edge-length-slider"
+                   min="100" 
+                   max="500" 
+                   value="120" 
+                   step="10">
+            <span id="edge-length-value" class="edge-length-value">120px</span>
+            <button class="reset-button" onclick="resetEdgeLength()">リセット</button>
         </div>
         
         <div class="filter-controls">
@@ -505,7 +562,7 @@
             console.log(`ノード数（重複除去後）: ${filteredData.nodes.length}`);
             
             // 辺の長さ均等化システム
-            const IDEAL_EDGE_LENGTH = 120;  // 理想的な辺の長さ（1.5倍）
+            let IDEAL_EDGE_LENGTH = 120;  // 理想的な辺の長さ（1.5倍）
             const centerX = width / 2;
             const centerY = height / 2;
             
@@ -958,6 +1015,44 @@
             svg.transition()
                 .duration(750)
                 .call(d3.zoom().transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
+        }
+        
+        // 辺の長さスライダーのイベントリスナー
+        const edgeLengthSlider = document.getElementById('edge-length-slider');
+        const edgeLengthValue = document.getElementById('edge-length-value');
+        
+        edgeLengthSlider.addEventListener('input', function(e) {
+            IDEAL_EDGE_LENGTH = parseInt(e.target.value);
+            edgeLengthValue.textContent = IDEAL_EDGE_LENGTH + 'px';
+            
+            // シミュレーションを更新
+            if (simulation) {
+                simulation.force('link')
+                    .distance(IDEAL_EDGE_LENGTH)
+                    .strength(1.5);
+                
+                simulation.force('charge')
+                    .distanceMax(IDEAL_EDGE_LENGTH * 2);
+                
+                simulation.alpha(0.5).restart();
+            }
+        });
+        
+        function resetEdgeLength() {
+            edgeLengthSlider.value = 120;
+            edgeLengthValue.textContent = '120px';
+            IDEAL_EDGE_LENGTH = 120;
+            
+            if (simulation) {
+                simulation.force('link')
+                    .distance(IDEAL_EDGE_LENGTH)
+                    .strength(1.5);
+                
+                simulation.force('charge')
+                    .distanceMax(IDEAL_EDGE_LENGTH * 2);
+                
+                simulation.alpha(0.5).restart();
+            }
         }
         
         function pauseSimulation() {
