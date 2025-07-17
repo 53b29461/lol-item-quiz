@@ -701,14 +701,14 @@
                     }
                 });
                 
-                // ノードの見た目を更新（関連ノードは通常、その他はグレーアウト）
+                // ノードの見た目を更新（関連ノードは通常、その他は少し暗く）
                 nodes.select('circle')
-                    .attr('opacity', d => relatedNodes.has(d.id) ? 1.0 : 0.3)
-                    .attr('filter', d => relatedNodes.has(d.id) ? null : 'grayscale(100%)');
+                    .attr('opacity', d => relatedNodes.has(d.id) ? 1.0 : 0.7)
+                    .attr('filter', d => relatedNodes.has(d.id) ? null : 'brightness(0.7)');
                 
                 nodes.select('image')
-                    .attr('opacity', d => relatedNodes.has(d.id) ? 1.0 : 0.3)
-                    .attr('filter', d => relatedNodes.has(d.id) ? null : 'grayscale(100%)');
+                    .attr('opacity', d => relatedNodes.has(d.id) ? 1.0 : 0.8)
+                    .attr('filter', d => relatedNodes.has(d.id) ? null : 'brightness(0.6) contrast(0.8)');
                 
                 // エッジの色とスタイルを更新
                 links.attr('stroke', d => {
