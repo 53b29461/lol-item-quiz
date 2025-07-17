@@ -343,8 +343,8 @@
                 
                 <div style="margin: 10px 0; font-size: 14px;">
                     <span style="color: #28a745;">■</span> 素材アイテム（799G以下）　
-                    <span style="color: #007bff;">■</span> 中間アイテム（800-2999G）　
-                    <span style="color: #ffc107;">■</span> レジェンダリーアイテム（3000G+）
+                    <span style="color: #007bff;">■</span> 中間アイテム（800-1600G）　
+                    <span style="color: #ffc107;">■</span> レジェンダリーアイテム（1601G+）
                 </div>
                 
                 <h4>D3.js版 - Force-Directed Layout</h4>
@@ -401,7 +401,7 @@
                 
                 <div style="margin: 10px 0; font-size: 14px;">
                     <span style="color: #28a745;">■</span> 素材アイテム（799G以下）　
-                    <span style="color: #007bff;">■</span> 中間アイテム（800-2999G）
+                    <span style="color: #007bff;">■</span> 中間アイテム（800-1600G）
                 </div>
                 
                 <div class="tree-diagram">
@@ -487,7 +487,7 @@
                 container: document.getElementById('giants-belt-graph'),
                 
                 elements: [
-                    // ノード（5層構造）
+                    // ノード（拡張5層構造）
                     { data: { id: 'giants-belt', label: 'ジャイアント\\nベルト', type: 'center' } },
                     { data: { id: 'ruby-crystal', label: 'ルビー\\nクリスタル', type: 'center_child' } },
                     { data: { id: 'parent-3083', label: 'ウォーモグ\\nアーマー', type: 'center_parent' } },
@@ -502,6 +502,13 @@
                     { data: { id: 'material-1026', label: 'ブラスティング\\nワンド', type: 'parent_other_child' } },
                     { data: { id: 'material-1052', label: 'アンプリファイング\\nトーム', type: 'parent_other_child' } },
                     
+                    // 新しい素材ノード
+                    { data: { id: 'material-2022', label: 'グローイング\\nモート', type: 'extended_material' } },
+                    { data: { id: 'material-1006', label: 'リジュベネーション\\nビード', type: 'extended_material' } },
+                    { data: { id: 'material-1036', label: 'ロング\\nソード', type: 'extended_material' } },
+                    { data: { id: 'material-1029-1', label: 'クロース\\nアーマー', type: 'extended_material' } },
+                    { data: { id: 'material-1029-2', label: 'クロース\\nアーマー', type: 'extended_material' } },
+                    
                     // エッジ（直接の親子関係のみ）
                     { data: { source: 'ruby-crystal', target: 'giants-belt', type: 'child-parent' } },
                     { data: { source: 'giants-belt', target: 'parent-3083', type: 'parent-child' } },
@@ -515,7 +522,22 @@
                     { data: { source: 'material-3801', target: 'parent-3084', type: 'child-parent' } },
                     // ライライクリスタルセプターの子どもたち
                     { data: { source: 'material-1026', target: 'parent-3116', type: 'child-parent' } },
-                    { data: { source: 'material-1052', target: 'parent-3116', type: 'child-parent' } }
+                    { data: { source: 'material-1052', target: 'parent-3116', type: 'child-parent' } },
+                    // ランデュインオーメンの子どもたち
+                    { data: { source: 'material-3082', target: 'parent-3143', type: 'child-parent' } },
+                    { data: { source: 'giants-belt', target: 'parent-3143', type: 'child-parent' } },
+                    // キンドルジェムの子どもたち
+                    { data: { source: 'ruby-crystal', target: 'child-parent-3067', type: 'child-parent' } },
+                    { data: { source: 'material-2022', target: 'child-parent-3067', type: 'child-parent' } },
+                    // ファージの子どもたち
+                    { data: { source: 'ruby-crystal', target: 'child-parent-3044', type: 'child-parent' } },
+                    { data: { source: 'material-1036', target: 'child-parent-3044', type: 'child-parent' } },
+                    // クリスタラインブレーサーの子どもたち
+                    { data: { source: 'ruby-crystal', target: 'material-3801', type: 'child-parent' } },
+                    { data: { source: 'material-1006', target: 'material-3801', type: 'child-parent' } },
+                    // ウォーデンメイルの子どもたち
+                    { data: { source: 'material-1029-1', target: 'material-3082', type: 'child-parent' } },
+                    { data: { source: 'material-1029-2', target: 'material-3082', type: 'child-parent' } }
                 ],
                 
                 style: [
@@ -579,7 +601,7 @@
                     },
                     // 素材アイテム（799G以下）- 小サイズ・緑系
                     {
-                        selector: 'node[id="ruby-crystal"], node[id="material-1052"]',
+                        selector: 'node[id="ruby-crystal"], node[id="material-1052"], node[id="material-2022"], node[id="material-1006"], node[id="material-1036"], node[id="material-1029-1"], node[id="material-1029-2"]',
                         style: {
                             'background-color': '#d4edda',
                             'border-color': '#28a745',
@@ -589,9 +611,9 @@
                             'font-size': '11px'
                         }
                     },
-                    // 中間アイテム（800-2999G）- 中サイズ・青系
+                    // 中間アイテム（800-1600G）- 中サイズ・青系
                     {
-                        selector: 'node[id="child-parent-3067"], node[id="child-parent-3066"], node[id="material-3801"], node[id="material-1026"], node[id="giants-belt"], node[id="material-3082"], node[id="child-parent-3044"], node[id="parent-3116"], node[id="parent-3143"]',
+                        selector: 'node[id="child-parent-3067"], node[id="child-parent-3066"], node[id="material-3801"], node[id="material-1026"], node[id="giants-belt"], node[id="material-3082"], node[id="child-parent-3044"]',
                         style: {
                             'background-color': '#cce7ff',
                             'border-color': '#007bff',
@@ -601,9 +623,9 @@
                             'font-size': '12px'
                         }
                     },
-                    // レジェンダリーアイテム（3000G+）- 大サイズ・金/赤系
+                    // レジェンダリーアイテム（1601G+）- 大サイズ・金系
                     {
-                        selector: 'node[id="parent-3084"], node[id="parent-3083"]',
+                        selector: 'node[id="parent-3116"], node[id="parent-3143"], node[id="parent-3084"], node[id="parent-3083"]',
                         style: {
                             'background-color': '#fff3cd',
                             'border-color': '#ffc107',
@@ -612,6 +634,16 @@
                             'height': 60,
                             'font-size': '13px',
                             'font-weight': 'bold'
+                        }
+                    },
+                    // extended_materialタイプのスタイル
+                    {
+                        selector: 'node[type="extended_material"]',
+                        style: {
+                            'background-color': '#d4edda',
+                            'border-color': '#28a745',
+                            'border-width': 2,
+                            'border-style': 'dashed'
                         }
                     },
                     {
@@ -720,7 +752,7 @@
                             'font-size': '11px'
                         }
                     },
-                    // 中間アイテム（800-2999G）- 中サイズ・青系
+                    // 中間アイテム（800-1600G）- 中サイズ・青系
                     {
                         selector: 'node[id="parent-3012"]',
                         style: {
@@ -776,7 +808,13 @@
                 { id: 'material-3801', label: 'クリスタライン\nブレーサー', type: 'parent_other_child' },
                 { id: 'material-3082', label: 'ウォーデン\nメイル', type: 'parent_other_child' },
                 { id: 'material-1026', label: 'ブラスティング\nワンド', type: 'parent_other_child' },
-                { id: 'material-1052', label: 'アンプリファイング\nトーム', type: 'parent_other_child' }
+                { id: 'material-1052', label: 'アンプリファイング\nトーム', type: 'parent_other_child' },
+                // 新しい素材ノード
+                { id: 'material-2022', label: 'グローイング\nモート', type: 'extended_material' },
+                { id: 'material-1006', label: 'リジュベネーション\nビード', type: 'extended_material' },
+                { id: 'material-1036', label: 'ロング\nソード', type: 'extended_material' },
+                { id: 'material-1029-1', label: 'クロース\nアーマー', type: 'extended_material' },
+                { id: 'material-1029-2', label: 'クロース\nアーマー', type: 'extended_material' }
             ];
             
             const links = [
@@ -792,7 +830,22 @@
                 { source: 'material-3801', target: 'parent-3084', type: 'child-parent' },
                 // ライライクリスタルセプターの子どもたち
                 { source: 'material-1026', target: 'parent-3116', type: 'child-parent' },
-                { source: 'material-1052', target: 'parent-3116', type: 'child-parent' }
+                { source: 'material-1052', target: 'parent-3116', type: 'child-parent' },
+                // ランデュインオーメンの子どもたち
+                { source: 'material-3082', target: 'parent-3143', type: 'child-parent' },
+                { source: 'giants-belt', target: 'parent-3143', type: 'child-parent' },
+                // キンドルジェムの子どもたち
+                { source: 'ruby-crystal', target: 'child-parent-3067', type: 'child-parent' },
+                { source: 'material-2022', target: 'child-parent-3067', type: 'child-parent' },
+                // ファージの子どもたち
+                { source: 'ruby-crystal', target: 'child-parent-3044', type: 'child-parent' },
+                { source: 'material-1036', target: 'child-parent-3044', type: 'child-parent' },
+                // クリスタラインブレーサーの子どもたち
+                { source: 'ruby-crystal', target: 'material-3801', type: 'child-parent' },
+                { source: 'material-1006', target: 'material-3801', type: 'child-parent' },
+                // ウォーデンメイルの子どもたち
+                { source: 'material-1029-1', target: 'material-3082', type: 'child-parent' },
+                { source: 'material-1029-2', target: 'material-3082', type: 'child-parent' }
             ];
             
             // SVG作成
@@ -831,23 +884,23 @@
                 .join('g')
                 .attr('class', 'node');
             
-            // アイテム価格帯でサイズ決定
+            // アイテム価格帯でサイズ決定（1600G基準）
             const getNodeRadius = (id) => {
                 // 素材アイテム（799G以下）- 小サイズ
-                if (['ruby-crystal', 'material-1052'].includes(id)) return 15;
-                // レジェンダリーアイテム（3000G+）- 大サイズ
-                if (['parent-3084', 'parent-3083'].includes(id)) return 25;
-                // 中間アイテム（800-2999G）- 中サイズ（デフォルト）
+                if (['ruby-crystal', 'material-1052', 'material-2022', 'material-1006', 'material-1036', 'material-1029-1', 'material-1029-2'].includes(id)) return 15;
+                // レジェンダリーアイテム（1601G+）- 大サイズ
+                if (['parent-3116', 'parent-3143', 'parent-3084', 'parent-3083'].includes(id)) return 25;
+                // 中間アイテム（800-1600G）- 中サイズ（デフォルト）
                 return 20;
             };
             
-            // アイテム価格帯で色決定
+            // アイテム価格帯で色決定（1600G基準）
             const getNodeColor = (id) => {
                 // 素材アイテム（799G以下）- 緑系
-                if (['ruby-crystal', 'material-1052'].includes(id)) return { fill: '#d4edda', stroke: '#28a745' };
-                // レジェンダリーアイテム（3000G+）- 金系
-                if (['parent-3084', 'parent-3083'].includes(id)) return { fill: '#fff3cd', stroke: '#ffc107' };
-                // 中間アイテム（800-2999G）- 青系（デフォルト）
+                if (['ruby-crystal', 'material-1052', 'material-2022', 'material-1006', 'material-1036', 'material-1029-1', 'material-1029-2'].includes(id)) return { fill: '#d4edda', stroke: '#28a745' };
+                // レジェンダリーアイテム（1601G+）- 金系
+                if (['parent-3116', 'parent-3143', 'parent-3084', 'parent-3083'].includes(id)) return { fill: '#fff3cd', stroke: '#ffc107' };
+                // 中間アイテム（800-1600G）- 青系（デフォルト）
                 return { fill: '#cce7ff', stroke: '#007bff' };
             };
             
@@ -858,7 +911,7 @@
                 .attr('stroke', d => getNodeColor(d.id).stroke)
                 .attr('stroke-width', d => {
                     // レジェンダリーアイテムは太いボーダー
-                    if (['parent-3084', 'parent-3083'].includes(d.id)) return 4;
+                    if (['parent-3116', 'parent-3143', 'parent-3084', 'parent-3083'].includes(d.id)) return 4;
                     return 3;
                 });
             
@@ -868,15 +921,15 @@
                 .attr('dy', '.35em')
                 .attr('font-size', d => {
                     // 素材アイテム（799G以下）
-                    if (['ruby-crystal', 'material-1052'].includes(d.id)) return '10px';
-                    // レジェンダリーアイテム（3000G+）
-                    if (['parent-3084', 'parent-3083'].includes(d.id)) return '13px';
-                    // 中間アイテム（800-2999G）
+                    if (['ruby-crystal', 'material-1052', 'material-2022', 'material-1006', 'material-1036', 'material-1029-1', 'material-1029-2'].includes(d.id)) return '10px';
+                    // レジェンダリーアイテム（1601G+）
+                    if (['parent-3116', 'parent-3143', 'parent-3084', 'parent-3083'].includes(d.id)) return '13px';
+                    // 中間アイテム（800-1600G）
                     return '12px';
                 })
                 .attr('font-weight', d => {
                     // レジェンダリーアイテムは太字
-                    if (['parent-3084', 'parent-3083'].includes(d.id)) return 'bold';
+                    if (['parent-3116', 'parent-3143', 'parent-3084', 'parent-3083'].includes(d.id)) return 'bold';
                     return 'normal';
                 })
                 .attr('text-anchor', 'middle')
