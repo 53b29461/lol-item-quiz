@@ -703,12 +703,10 @@
                 
                 // ノードの見た目を更新（関連ノードは通常、その他は少し暗く）
                 nodes.select('circle')
-                    .attr('opacity', d => relatedNodes.has(d.id) ? 1.0 : 0.7)
-                    .attr('filter', d => relatedNodes.has(d.id) ? null : 'brightness(0.7)');
+                    .attr('opacity', d => relatedNodes.has(d.id) ? 1.0 : 0.6);
                 
                 nodes.select('image')
-                    .attr('opacity', d => relatedNodes.has(d.id) ? 1.0 : 0.8)
-                    .attr('filter', d => relatedNodes.has(d.id) ? null : 'brightness(0.6) contrast(0.8)');
+                    .attr('opacity', d => relatedNodes.has(d.id) ? 1.0 : 0.5);
                 
                 // エッジの色とスタイルを更新
                 links.attr('stroke', d => {
@@ -796,12 +794,10 @@
                 // ノードを通常に戻す
                 nodes.select('circle')
                      .attr('stroke-width', d => d.category === 'legendary' ? 4 : 3)
-                     .attr('opacity', 1.0)
-                     .attr('filter', null);
+                     .attr('opacity', 1.0);
                 
                 nodes.select('image')
-                     .attr('opacity', 1.0)
-                     .attr('filter', null);
+                     .attr('opacity', 1.0);
             }
             
             nodes.on('mouseover', function(event, d) {
