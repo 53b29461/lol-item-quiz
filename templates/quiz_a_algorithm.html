@@ -185,9 +185,9 @@
                 <p>選んだアイテムに関係するアイテムをすべて見つけて、これが正解になります。</p>
                 <p><strong>正解になるアイテム：</strong></p>
                 <ul>
-                    <li><strong>親アイテム</strong>：そのアイテムの直接の素材</li>
-                    <li><strong>子アイテム</strong>：そのアイテムを直接の素材として使うアイテム</li>
-                    <li><strong>祖父母・孫アイテム</strong>：親の親、子の子など、関係が深いアイテム</li>
+                    <li><strong>子アイテム</strong>：そのアイテムの直接の素材（基本アイテム）</li>
+                    <li><strong>親アイテム</strong>：そのアイテムを直接の素材として使うアイテム（完成品）</li>
+                    <li><strong>孫・祖父母アイテム</strong>：子の子、親の親など、関係が深いアイテム</li>
                 </ul>
             </div>
 
@@ -213,16 +213,16 @@
                 <div class="tree-diagram">
                     <h4>アイテムの家族関係図</h4>
                     <div class="tree-level">
-                        <div class="tree-label">孫（子の子）</div>
-                        <div class="tree-item synthesis">孫アイテムA</div>
-                        <div class="tree-item synthesis">孫アイテムB</div>
+                        <div class="tree-label">祖父母（親の親：最終完成品）</div>
+                        <div class="tree-item synthesis">祖父母アイテムA</div>
+                        <div class="tree-item synthesis">祖父母アイテムB</div>
                     </div>
                     <div class="tree-arrow">↑</div>
                     <div class="tree-level">
-                        <div class="tree-label">子（このアイテムを使って作れるもの）</div>
-                        <div class="tree-item synthesis">子アイテムA</div>
-                        <div class="tree-item synthesis">子アイテムB</div>
-                        <div class="tree-item synthesis">子アイテムC</div>
+                        <div class="tree-label">親（このアイテムを使って作れるもの：完成品）</div>
+                        <div class="tree-item synthesis">親アイテムA</div>
+                        <div class="tree-item synthesis">親アイテムB</div>
+                        <div class="tree-item synthesis">親アイテムC</div>
                     </div>
                     <div class="tree-arrow">↑</div>
                     <div class="tree-level">
@@ -231,19 +231,19 @@
                     </div>
                     <div class="tree-arrow">↑</div>
                     <div class="tree-level">
-                        <div class="tree-label">親（このアイテムを作るのに必要なもの）</div>
-                        <div class="tree-item material">親アイテムA</div>
-                        <div class="tree-item material">親アイテムB</div>
+                        <div class="tree-label">子（このアイテムの素材：中間アイテム）</div>
+                        <div class="tree-item material">子アイテムA</div>
+                        <div class="tree-item material">子アイテムB</div>
                     </div>
                     <div class="tree-arrow">↑</div>
                     <div class="tree-level">
-                        <div class="tree-label">祖父母（親の親）</div>
-                        <div class="tree-item material">祖父母アイテムA</div>
-                        <div class="tree-item material">祖父母アイテムB</div>
+                        <div class="tree-label">孫（子の子：基本アイテム）</div>
+                        <div class="tree-item material">孫アイテムA</div>
+                        <div class="tree-item material">孫アイテムB</div>
                     </div>
                 </div>
                 
-                <p>正解は<span class="correct-answer">緑色（親・祖父母）</span>と<span class="correct-answer" style="background: #cce7ff; color: #004085;">青色（子・孫）</span>のアイテムです！<br>
+                <p>正解は<span class="correct-answer">緑色（子・孫：素材系）</span>と<span class="correct-answer" style="background: #cce7ff; color: #004085;">青色（親・祖父母：完成品系）</span>のアイテムです！<br>
                 つまり、出題アイテムの<strong>家族関係</strong>にあるアイテムがすべて正解になります。</p>
             </div>
         </div>
@@ -271,7 +271,7 @@
                 <div class="tree-diagram">
                     <h4>ジャイアントベルトの家族関係図</h4>
                     <div class="tree-level">
-                        <div class="tree-label">子（ジャイアントベルトを使って作れるもの）（正解）</div>
+                        <div class="tree-label">親（ジャイアントベルトを使って作れるもの：完成品）（正解）</div>
                         <div class="tree-item synthesis">ウォーモグアーマー</div>
                         <div class="tree-item synthesis">サンファイアイージス</div>
                         <div class="tree-item synthesis">ランデュインオーメン</div>
@@ -284,7 +284,7 @@
                     </div>
                     <div class="tree-arrow">↑</div>
                     <div class="tree-level">
-                        <div class="tree-label">親（ジャイアントベルトを作るのに必要なもの）（正解）</div>
+                        <div class="tree-label">子（ジャイアントベルトの素材：基本アイテム）（正解）</div>
                         <div class="tree-item material">ルビークリスタル</div>
                     </div>
                 </div>
@@ -332,7 +332,7 @@
                 <div class="tree-diagram">
                     <h4>フェアリーチャームの家族関係図</h4>
                     <div class="tree-level">
-                        <div class="tree-label">子（フェアリーチャームを使って作れるもの）（正解）</div>
+                        <div class="tree-label">親（フェアリーチャームを使って作れるもの：完成品）（正解）</div>
                         <div class="tree-item synthesis">アーデントセンサー</div>
                         <div class="tree-item synthesis">フォービドンアイドル</div>
                         <div class="tree-item synthesis">ハーモニックエコー</div>
@@ -345,7 +345,7 @@
                     </div>
                     <div class="tree-arrow">↑</div>
                     <div class="tree-level">
-                        <div class="tree-label">親（フェアリーチャームを作るのに必要なもの）</div>
+                        <div class="tree-label">子（フェアリーチャームの素材）</div>
                         <div class="tree-item" style="background: #f8f9fa; color: #6c757d;">なし（基本アイテム）</div>
                     </div>
                 </div>
