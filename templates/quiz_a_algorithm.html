@@ -133,15 +133,31 @@
             background: #cce7ff;
             border-color: #007bff;
         }
+        .tree-item.cousin {
+            background: #fff2e6;
+            border-color: #ff8c00;
+            border-style: dashed;
+        }
         .tree-arrow {
             font-size: 24px;
             color: #0596aa;
             margin: 10px 0;
         }
+        .tree-arrow-horizontal {
+            font-size: 20px;
+            color: #ff8c00;
+            margin: 0 10px;
+        }
         .tree-label {
             font-size: 14px;
             color: #666;
             margin-bottom: 10px;
+        }
+        .family-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
         }
     </style>
 </head>
@@ -244,7 +260,8 @@
                 </div>
                 
                 <p>正解は<span class="correct-answer">緑色（子・孫：素材系）</span>と<span class="correct-answer" style="background: #cce7ff; color: #004085;">青色（親・祖父母：完成品系）</span>のアイテムです！<br>
-                つまり、出題アイテムの<strong>家族関係</strong>にあるアイテムがすべて正解になります。</p>
+                <span style="background: #fff2e6; color: #ff8c00; padding: 2px 5px; border-radius: 3px;">オレンジ色（兄弟・従兄弟）</span>はひっかけアイテムなので注意！<br>
+                つまり、出題アイテムの<strong>直接の家族関係</strong>にあるアイテムのみが正解になります。</p>
             </div>
         </div>
 
@@ -270,21 +287,33 @@
                 
                 <div class="tree-diagram">
                     <h4>ジャイアントベルトの家族関係図</h4>
+                    
+                    <!-- 親世代 -->
                     <div class="tree-level">
-                        <div class="tree-label">親（ジャイアントベルトを使って作れるもの：完成品）（正解）</div>
+                        <div class="tree-label">親（ジャイアントベルトを使って作れるもの）（正解）</div>
                         <div class="tree-item synthesis">ウォーモグアーマー</div>
                         <div class="tree-item synthesis">サンファイアイージス</div>
                         <div class="tree-item synthesis">ランデュインオーメン</div>
                         <div class="tree-item synthesis">フローズンマレット</div>
                     </div>
                     <div class="tree-arrow">↑</div>
-                    <div class="tree-level">
-                        <div class="tree-label">出題アイテム</div>
+                    
+                    <!-- 出題アイテム世代 -->
+                    <div class="family-row">
+                        <div class="tree-item cousin">キンドルジェム</div>
+                        <div class="tree-arrow-horizontal">←</div>
+                        <div class="tree-item cousin">ライラインドリー</div>
+                        <div class="tree-arrow-horizontal">←</div>
                         <div class="tree-item target">ジャイアントベルト</div>
+                        <div class="tree-arrow-horizontal">→</div>
+                        <div class="tree-item cousin">その他兄弟</div>
                     </div>
+                    <div class="tree-label" style="margin-top: 5px;">兄弟・従兄弟アイテム（ひっかけ）</div>
                     <div class="tree-arrow">↑</div>
+                    
+                    <!-- 子世代 -->
                     <div class="tree-level">
-                        <div class="tree-label">子（ジャイアントベルトの素材：基本アイテム）（正解）</div>
+                        <div class="tree-label">子（ジャイアントベルトの素材）（正解）</div>
                         <div class="tree-item material">ルビークリスタル</div>
                     </div>
                 </div>
@@ -292,9 +321,11 @@
                 <h4>手順2：ひっかけアイテムを探す</h4>
                 <p>正解アイテムと似たような関係にあるアイテムを探します：</p>
                 <ul>
-                    <li>ルビークリスタルを使う他のアイテム：キンドルジェム、ライラインドリークリスタルセプター</li>
-                    <li>ジャイアントベルトアイテムの他の素材：キンドルジェム、ソーンメイル、バミシンダー</li>
+                    <li><strong>兄弟アイテム</strong>：ルビークリスタルを使う他のアイテム（キンドルジェム、ライラインドリークリスタルセプター）</li>
+                    <li><strong>従兄弟アイテム</strong>：兄弟アイテムの子（スピリットビサージュ、トリニティフォース等）</li>
+                    <li><strong>叔父叔母アイテム</strong>：親アイテムの他の素材（ソーンメイル、バミシンダー等）</li>
                 </ul>
+                <p>これらは<strong>家族だけど直接の関係じゃない</strong>ので、ひっかけになります。</p>
                 
                 <h4>手順3：選択肢完成</h4>
                 <p><strong>10個の選択肢例：</strong></p>
@@ -395,10 +426,10 @@
         <div class="algorithm-section">
             <h2>攻略のコツ</h2>
             <ul>
-                <li><strong>アイテムの材料を覚える</strong>：「このアイテムは何から作られているか？」</li>
-                <li><strong>アイテムの使い道を覚える</strong>：「このアイテムは何を作るのに使うか？」</li>
-                <li><strong>似たようなアイテムに注意</strong>：ひっかけに惑わされないように</li>
-                <li><strong>値段も覚える</strong>：高いアイテムほど選択肢に出やすい</li>
+                <li><strong>直接の家族関係を覚える</strong>：「このアイテムの親と子は何か？」</li>
+                <li><strong>兄弟・従兄弟に注意</strong>：「同じ素材を使うけど違うアイテム」はひっかけ</li>
+                <li><strong>材料ツリーを意識</strong>：「素材→中間→完成品」の流れを理解する</li>
+                <li><strong>「直接」がキーワード</strong>：1段階の関係のみが正解、2段階以上は罠</li>
             </ul>
         </div>
 
