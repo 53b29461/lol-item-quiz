@@ -429,27 +429,27 @@
                 
                 elements: [
                     // ノード（アイテム）
-                    { data: { id: 'giants-belt', label: 'ジャイアント\nベルト', type: 'target' } },
-                    { data: { id: 'ruby-crystal', label: 'ルビー\nクリスタル', type: 'child' } },
-                    { data: { id: 'warmog', label: 'ウォーモグ\nアーマー', type: 'parent' } },
-                    { data: { id: 'sunfire', label: 'サンファイア\nイージス', type: 'parent' } },
-                    { data: { id: 'randuins', label: 'ランデュイン\nオーメン', type: 'parent' } },
-                    { data: { id: 'frozen-mallet', label: 'フローズン\nマレット', type: 'parent' } },
-                    { data: { id: 'kindlegem', label: 'キンドル\nジェム', type: 'cousin' } },
-                    { data: { id: 'liandry', label: 'ライラインドリー', type: 'cousin' } },
-                    { data: { id: 'spirit-visage', label: 'スピリット\nビサージュ', type: 'cousin' } },
-                    { data: { id: 'trinity', label: 'トリニティ\nフォース', type: 'cousin' } },
+                    { data: { id: 'giants-belt', label: 'Giant\'s\nBelt', type: 'target' } },
+                    { data: { id: 'ruby-crystal', label: 'Ruby\nCrystal', type: 'child' } },
+                    { data: { id: 'warmog', label: 'Warmog\'s\nArmor', type: 'parent' } },
+                    { data: { id: 'sunfire', label: 'Sunfire\nAegis', type: 'parent' } },
+                    { data: { id: 'randuins', label: 'Randuin\'s\nOmen', type: 'parent' } },
+                    { data: { id: 'heartsteel', label: 'Heartsteel', type: 'parent' } },
+                    { data: { id: 'kindlegem', label: 'Kindlegem', type: 'cousin' } },
+                    { data: { id: 'liandry', label: 'Liandry\'s\nTorment', type: 'cousin' } },
+                    { data: { id: 'crystal-bracer', label: 'Crystal\nBracer', type: 'cousin' } },
+                    { data: { id: 'rylai', label: 'Rylai\'s Crystal\nScepter', type: 'parent' } },
                     
                     // エッジ（関係）
                     { data: { source: 'ruby-crystal', target: 'giants-belt', type: 'parent-child' } },
                     { data: { source: 'giants-belt', target: 'warmog', type: 'parent-child' } },
                     { data: { source: 'giants-belt', target: 'sunfire', type: 'parent-child' } },
                     { data: { source: 'giants-belt', target: 'randuins', type: 'parent-child' } },
-                    { data: { source: 'giants-belt', target: 'frozen-mallet', type: 'parent-child' } },
+                    { data: { source: 'giants-belt', target: 'heartsteel', type: 'parent-child' } },
+                    { data: { source: 'giants-belt', target: 'rylai', type: 'parent-child' } },
                     { data: { source: 'ruby-crystal', target: 'kindlegem', type: 'sibling' } },
-                    { data: { source: 'ruby-crystal', target: 'liandry', type: 'sibling' } },
-                    { data: { source: 'kindlegem', target: 'spirit-visage', type: 'cousin' } },
-                    { data: { source: 'kindlegem', target: 'trinity', type: 'cousin' } }
+                    { data: { source: 'ruby-crystal', target: 'crystal-bracer', type: 'sibling' } },
+                    { data: { source: 'kindlegem', target: 'liandry', type: 'cousin' } }
                 ],
                 
                 style: [
@@ -535,14 +535,14 @@
                     positions: {
                         'giants-belt': { x: 400, y: 200 },
                         'ruby-crystal': { x: 400, y: 300 },
-                        'warmog': { x: 200, y: 100 },
-                        'sunfire': { x: 350, y: 100 },
-                        'randuins': { x: 450, y: 100 },
-                        'frozen-mallet': { x: 600, y: 100 },
+                        'warmog': { x: 150, y: 100 },
+                        'sunfire': { x: 280, y: 100 },
+                        'randuins': { x: 410, y: 100 },
+                        'heartsteel': { x: 540, y: 100 },
+                        'rylai': { x: 670, y: 100 },
                         'kindlegem': { x: 250, y: 300 },
-                        'liandry': { x: 550, y: 300 },
-                        'spirit-visage': { x: 150, y: 200 },
-                        'trinity': { x: 300, y: 150 }
+                        'crystal-bracer': { x: 550, y: 300 },
+                        'liandry': { x: 150, y: 150 }
                     }
                 }
             });
