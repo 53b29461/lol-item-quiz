@@ -185,17 +185,19 @@
                 <p>選んだアイテムに関係するアイテムをすべて見つけて、これが正解になります。</p>
                 <p><strong>正解になるアイテム：</strong></p>
                 <ul>
-                    <li>そのアイテムの素材として使われているアイテム</li>
-                    <li>そのアイテムを素材として使うアイテム</li>
+                    <li><strong>親アイテム</strong>：そのアイテムの直接の素材</li>
+                    <li><strong>子アイテム</strong>：そのアイテムを直接の素材として使うアイテム</li>
+                    <li><strong>祖父母・孫アイテム</strong>：親の親、子の子など、関係が深いアイテム</li>
                 </ul>
             </div>
 
             <div class="step-box">
                 <div class="step-title">
                     <span class="step-number">3</span>
-                    選択肢を10個作る
+                    選択肢を作る（最大10個）
                 </div>
                 <p>正解アイテムと、ひっかけ用のアイテムを混ぜて選択肢を作ります。</p>
+                <p><strong>重要：</strong>関係アイテムが少ない場合は、10個未満（例：8個）の選択肢が表示されることもあります。</p>
                 <p><strong>選択肢に含まれるアイテム：</strong></p>
                 <ul>
                     <li><span class="correct-answer">正解アイテム</span>：手順2で見つけた関係アイテム</li>
@@ -205,16 +207,22 @@
                 <ul>
                     <li>正解アイテムと似たような関係にあるアイテムを探す</li>
                     <li>同じ素材を使う別のアイテムや、似たような素材など</li>
-                    <li>値段が500ゴールド以上のアイテムだけを選ぶ（ポーション、ワード、ロングソードなどの基本アイテムは除く）</li>
+                    <li>重複するアイテムは除いて、ユニークなアイテムのみを選ぶ</li>
                 </ul>
                 
                 <div class="tree-diagram">
-                    <h4>アイテムの関係図</h4>
+                    <h4>アイテムの家族関係図</h4>
                     <div class="tree-level">
-                        <div class="tree-label">このアイテムを使って作れるもの</div>
-                        <div class="tree-item synthesis">完成アイテムA</div>
-                        <div class="tree-item synthesis">完成アイテムB</div>
-                        <div class="tree-item synthesis">完成アイテムC</div>
+                        <div class="tree-label">孫（子の子）</div>
+                        <div class="tree-item synthesis">孫アイテムA</div>
+                        <div class="tree-item synthesis">孫アイテムB</div>
+                    </div>
+                    <div class="tree-arrow">↑</div>
+                    <div class="tree-level">
+                        <div class="tree-label">子（このアイテムを使って作れるもの）</div>
+                        <div class="tree-item synthesis">子アイテムA</div>
+                        <div class="tree-item synthesis">子アイテムB</div>
+                        <div class="tree-item synthesis">子アイテムC</div>
                     </div>
                     <div class="tree-arrow">↑</div>
                     <div class="tree-level">
@@ -223,13 +231,20 @@
                     </div>
                     <div class="tree-arrow">↑</div>
                     <div class="tree-level">
-                        <div class="tree-label">このアイテムを作るのに必要なもの</div>
-                        <div class="tree-item material">素材アイテムA</div>
-                        <div class="tree-item material">素材アイテムB</div>
+                        <div class="tree-label">親（このアイテムを作るのに必要なもの）</div>
+                        <div class="tree-item material">親アイテムA</div>
+                        <div class="tree-item material">親アイテムB</div>
+                    </div>
+                    <div class="tree-arrow">↑</div>
+                    <div class="tree-level">
+                        <div class="tree-label">祖父母（親の親）</div>
+                        <div class="tree-item material">祖父母アイテムA</div>
+                        <div class="tree-item material">祖父母アイテムB</div>
                     </div>
                 </div>
                 
-                <p>正解は<span class="correct-answer">緑色（素材）</span>と<span class="correct-answer" style="background: #cce7ff; color: #004085;">青色（完成品）</span>のアイテムです！</p>
+                <p>正解は<span class="correct-answer">緑色（親・祖父母）</span>と<span class="correct-answer" style="background: #cce7ff; color: #004085;">青色（子・孫）</span>のアイテムです！<br>
+                つまり、出題アイテムの<strong>家族関係</strong>にあるアイテムがすべて正解になります。</p>
             </div>
         </div>
 
@@ -254,9 +269,9 @@
                 </ul>
                 
                 <div class="tree-diagram">
-                    <h4>ジャイアントベルトの関係図</h4>
+                    <h4>ジャイアントベルトの家族関係図</h4>
                     <div class="tree-level">
-                        <div class="tree-label">ジャイアントベルトを使って作れるもの（正解）</div>
+                        <div class="tree-label">子（ジャイアントベルトを使って作れるもの）（正解）</div>
                         <div class="tree-item synthesis">ウォーモグアーマー</div>
                         <div class="tree-item synthesis">サンファイアイージス</div>
                         <div class="tree-item synthesis">ランデュインオーメン</div>
@@ -269,7 +284,7 @@
                     </div>
                     <div class="tree-arrow">↑</div>
                     <div class="tree-level">
-                        <div class="tree-label">ジャイアントベルトを作るのに必要なもの（正解）</div>
+                        <div class="tree-label">親（ジャイアントベルトを作るのに必要なもの）（正解）</div>
                         <div class="tree-item material">ルビークリスタル</div>
                     </div>
                 </div>
@@ -315,9 +330,9 @@
                 </ul>
                 
                 <div class="tree-diagram">
-                    <h4>フェアリーチャームの関係図</h4>
+                    <h4>フェアリーチャームの家族関係図</h4>
                     <div class="tree-level">
-                        <div class="tree-label">フェアリーチャームを使って作れるもの（正解）</div>
+                        <div class="tree-label">子（フェアリーチャームを使って作れるもの）（正解）</div>
                         <div class="tree-item synthesis">アーデントセンサー</div>
                         <div class="tree-item synthesis">フォービドンアイドル</div>
                         <div class="tree-item synthesis">ハーモニックエコー</div>
@@ -330,7 +345,7 @@
                     </div>
                     <div class="tree-arrow">↑</div>
                     <div class="tree-level">
-                        <div class="tree-label">フェアリーチャームを作るのに必要なもの</div>
+                        <div class="tree-label">親（フェアリーチャームを作るのに必要なもの）</div>
                         <div class="tree-item" style="background: #f8f9fa; color: #6c757d;">なし（基本アイテム）</div>
                     </div>
                 </div>
