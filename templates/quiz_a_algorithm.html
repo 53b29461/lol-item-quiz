@@ -342,11 +342,11 @@
                 <div id="giants-belt-graph" class="cytoscape-graph"></div>
                 
                 <div style="margin: 10px 0; font-size: 14px;">
-                    <span style="color: #ffc107;">■</span> 中心アイテム（Giant's Belt）　
-                    <span style="color: #28a745;">■</span> 中心の子（Ruby Crystal）　
+                    <span style="color: #ffc107;">■</span> 中心アイテム（ジャイアントベルト）　
+                    <span style="color: #28a745;">■</span> 中心の子（ルビークリスタル）　
                     <span style="color: #007bff;">■</span> 中心の親（4個）　<br>
-                    <span style="color: #28a745; opacity: 0.7;">□</span> 子の別親（Kindlegem, Winged Moonplate, Phage）　
-                    <span style="color: #007bff; opacity: 0.7;">□</span> 親の別子（4個）
+                    <span style="color: #28a745; opacity: 0.7;">□</span> 子の別親（キンドルジェム、ウイングムーンプレート、ファージ）　
+                    <span style="color: #007bff; opacity: 0.7;">□</span> 関連素材（線なし）
                 </div>
                 
                 <h4>D3.js版 - Force-Directed Layout</h4>
@@ -402,9 +402,9 @@
                 <div id="faerie-charm-graph" class="cytoscape-graph"></div>
                 
                 <div style="margin: 10px 0; font-size: 14px;">
-                    <span style="color: #ffc107;">■</span> 中心アイテム（Faerie Charm）　
-                    <span style="color: #007bff;">■</span> 中心の親（1個）　
-                    <span style="color: #007bff; opacity: 0.7;">□</span> 親の別子（1個）
+                    <span style="color: #ffc107;">■</span> 中心アイテム（フェアリーチャーム）　
+                    <span style="color: #007bff;">■</span> 中心の親（チャリスオブブレッシング）　
+                    <span style="color: #007bff; opacity: 0.7;">□</span> 関連素材（線なし）
                 </div>
                 
                 <div class="tree-diagram">
@@ -491,21 +491,21 @@
                 
                 elements: [
                     // ノード（5層構造）
-                    { data: { id: 'giants-belt', label: 'Giant\'s\\nBelt', type: 'center' } },
-                    { data: { id: 'ruby-crystal', label: 'Ruby\\nCrystal', type: 'center_child' } },
-                    { data: { id: 'parent-3083', label: 'Warmog\'s\\nArmor', type: 'center_parent' } },
-                    { data: { id: 'parent-3143', label: 'Randuin\'s\\nOmen', type: 'center_parent' } },
-                    { data: { id: 'parent-3116', label: 'Rylai\'s\\nCrystal\\nScepter', type: 'center_parent' } },
-                    { data: { id: 'parent-3084', label: 'Heartsteel', type: 'center_parent' } },
-                    { data: { id: 'child-parent-3067', label: 'Kindlegem', type: 'child_other_parent' } },
-                    { data: { id: 'child-parent-3066', label: 'Winged\\nMoonplate', type: 'child_other_parent' } },
-                    { data: { id: 'child-parent-3044', label: 'Phage', type: 'child_other_parent' } },
-                    { data: { id: 'material-3801', label: 'Crystalline\\nBracer', type: 'parent_other_child' } },
-                    { data: { id: 'material-3082', label: 'Warden\'s\\nMail', type: 'parent_other_child' } },
-                    { data: { id: 'material-1026', label: 'Blasting\\nWand', type: 'parent_other_child' } },
-                    { data: { id: 'material-1052', label: 'Amplifying\\nTome', type: 'parent_other_child' } },
+                    { data: { id: 'giants-belt', label: 'ジャイアント\\nベルト', type: 'center' } },
+                    { data: { id: 'ruby-crystal', label: 'ルビー\\nクリスタル', type: 'center_child' } },
+                    { data: { id: 'parent-3083', label: 'ウォーモグ\\nアーマー', type: 'center_parent' } },
+                    { data: { id: 'parent-3143', label: 'ランデュイン\\nオーメン', type: 'center_parent' } },
+                    { data: { id: 'parent-3116', label: 'ライライ\\nクリスタル\\nセプター', type: 'center_parent' } },
+                    { data: { id: 'parent-3084', label: 'ハートスチール', type: 'center_parent' } },
+                    { data: { id: 'child-parent-3067', label: 'キンドルジェム', type: 'child_other_parent' } },
+                    { data: { id: 'child-parent-3066', label: 'ウイング\\nムーンプレート', type: 'child_other_parent' } },
+                    { data: { id: 'child-parent-3044', label: 'ファージ', type: 'child_other_parent' } },
+                    { data: { id: 'material-3801', label: 'クリスタライン\\nブレーサー', type: 'parent_other_child' } },
+                    { data: { id: 'material-3082', label: 'ウォーデン\\nメイル', type: 'parent_other_child' } },
+                    { data: { id: 'material-1026', label: 'ブラスティング\\nワンド', type: 'parent_other_child' } },
+                    { data: { id: 'material-1052', label: 'アンプリファイング\\nトーム', type: 'parent_other_child' } },
                     
-                    // エッジ（関係）
+                    // エッジ（直接の親子関係のみ）
                     { data: { source: 'ruby-crystal', target: 'giants-belt', type: 'child-parent' } },
                     { data: { source: 'giants-belt', target: 'parent-3083', type: 'parent-child' } },
                     { data: { source: 'giants-belt', target: 'parent-3143', type: 'parent-child' } },
@@ -513,11 +513,7 @@
                     { data: { source: 'giants-belt', target: 'parent-3084', type: 'parent-child' } },
                     { data: { source: 'ruby-crystal', target: 'child-parent-3067', type: 'child-parent' } },
                     { data: { source: 'ruby-crystal', target: 'child-parent-3066', type: 'child-parent' } },
-                    { data: { source: 'ruby-crystal', target: 'child-parent-3044', type: 'child-parent' } },
-                    { data: { source: 'material-3801', target: 'parent-3083', type: 'child-parent' } },
-                    { data: { source: 'material-3082', target: 'parent-3143', type: 'child-parent' } },
-                    { data: { source: 'material-1026', target: 'parent-3116', type: 'child-parent' } },
-                    { data: { source: 'material-1052', target: 'parent-3116', type: 'child-parent' } }
+                    { data: { source: 'ruby-crystal', target: 'child-parent-3044', type: 'child-parent' } }
                 ],
                 
                 style: [
@@ -529,7 +525,7 @@
                             'text-valign': 'center',
                             'text-halign': 'center',
                             'text-wrap': 'wrap',
-                            'font-size': '10px',
+                            'font-size': '12px',
                             'color': '#333',
                             'width': 80,
                             'height': 50,
@@ -625,9 +621,9 @@
                 
                 elements: [
                     // ノード（3層構造）
-                    { data: { id: 'faerie-charm', label: 'Faerie\\nCharm', type: 'center' } },
-                    { data: { id: 'parent-3012', label: 'Chalice\\nof\\nBlessing', type: 'center_parent' } },
-                    { data: { id: 'material-1028', label: 'Ruby\\nCrystal', type: 'parent_other_child' } },
+                    { data: { id: 'faerie-charm', label: 'フェアリー\\nチャーム', type: 'center' } },
+                    { data: { id: 'parent-3012', label: 'チャリス\\nオブ\\nブレッシング', type: 'center_parent' } },
+                    { data: { id: 'material-1028', label: 'ルビー\\nクリスタル', type: 'parent_other_child' } },
                     
                     // エッジ（関係）
                     { data: { source: 'faerie-charm', target: 'parent-3012', type: 'parent-child' } },
@@ -643,7 +639,7 @@
                             'text-valign': 'center',
                             'text-halign': 'center',
                             'text-wrap': 'wrap',
-                            'font-size': '10px',
+                            'font-size': '12px',
                             'color': '#333',
                             'width': 80,
                             'height': 50,
@@ -713,19 +709,19 @@
             
             // データ準備
             const nodes = [
-                { id: 'giants-belt', label: 'Giant\'s\nBelt', type: 'center' },
-                { id: 'ruby-crystal', label: 'Ruby\nCrystal', type: 'center_child' },
-                { id: 'parent-3083', label: 'Warmog\'s\nArmor', type: 'center_parent' },
-                { id: 'parent-3143', label: 'Randuin\'s\nOmen', type: 'center_parent' },
-                { id: 'parent-3116', label: 'Rylai\'s\nCrystal\nScepter', type: 'center_parent' },
-                { id: 'parent-3084', label: 'Heartsteel', type: 'center_parent' },
-                { id: 'child-parent-3067', label: 'Kindlegem', type: 'child_other_parent' },
-                { id: 'child-parent-3066', label: 'Winged\nMoonplate', type: 'child_other_parent' },
-                { id: 'child-parent-3044', label: 'Phage', type: 'child_other_parent' },
-                { id: 'material-3801', label: 'Crystalline\nBracer', type: 'parent_other_child' },
-                { id: 'material-3082', label: 'Warden\'s\nMail', type: 'parent_other_child' },
-                { id: 'material-1026', label: 'Blasting\nWand', type: 'parent_other_child' },
-                { id: 'material-1052', label: 'Amplifying\nTome', type: 'parent_other_child' }
+                { id: 'giants-belt', label: 'ジャイアント\nベルト', type: 'center' },
+                { id: 'ruby-crystal', label: 'ルビー\nクリスタル', type: 'center_child' },
+                { id: 'parent-3083', label: 'ウォーモグ\nアーマー', type: 'center_parent' },
+                { id: 'parent-3143', label: 'ランデュイン\nオーメン', type: 'center_parent' },
+                { id: 'parent-3116', label: 'ライライ\nクリスタル\nセプター', type: 'center_parent' },
+                { id: 'parent-3084', label: 'ハートスチール', type: 'center_parent' },
+                { id: 'child-parent-3067', label: 'キンドルジェム', type: 'child_other_parent' },
+                { id: 'child-parent-3066', label: 'ウイング\nムーンプレート', type: 'child_other_parent' },
+                { id: 'child-parent-3044', label: 'ファージ', type: 'child_other_parent' },
+                { id: 'material-3801', label: 'クリスタライン\nブレーサー', type: 'parent_other_child' },
+                { id: 'material-3082', label: 'ウォーデン\nメイル', type: 'parent_other_child' },
+                { id: 'material-1026', label: 'ブラスティング\nワンド', type: 'parent_other_child' },
+                { id: 'material-1052', label: 'アンプリファイング\nトーム', type: 'parent_other_child' }
             ];
             
             const links = [
@@ -736,11 +732,7 @@
                 { source: 'giants-belt', target: 'parent-3084', type: 'parent-child' },
                 { source: 'ruby-crystal', target: 'child-parent-3067', type: 'child-parent' },
                 { source: 'ruby-crystal', target: 'child-parent-3066', type: 'child-parent' },
-                { source: 'ruby-crystal', target: 'child-parent-3044', type: 'child-parent' },
-                { source: 'material-3801', target: 'parent-3083', type: 'child-parent' },
-                { source: 'material-3082', target: 'parent-3143', type: 'child-parent' },
-                { source: 'material-1026', target: 'parent-3116', type: 'child-parent' },
-                { source: 'material-1052', target: 'parent-3116', type: 'child-parent' }
+                { source: 'ruby-crystal', target: 'child-parent-3044', type: 'child-parent' }
             ];
             
             // SVG作成
@@ -822,9 +814,13 @@
             node.append('text')
                 .text(d => d.label.replace(/\\n/g, ' '))
                 .attr('dy', '.35em')
-                .attr('font-size', '10px')
+                .attr('font-size', '12px')
+                .attr('font-weight', 'bold')
                 .attr('text-anchor', 'middle')
-                .attr('fill', '#333');
+                .attr('fill', '#333')
+                .attr('stroke', '#fff')
+                .attr('stroke-width', '2px')
+                .attr('paint-order', 'stroke');
             
             // ドラッグ機能
             node.call(d3.drag()
