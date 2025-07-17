@@ -245,6 +245,108 @@
         let filteredData = null;
         let isPaused = false;
         
+        // Kamada-Kawaiアルゴリズムの実装
+        function calculateKamadaKawaiLayout(nodes, edges, width, height) {
+            const n = nodes.length;
+            if (n === 0) return;
+            
+            // Floyd-Warshallで全ノード間の最短経路を計算
+            const dist = Array(n).fill(null).map(() => Array(n).fill(Infinity));
+            const nodeIndex = {};
+            
+            // ノードのインデックスマッピング
+            nodes.forEach((node, i) => {
+                nodeIndex[node.id] = i;
+                dist[i][i] = 0;
+            });
+            
+            // エッジの距離を設定
+            edges.forEach(edge => {
+                const i = nodeIndex[edge.source.id || edge.source];
+                const j = nodeIndex[edge.target.id || edge.target];
+                if (i !== undefined && j !== undefined) {
+                    dist[i][j] = 1;
+                    dist[j][i] = 1;  // 無向グラフとして扱う
+                }
+            });
+            
+            // Floyd-Warshall
+            for (let k = 0; k < n; k++) {
+                for (let i = 0; i < n; i++) {
+                    for (let j = 0; j < n; j++) {
+                        if (dist[i][k] + dist[k][j] < dist[i][j]) {
+                            dist[i][j] = dist[i][k] + dist[k][j];
+                        }
+                    }
+                }
+            }
+            
+            // 理想的な距離の計算（グラフ理論的距離に基づく）
+            const L = Math.min(width, height) * 0.3;
+            const idealDist = Array(n).fill(null).map(() => Array(n).fill(0));
+            
+            for (let i = 0; i < n; i++) {
+                for (let j = 0; j < n; j++) {
+                    if (dist[i][j] !== Infinity) {
+                        idealDist[i][j] = L * dist[i][j] / Math.max(...dist.flat().filter(d => d !== Infinity));
+                    }
+                }
+            }
+            
+            // 初期配置（円形）
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(width, height) * 0.4;
+            
+            nodes.forEach((node, i) => {
+                const angle = (i / n) * 2 * Math.PI;
+                node.x = centerX + radius * Math.cos(angle);
+                node.y = centerY + radius * Math.sin(angle);
+            });
+            
+            // Kamada-Kawai最適化（簡易版）
+            const maxIterations = 50;
+            const threshold = 0.01;
+            
+            for (let iter = 0; iter < maxIterations; iter++) {
+                let maxDelta = 0;
+                
+                // 各ノードについて最適な位置を計算
+                for (let i = 0; i < n; i++) {
+                    let fx = 0, fy = 0;
+                    
+                    for (let j = 0; j < n; j++) {
+                        if (i !== j && idealDist[i][j] > 0) {
+                            const dx = nodes[j].x - nodes[i].x;
+                            const dy = nodes[j].y - nodes[i].y;
+                            const currentDist = Math.sqrt(dx * dx + dy * dy);
+                            
+                            if (currentDist > 0) {
+                                const force = (idealDist[i][j] - currentDist) / currentDist;
+                                fx += force * dx;
+                                fy += force * dy;
+                            }
+                        }
+                    }
+                    
+                    // 位置を更新
+                    const stepSize = 0.1;
+                    const deltaX = fx * stepSize;
+                    const deltaY = fy * stepSize;
+                    
+                    nodes[i].x += deltaX;
+                    nodes[i].y += deltaY;
+                    
+                    maxDelta = Math.max(maxDelta, Math.abs(deltaX) + Math.abs(deltaY));
+                }
+                
+                // 収束判定
+                if (maxDelta < threshold) break;
+            }
+            
+            return nodes;
+        }
+        
         // 価格フィルターの値更新
         document.getElementById('min-price').addEventListener('input', function() {
             document.getElementById('min-price-value').textContent = this.value + 'G';
@@ -324,26 +426,28 @@
             
             console.log(`ノード数（重複除去後）: ${filteredData.nodes.length}`);
             
-            // 素材アイテムを正多角形に配置
-            const basicItems = filteredData.nodes.filter(d => d.category === 'basic');
-            const radius = Math.min(width, height) * 0.35;
-            const centerX = width / 2;
-            const centerY = height / 2;
+            // 第3段階: ハイブリッドアプローチ
+            // Kamada-Kawaiで初期配置を計算
+            calculateKamadaKawaiLayout(filteredData.nodes, filteredData.edges, width, height);
             
-            basicItems.forEach((d, i) => {
-                const angle = (i / basicItems.length) * 2 * Math.PI;
-                d.fx = centerX + radius * Math.cos(angle);
-                d.fy = centerY + radius * Math.sin(angle);
-            });
-            
-            // シミュレーションを初期化（重複防止大幅強化）
+            // D3 forceSimulationで微調整（より穏やかな設定）
             simulation = d3.forceSimulation(filteredData.nodes)
-                .force('link', d3.forceLink(filteredData.edges).id(d => d.id).distance(120).strength(0.2))
-                .force('charge', d3.forceManyBody().strength(-800))
+                .force('link', d3.forceLink(filteredData.edges)
+                    .id(d => d.id)
+                    .distance(60)  // 短い辺を目指す
+                    .strength(1.0))  // 強い引力
+                .force('charge', d3.forceManyBody()
+                    .strength(-300)  // 適度な斥力
+                    .distanceMax(200))  // 遠距離の影響を制限
                 .force('center', d3.forceCenter(width / 2, height / 2))
-                .force('collision', d3.forceCollide().radius(d => getNodeRadius(d) + 15).strength(1.5).iterations(5))
-                .force('x', d3.forceX(width / 2).strength(0.05))
-                .force('y', d3.forceY(height / 2).strength(0.05));
+                .force('collision', d3.forceCollide()
+                    .radius(d => getNodeRadius(d) + 5)  // 最小限の間隔
+                    .strength(1.0)
+                    .iterations(3))
+                .force('x', d3.forceX(width / 2).strength(0.1))
+                .force('y', d3.forceY(height / 2).strength(0.1))
+                .alphaDecay(0.01)  // ゆっくり収束
+                .velocityDecay(0.3);  // 速度減衰を調整
             
             // エッジを描画
             const linkGroup = g.append('g').attr('class', 'links');
@@ -375,6 +479,7 @@
                 .data(filteredData.nodes)
                 .join('g')
                 .attr('class', 'node')
+                .attr('transform', d => `translate(${d.x},${d.y})`)  // 初期位置を設定
                 .call(d3.drag()
                     .on('start', dragstarted)
                     .on('drag', dragged)
@@ -468,11 +573,9 @@
         
         function dragended(event, d) {
             if (!event.active) simulation.alphaTarget(0);
-            // 素材アイテムは正多角形位置を維持
-            if (d.category !== 'basic') {
-                d.fx = null;
-                d.fy = null;
-            }
+            // 全てのノードを自由に配置
+            d.fx = null;
+            d.fy = null;
         }
         
         
@@ -504,20 +607,10 @@
             
             console.log(`フィルタ後ノード数（重複除去後）: ${filteredData.nodes.length}`);
             
-            // 素材アイテムを正多角形に配置
+            // 第1段階: 全ノードを自由配置に変更
             const container = document.getElementById('d3-full-graph');
             const width = container.clientWidth;
             const height = container.clientHeight;
-            const basicItems = filteredData.nodes.filter(d => d.category === 'basic');
-            const radius = Math.min(width, height) * 0.35;
-            const centerX = width / 2;
-            const centerY = height / 2;
-            
-            basicItems.forEach((d, i) => {
-                const angle = (i / basicItems.length) * 2 * Math.PI;
-                d.fx = centerX + radius * Math.cos(angle);
-                d.fy = centerY + radius * Math.sin(angle);
-            });
             
             // シミュレーションを再初期化
             simulation.nodes(filteredData.nodes);
@@ -597,31 +690,25 @@
         function resetLayout() {
             if (!simulation) return;
             
-            // 素材アイテム以外の固定を解除
-            filteredData.nodes.forEach(d => {
-                if (d.category !== 'basic') {
-                    d.fx = null;
-                    d.fy = null;
-                }
-            });
-            
-            // 素材アイテムを正多角形に再配置
+            // Kamada-Kawaiで再配置
             const container = document.getElementById('d3-full-graph');
             const width = container.clientWidth;
             const height = container.clientHeight;
-            const basicItems = filteredData.nodes.filter(d => d.category === 'basic');
-            const radius = Math.min(width, height) * 0.35;
-            const centerX = width / 2;
-            const centerY = height / 2;
             
-            basicItems.forEach((d, i) => {
-                const angle = (i / basicItems.length) * 2 * Math.PI;
-                d.fx = centerX + radius * Math.cos(angle);
-                d.fy = centerY + radius * Math.sin(angle);
+            // 全ノードの固定を解除
+            filteredData.nodes.forEach(d => {
+                d.fx = null;
+                d.fy = null;
             });
             
-            // シミュレーションを再開
-            simulation.alpha(1).restart();
+            // Kamada-Kawaiアルゴリズムで再計算
+            calculateKamadaKawaiLayout(filteredData.nodes, filteredData.edges, width, height);
+            
+            // ノードの位置を即座に更新
+            nodes.attr('transform', d => `translate(${d.x},${d.y})`);
+            
+            // シミュレーションを再開（微調整のため）
+            simulation.alpha(0.3).restart();
         }
         
         function zoomToFit() {

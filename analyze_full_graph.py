@@ -39,9 +39,36 @@ def analyze_full_graph():
     print(f'=== 出題範囲全アイテム分析 ===')
     print(f'総アイテム数: {len(filtered_items)}')
     
+    # 同名アイテムの重複除去（より低いIDを優先）
+    name_to_item = {}
+    for item_id, item in filtered_items.items():
+        name = item['name']
+        if name not in name_to_item:
+            name_to_item[name] = (item_id, item)
+        else:
+            # より小さいIDを優先（通常版を優先）
+            existing_id = name_to_item[name][0]
+            try:
+                if int(item_id) < int(existing_id):
+                    print(f'重複除去: {name} - {existing_id} を {item_id} で置換')
+                    name_to_item[name] = (item_id, item)
+                else:
+                    print(f'重複除去: {name} - {item_id} をスキップ（{existing_id} を使用）')
+            except ValueError:
+                # 数値変換できない場合は文字列比較
+                if item_id < existing_id:
+                    print(f'重複除去: {name} - {existing_id} を {item_id} で置換')
+                    name_to_item[name] = (item_id, item)
+                else:
+                    print(f'重複除去: {name} - {item_id} をスキップ（{existing_id} を使用）')
+    
+    # 重複除去後のアイテム辞書
+    unique_items = {item_id: item for item_id, item in name_to_item.values()}
+    print(f'重複除去: {len(filtered_items)} → {len(unique_items)} アイテム')
+    
     # 関係性ベース分類
     into_map = {}
-    for item_id, item in filtered_items.items():
+    for item_id, item in unique_items.items():
         if 'from' in item:
             for material_id in item['from']:
                 if material_id not in into_map:
@@ -55,7 +82,7 @@ def analyze_full_graph():
     nodes = []
     edges = []
     
-    for item_id, item in filtered_items.items():
+    for item_id, item in unique_items.items():
         has_from = 'from' in item
         has_into = item_id in into_map
         price = item['gold']['total']
@@ -92,7 +119,7 @@ def analyze_full_graph():
         # エッジデータ（親子関係）
         if 'from' in item:
             for material_id in item['from']:
-                if material_id in filtered_items:
+                if material_id in unique_items:
                     edges.append({
                         'source': material_id,
                         'target': item_id,
@@ -111,7 +138,7 @@ def analyze_full_graph():
         'nodes': nodes,
         'edges': edges,
         'stats': {
-            'total_items': len(filtered_items),
+            'total_items': len(unique_items),
             'basic_items': len(basic_items),
             'intermediate_items': len(intermediate_items),
             'legendary_items': len(legendary_items),
