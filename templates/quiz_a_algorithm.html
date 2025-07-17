@@ -342,9 +342,9 @@
                 <div id="giants-belt-graph" class="cytoscape-graph"></div>
                 
                 <div style="margin: 10px 0; font-size: 14px;">
-                    <span style="color: #28a745;">■</span> 素材アイテム（799G以下）　
-                    <span style="color: #007bff;">■</span> 中間アイテム（800-1600G）　
-                    <span style="color: #ffc107;">■</span> レジェンダリーアイテム（1601G+）
+                    <span style="color: #28a745;">■</span> 素材アイテム（子がいない）　
+                    <span style="color: #007bff;">■</span> 中間アイテム（親も子もいる）　
+                    <span style="color: #ffc107;">■</span> レジェンダリーアイテム（親がいない）
                 </div>
                 
                 <h4>D3.js版 - Force-Directed Layout</h4>
@@ -400,8 +400,8 @@
                 <div id="faerie-charm-graph" class="cytoscape-graph"></div>
                 
                 <div style="margin: 10px 0; font-size: 14px;">
-                    <span style="color: #28a745;">■</span> 素材アイテム（799G以下）　
-                    <span style="color: #007bff;">■</span> 中間アイテム（800-1600G）
+                    <span style="color: #28a745;">■</span> 素材アイテム（子がいない）　
+                    <span style="color: #007bff;">■</span> 中間アイテム（親も子もいる）
                 </div>
                 
                 <div class="tree-diagram">
@@ -599,21 +599,21 @@
                             'border-style': 'dotted'
                         }
                     },
-                    // 素材アイテム（799G以下）- 小サイズ・緑系
+                    // 素材アイテム（子がいない）- 小サイズ・緑系
                     {
-                        selector: 'node[id="ruby-crystal"], node[id="material-1052"], node[id="material-2022"], node[id="material-1006"], node[id="material-1036"], node[id="material-1029-1"], node[id="material-1029-2"]',
+                        selector: 'node[id="ruby-crystal"], node[id="material-1052"], node[id="material-2022"], node[id="material-1006"], node[id="material-1036"], node[id="material-1029-1"], node[id="material-1029-2"], node[id="material-1026"]',
                         style: {
                             'background-color': '#d4edda',
                             'border-color': '#28a745',
                             'border-width': 3,
-                            'width': 60,
-                            'height': 40,
+                            'width': 70,
+                            'height': 45,
                             'font-size': '11px'
                         }
                     },
-                    // 中間アイテム（800-1600G）- 中サイズ・青系
+                    // 中間アイテム（親も子もいる）- 中サイズ・青系
                     {
-                        selector: 'node[id="child-parent-3067"], node[id="child-parent-3066"], node[id="material-3801"], node[id="material-1026"], node[id="giants-belt"], node[id="material-3082"], node[id="child-parent-3044"]',
+                        selector: 'node[id="child-parent-3067"], node[id="child-parent-3066"], node[id="material-3801"], node[id="giants-belt"], node[id="material-3082"], node[id="child-parent-3044"]',
                         style: {
                             'background-color': '#cce7ff',
                             'border-color': '#007bff',
@@ -884,23 +884,23 @@
                 .join('g')
                 .attr('class', 'node');
             
-            // アイテム価格帯でサイズ決定（1600G基準）
+            // アイテム関係性でサイズ決定
             const getNodeRadius = (id) => {
-                // 素材アイテム（799G以下）- 小サイズ
-                if (['ruby-crystal', 'material-1052', 'material-2022', 'material-1006', 'material-1036', 'material-1029-1', 'material-1029-2'].includes(id)) return 15;
-                // レジェンダリーアイテム（1601G+）- 大サイズ
+                // 素材アイテム（子がいない）- 小サイズ
+                if (['ruby-crystal', 'material-1052', 'material-2022', 'material-1006', 'material-1036', 'material-1029-1', 'material-1029-2', 'material-1026'].includes(id)) return 15;
+                // レジェンダリーアイテム（親がいない）- 大サイズ
                 if (['parent-3116', 'parent-3143', 'parent-3084', 'parent-3083'].includes(id)) return 25;
-                // 中間アイテム（800-1600G）- 中サイズ（デフォルト）
+                // 中間アイテム（親も子もいる）- 中サイズ（デフォルト）
                 return 20;
             };
             
-            // アイテム価格帯で色決定（1600G基準）
+            // アイテム関係性で色決定
             const getNodeColor = (id) => {
-                // 素材アイテム（799G以下）- 緑系
-                if (['ruby-crystal', 'material-1052', 'material-2022', 'material-1006', 'material-1036', 'material-1029-1', 'material-1029-2'].includes(id)) return { fill: '#d4edda', stroke: '#28a745' };
-                // レジェンダリーアイテム（1601G+）- 金系
+                // 素材アイテム（子がいない）- 緑系
+                if (['ruby-crystal', 'material-1052', 'material-2022', 'material-1006', 'material-1036', 'material-1029-1', 'material-1029-2', 'material-1026'].includes(id)) return { fill: '#d4edda', stroke: '#28a745' };
+                // レジェンダリーアイテム（親がいない）- 金系
                 if (['parent-3116', 'parent-3143', 'parent-3084', 'parent-3083'].includes(id)) return { fill: '#fff3cd', stroke: '#ffc107' };
-                // 中間アイテム（800-1600G）- 青系（デフォルト）
+                // 中間アイテム（親も子もいる）- 青系（デフォルト）
                 return { fill: '#cce7ff', stroke: '#007bff' };
             };
             
@@ -920,11 +920,11 @@
                 .text(d => d.label.replace(/\\n/g, ' '))
                 .attr('dy', '.35em')
                 .attr('font-size', d => {
-                    // 素材アイテム（799G以下）
-                    if (['ruby-crystal', 'material-1052', 'material-2022', 'material-1006', 'material-1036', 'material-1029-1', 'material-1029-2'].includes(d.id)) return '10px';
-                    // レジェンダリーアイテム（1601G+）
+                    // 素材アイテム（子がいない）
+                    if (['ruby-crystal', 'material-1052', 'material-2022', 'material-1006', 'material-1036', 'material-1029-1', 'material-1029-2', 'material-1026'].includes(d.id)) return '10px';
+                    // レジェンダリーアイテム（親がいない）
                     if (['parent-3116', 'parent-3143', 'parent-3084', 'parent-3083'].includes(d.id)) return '13px';
-                    // 中間アイテム（800-1600G）
+                    // 中間アイテム（親も子もいる）
                     return '12px';
                 })
                 .attr('font-weight', d => {
