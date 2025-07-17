@@ -532,8 +532,8 @@
                             'text-wrap': 'wrap',
                             'font-size': '12px',
                             'color': '#333',
-                            'width': 80,
-                            'height': 50,
+                            'width': 60,
+                            'height': 40,
                             'border-width': 2,
                             'border-color': '#ccc'
                         }
@@ -580,22 +580,46 @@
                             'border-style': 'dotted'
                         }
                     },
+                    // 素材アイテム（799G以下）- 小サイズ
+                    {
+                        selector: 'node[id="ruby-crystal"], node[id="material-1052"]',
+                        style: {
+                            'width': 60,
+                            'height': 40,
+                            'font-size': '11px'
+                        }
+                    },
+                    // 中間アイテム（800-2999G）- 中サイズ
+                    {
+                        selector: 'node[id="child-parent-3067"], node[id="child-parent-3066"], node[id="material-3801"], node[id="material-1026"], node[id="giants-belt"], node[id="material-3082"], node[id="child-parent-3044"], node[id="parent-3116"], node[id="parent-3143"]',
+                        style: {
+                            'width': 80,
+                            'height': 50,
+                            'font-size': '12px'
+                        }
+                    },
+                    // レジェンダリーアイテム（3000G+）- 大サイズ
+                    {
+                        selector: 'node[id="parent-3084"], node[id="parent-3083"]',
+                        style: {
+                            'width': 100,
+                            'height': 60,
+                            'font-size': '13px',
+                            'font-weight': 'bold'
+                        }
+                    },
                     {
                         selector: 'edge[type="parent-child"]',
                         style: {
                             'width': 3,
-                            'line-color': '#0596aa',
-                            'target-arrow-color': '#0596aa',
-                            'target-arrow-shape': 'triangle'
+                            'line-color': '#0596aa'
                         }
                     },
                     {
                         selector: 'edge[type="child-parent"]',
                         style: {
                             'width': 3,
-                            'line-color': '#28a745',
-                            'target-arrow-color': '#28a745',
-                            'target-arrow-shape': 'triangle'
+                            'line-color': '#28a745'
                         }
                     }
                 ],
@@ -646,8 +670,8 @@
                             'text-wrap': 'wrap',
                             'font-size': '12px',
                             'color': '#333',
-                            'width': 80,
-                            'height': 50,
+                            'width': 60,
+                            'height': 40,
                             'border-width': 2,
                             'border-color': '#ccc'
                         }
@@ -678,22 +702,36 @@
                             'border-style': 'dotted'
                         }
                     },
+                    // 素材アイテム（799G以下）- 小サイズ
+                    {
+                        selector: 'node[id="faerie-charm"], node[id="material-1028"]',
+                        style: {
+                            'width': 60,
+                            'height': 40,
+                            'font-size': '11px'
+                        }
+                    },
+                    // 中間アイテム（800-2999G）- 中サイズ
+                    {
+                        selector: 'node[id="parent-3012"]',
+                        style: {
+                            'width': 80,
+                            'height': 50,
+                            'font-size': '12px'
+                        }
+                    },
                     {
                         selector: 'edge[type="parent-child"]',
                         style: {
                             'width': 3,
-                            'line-color': '#0596aa',
-                            'target-arrow-color': '#0596aa',
-                            'target-arrow-shape': 'triangle'
+                            'line-color': '#0596aa'
                         }
                     },
                     {
                         selector: 'edge[type="child-parent"]',
                         style: {
                             'width': 3,
-                            'line-color': '#28a745',
-                            'target-arrow-color': '#28a745',
-                            'target-arrow-shape': 'triangle'
+                            'line-color': '#28a745'
                         }
                     }
                 ],
@@ -767,26 +805,12 @@
                 .force('center', d3.forceCenter(width / 2, height / 2))
                 .force('collision', d3.forceCollide().radius(40));
             
-            // エッジ描画
+            // エッジ描画（無向グラフ）
             const link = g.append('g')
                 .selectAll('line')
                 .data(links)
                 .join('line')
-                .attr('class', d => `link ${d.type}`)
-                .attr('marker-end', 'url(#arrowhead)');
-            
-            // 矢印マーカー定義
-            svg.append('defs').append('marker')
-                .attr('id', 'arrowhead')
-                .attr('viewBox', '0 -5 10 10')
-                .attr('refX', 25)
-                .attr('refY', 0)
-                .attr('markerWidth', 6)
-                .attr('markerHeight', 6)
-                .attr('orient', 'auto')
-                .append('path')
-                .attr('d', 'M0,-5L10,0L0,5')
-                .attr('fill', '#999');
+                .attr('class', d => `link ${d.type}`);
             
             // ノード描画
             const node = g.append('g')
@@ -795,9 +819,19 @@
                 .join('g')
                 .attr('class', 'node');
             
+            // アイテム価格帯でサイズ決定
+            const getNodeRadius = (id) => {
+                // 素材アイテム（799G以下）- 小サイズ
+                if (['ruby-crystal', 'material-1052'].includes(id)) return 15;
+                // レジェンダリーアイテム（3000G+）- 大サイズ
+                if (['parent-3084', 'parent-3083'].includes(id)) return 25;
+                // 中間アイテム（800-2999G）- 中サイズ（デフォルト）
+                return 20;
+            };
+            
             // ノードの円
             node.append('circle')
-                .attr('r', d => d.type === 'center' ? 25 : 20)
+                .attr('r', d => getNodeRadius(d.id))
                 .attr('fill', d => {
                     switch(d.type) {
                         case 'center': return '#fff3cd';
@@ -820,12 +854,23 @@
                 })
                 .attr('stroke-width', d => d.type === 'center' ? 4 : 2);
             
-            // ノードのテキスト
+            // ノードのテキスト（サイズ別フォントサイズ）
             node.append('text')
                 .text(d => d.label.replace(/\\n/g, ' '))
                 .attr('dy', '.35em')
-                .attr('font-size', '12px')
-                .attr('font-weight', 'bold')
+                .attr('font-size', d => {
+                    // 素材アイテム（799G以下）
+                    if (['ruby-crystal', 'material-1052'].includes(d.id)) return '10px';
+                    // レジェンダリーアイテム（3000G+）
+                    if (['parent-3084', 'parent-3083'].includes(d.id)) return '13px';
+                    // 中間アイテム（800-2999G）
+                    return '12px';
+                })
+                .attr('font-weight', d => {
+                    // レジェンダリーアイテムは太字
+                    if (['parent-3084', 'parent-3083'].includes(d.id)) return 'bold';
+                    return 'normal';
+                })
                 .attr('text-anchor', 'middle')
                 .attr('fill', '#333')
                 .attr('stroke', '#fff')
