@@ -342,11 +342,9 @@
                 <div id="giants-belt-graph" class="cytoscape-graph"></div>
                 
                 <div style="margin: 10px 0; font-size: 14px;">
-                    <span style="color: #ffc107;">■</span> 中心アイテム（ジャイアントベルト）　
-                    <span style="color: #28a745;">■</span> 中心の子（ルビークリスタル）　
-                    <span style="color: #007bff;">■</span> 中心の親（4個）　<br>
-                    <span style="color: #28a745; opacity: 0.7;">□</span> 子の別親（キンドルジェム、ウイングムーンプレート、ファージ）　
-                    <span style="color: #007bff; opacity: 0.7;">□</span> 親の子どもたち（線あり）
+                    <span style="color: #28a745;">■</span> 素材アイテム（799G以下）　
+                    <span style="color: #007bff;">■</span> 中間アイテム（800-2999G）　
+                    <span style="color: #ffc107;">■</span> レジェンダリーアイテム（3000G+）
                 </div>
                 
                 <h4>D3.js版 - Force-Directed Layout</h4>
@@ -402,9 +400,8 @@
                 <div id="faerie-charm-graph" class="cytoscape-graph"></div>
                 
                 <div style="margin: 10px 0; font-size: 14px;">
-                    <span style="color: #ffc107;">■</span> 中心アイテム（フェアリーチャーム）　
-                    <span style="color: #007bff;">■</span> 中心の親（チャリスオブブレッシング）　
-                    <span style="color: #007bff; opacity: 0.7;">□</span> 関連素材（線なし）
+                    <span style="color: #28a745;">■</span> 素材アイテム（799G以下）　
+                    <span style="color: #007bff;">■</span> 中間アイテム（800-2999G）
                 </div>
                 
                 <div class="tree-diagram">
@@ -580,28 +577,37 @@
                             'border-style': 'dotted'
                         }
                     },
-                    // 素材アイテム（799G以下）- 小サイズ
+                    // 素材アイテム（799G以下）- 小サイズ・緑系
                     {
                         selector: 'node[id="ruby-crystal"], node[id="material-1052"]',
                         style: {
+                            'background-color': '#d4edda',
+                            'border-color': '#28a745',
+                            'border-width': 3,
                             'width': 60,
                             'height': 40,
                             'font-size': '11px'
                         }
                     },
-                    // 中間アイテム（800-2999G）- 中サイズ
+                    // 中間アイテム（800-2999G）- 中サイズ・青系
                     {
                         selector: 'node[id="child-parent-3067"], node[id="child-parent-3066"], node[id="material-3801"], node[id="material-1026"], node[id="giants-belt"], node[id="material-3082"], node[id="child-parent-3044"], node[id="parent-3116"], node[id="parent-3143"]',
                         style: {
+                            'background-color': '#cce7ff',
+                            'border-color': '#007bff',
+                            'border-width': 3,
                             'width': 80,
                             'height': 50,
                             'font-size': '12px'
                         }
                     },
-                    // レジェンダリーアイテム（3000G+）- 大サイズ
+                    // レジェンダリーアイテム（3000G+）- 大サイズ・金/赤系
                     {
                         selector: 'node[id="parent-3084"], node[id="parent-3083"]',
                         style: {
+                            'background-color': '#fff3cd',
+                            'border-color': '#ffc107',
+                            'border-width': 4,
                             'width': 100,
                             'height': 60,
                             'font-size': '13px',
@@ -702,19 +708,25 @@
                             'border-style': 'dotted'
                         }
                     },
-                    // 素材アイテム（799G以下）- 小サイズ
+                    // 素材アイテム（799G以下）- 小サイズ・緑系
                     {
                         selector: 'node[id="faerie-charm"], node[id="material-1028"]',
                         style: {
+                            'background-color': '#d4edda',
+                            'border-color': '#28a745',
+                            'border-width': 3,
                             'width': 60,
                             'height': 40,
                             'font-size': '11px'
                         }
                     },
-                    // 中間アイテム（800-2999G）- 中サイズ
+                    // 中間アイテム（800-2999G）- 中サイズ・青系
                     {
                         selector: 'node[id="parent-3012"]',
                         style: {
+                            'background-color': '#cce7ff',
+                            'border-color': '#007bff',
+                            'border-width': 3,
                             'width': 80,
                             'height': 50,
                             'font-size': '12px'
@@ -829,30 +841,26 @@
                 return 20;
             };
             
+            // アイテム価格帯で色決定
+            const getNodeColor = (id) => {
+                // 素材アイテム（799G以下）- 緑系
+                if (['ruby-crystal', 'material-1052'].includes(id)) return { fill: '#d4edda', stroke: '#28a745' };
+                // レジェンダリーアイテム（3000G+）- 金系
+                if (['parent-3084', 'parent-3083'].includes(id)) return { fill: '#fff3cd', stroke: '#ffc107' };
+                // 中間アイテム（800-2999G）- 青系（デフォルト）
+                return { fill: '#cce7ff', stroke: '#007bff' };
+            };
+            
             // ノードの円
             node.append('circle')
                 .attr('r', d => getNodeRadius(d.id))
-                .attr('fill', d => {
-                    switch(d.type) {
-                        case 'center': return '#fff3cd';
-                        case 'center_child': return '#d4edda';
-                        case 'center_parent': return '#cce7ff';
-                        case 'child_other_parent': return '#e2f7e2';
-                        case 'parent_other_child': return '#e6f3ff';
-                        default: return '#f0f0f0';
-                    }
-                })
-                .attr('stroke', d => {
-                    switch(d.type) {
-                        case 'center': return '#ffc107';
-                        case 'center_child': return '#28a745';
-                        case 'center_parent': return '#007bff';
-                        case 'child_other_parent': return '#28a745';
-                        case 'parent_other_child': return '#007bff';
-                        default: return '#ccc';
-                    }
-                })
-                .attr('stroke-width', d => d.type === 'center' ? 4 : 2);
+                .attr('fill', d => getNodeColor(d.id).fill)
+                .attr('stroke', d => getNodeColor(d.id).stroke)
+                .attr('stroke-width', d => {
+                    // レジェンダリーアイテムは太いボーダー
+                    if (['parent-3084', 'parent-3083'].includes(d.id)) return 4;
+                    return 3;
+                });
             
             // ノードのテキスト（サイズ別フォントサイズ）
             node.append('text')
