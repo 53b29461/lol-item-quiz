@@ -505,7 +505,7 @@
             console.log(`ノード数（重複除去後）: ${filteredData.nodes.length}`);
             
             // 辺の長さ均等化システム
-            const IDEAL_EDGE_LENGTH = 80;  // 理想的な辺の長さ
+            const IDEAL_EDGE_LENGTH = 120;  // 理想的な辺の長さ（1.5倍）
             const centerX = width / 2;
             const centerY = height / 2;
             
@@ -823,7 +823,7 @@
             const height = container.clientHeight;
             const centerX = width / 2;
             const centerY = height / 2;
-            const IDEAL_EDGE_LENGTH = 80;
+            const IDEAL_EDGE_LENGTH = 120;
             
             // 全ノードを中心付近にランダム配置
             filteredData.nodes.forEach(d => {
