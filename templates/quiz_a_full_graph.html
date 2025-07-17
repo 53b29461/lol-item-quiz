@@ -426,16 +426,53 @@
             
             console.log(`ノード数（重複除去後）: ${filteredData.nodes.length}`);
             
-            // パフォーマンス最適化: Kamada-Kawaiをスキップし、シンプルな初期配置
-            // 円形配置で初期化（軽量）
+            // 素材アイテムの最適配置順（接続度に基づく）
+            const optimalBasicOrder = [
+                '1036', // ロング ソード
+                '1018', // アジリティ クローク
+                '1037', // ピッケル
+                '1038', // B. F. ソード
+                '1028', // ルビー クリスタル
+                '2022', // 輝きのモート
+                '1052', // 増魔の書
+                '1027', // サファイア クリスタル
+                '1029', // クロース アーマー
+                '1033', // ヌルマジック マント
+                '1004', // フェアリー チャーム
+                '1042', // ダガー
+                '1006', // 再生の珠
+                '1026', // ブラスティング ワンド
+                '3070', // 女神の涙
+                '1058', // ムダニ デカイ ロッド
+                '4638'  // ウォッチフル ワードストーン
+            ];
+            
+            // 素材アイテムを最適順で配置
             const centerX = width / 2;
             const centerY = height / 2;
             const radius = Math.min(width, height) * 0.35;
             
-            filteredData.nodes.forEach((d, i) => {
-                const angle = (i / filteredData.nodes.length) * 2 * Math.PI;
-                d.x = centerX + radius * Math.cos(angle);
-                d.y = centerY + radius * Math.sin(angle);
+            const basicItems = filteredData.nodes.filter(d => d.category === 'basic');
+            const otherItems = filteredData.nodes.filter(d => d.category !== 'basic');
+            
+            // 素材アイテムを最適順で正多角形に配置
+            basicItems.forEach((d) => {
+                const orderIndex = optimalBasicOrder.indexOf(d.id);
+                if (orderIndex !== -1) {
+                    const angle = (orderIndex / optimalBasicOrder.length) * 2 * Math.PI - Math.PI / 2; // 上から開始
+                    d.x = centerX + radius * Math.cos(angle);
+                    d.y = centerY + radius * Math.sin(angle);
+                    d.fx = d.x;  // 固定
+                    d.fy = d.y;
+                }
+            });
+            
+            // その他のアイテムは中心付近にランダム配置
+            otherItems.forEach((d) => {
+                const angle = Math.random() * 2 * Math.PI;
+                const r = Math.random() * radius * 0.6;
+                d.x = centerX + r * Math.cos(angle);
+                d.y = centerY + r * Math.sin(angle);
             });
             
             // D3 forceSimulation（最適化版）
@@ -586,9 +623,11 @@
         
         function dragended(event, d) {
             if (!event.active) simulation.alphaTarget(0);
-            // 全てのノードを自由に配置
-            d.fx = null;
-            d.fy = null;
+            // 素材アイテムは固定位置を維持
+            if (d.category !== 'basic') {
+                d.fx = null;
+                d.fy = null;
+            }
         }
         
         
@@ -605,6 +644,13 @@
                 filteredNodeIds.has(d.source) && filteredNodeIds.has(d.target)
             );
             
+            // optimalBasicOrderを関数内で定義
+            const optimalBasicOrder = [
+                '1036', '1018', '1037', '1038', '1028', '2022', '1052',
+                '1027', '1029', '1033', '1004', '1042', '1006', '1026',
+                '3070', '1058', '4638'
+            ];
+            
             // データを更新（重複除去）
             const uniqueFilteredNodes = new Map();
             filteredNodes.forEach(node => {
@@ -620,10 +666,26 @@
             
             console.log(`フィルタ後ノード数（重複除去後）: ${filteredData.nodes.length}`);
             
-            // 第1段階: 全ノードを自由配置に変更
+            // 素材アイテムを最適配置で固定
             const container = document.getElementById('d3-full-graph');
             const width = container.clientWidth;
             const height = container.clientHeight;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(width, height) * 0.35;
+            
+            // フィルタ後も素材アイテムの最適配置を維持
+            const basicFilteredItems = filteredData.nodes.filter(d => d.category === 'basic');
+            basicFilteredItems.forEach((d) => {
+                const orderIndex = optimalBasicOrder.indexOf(d.id);
+                if (orderIndex !== -1) {
+                    const angle = (orderIndex / optimalBasicOrder.length) * 2 * Math.PI - Math.PI / 2;
+                    d.x = centerX + radius * Math.cos(angle);
+                    d.y = centerY + radius * Math.sin(angle);
+                    d.fx = d.x;
+                    d.fy = d.y;
+                }
+            });
             
             // シミュレーションを再初期化
             simulation.nodes(filteredData.nodes);
@@ -703,10 +765,37 @@
         function resetLayout() {
             if (!simulation) return;
             
-            // 全ノードの固定を解除
+            const container = document.getElementById('d3-full-graph');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(width, height) * 0.35;
+            
+            // optimalBasicOrderを関数内で定義
+            const optimalBasicOrder = [
+                '1036', '1018', '1037', '1038', '1028', '2022', '1052',
+                '1027', '1029', '1033', '1004', '1042', '1006', '1026',
+                '3070', '1058', '4638'
+            ];
+            
+            // 素材アイテムを最適配置に再配置
+            const basicItems = filteredData.nodes.filter(d => d.category === 'basic');
+            basicItems.forEach((d) => {
+                const orderIndex = optimalBasicOrder.indexOf(d.id);
+                if (orderIndex !== -1) {
+                    const angle = (orderIndex / optimalBasicOrder.length) * 2 * Math.PI - Math.PI / 2;
+                    d.fx = centerX + radius * Math.cos(angle);
+                    d.fy = centerY + radius * Math.sin(angle);
+                }
+            });
+            
+            // その他のノードの固定を解除
             filteredData.nodes.forEach(d => {
-                d.fx = null;
-                d.fy = null;
+                if (d.category !== 'basic') {
+                    d.fx = null;
+                    d.fy = null;
+                }
             });
             
             // シミュレーションを再開
