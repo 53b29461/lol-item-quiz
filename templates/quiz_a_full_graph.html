@@ -307,11 +307,22 @@
             // グラフコンテナ
             g = svg.append('g');
             
-            // データをコピー
+            // データをコピー（重複除去）
+            const uniqueNodes = new Map();
+            fullGraphData.nodes.forEach(node => {
+                if (!uniqueNodes.has(node.id)) {
+                    uniqueNodes.set(node.id, {...node});
+                } else {
+                    console.warn(`重複ノード検出: ${node.label} (ID: ${node.id})`);
+                }
+            });
+            
             filteredData = {
-                nodes: fullGraphData.nodes.map(d => ({...d})),
+                nodes: Array.from(uniqueNodes.values()),
                 edges: fullGraphData.edges.map(d => ({...d}))
             };
+            
+            console.log(`ノード数（重複除去後）: ${filteredData.nodes.length}`);
             
             // 素材アイテムを正多角形に配置
             const basicItems = filteredData.nodes.filter(d => d.category === 'basic');
@@ -325,14 +336,14 @@
                 d.fy = centerY + radius * Math.sin(angle);
             });
             
-            // シミュレーションを初期化（重複防止強化）
+            // シミュレーションを初期化（重複防止大幅強化）
             simulation = d3.forceSimulation(filteredData.nodes)
-                .force('link', d3.forceLink(filteredData.edges).id(d => d.id).distance(100).strength(0.3))
-                .force('charge', d3.forceManyBody().strength(-400))
+                .force('link', d3.forceLink(filteredData.edges).id(d => d.id).distance(120).strength(0.2))
+                .force('charge', d3.forceManyBody().strength(-800))
                 .force('center', d3.forceCenter(width / 2, height / 2))
-                .force('collision', d3.forceCollide().radius(d => getNodeRadius(d) + 8).strength(1).iterations(3))
-                .force('x', d3.forceX(width / 2).strength(0.1))
-                .force('y', d3.forceY(height / 2).strength(0.1));
+                .force('collision', d3.forceCollide().radius(d => getNodeRadius(d) + 15).strength(1.5).iterations(5))
+                .force('x', d3.forceX(width / 2).strength(0.05))
+                .force('y', d3.forceY(height / 2).strength(0.05));
             
             // エッジを描画
             const linkGroup = g.append('g').attr('class', 'links');
@@ -478,9 +489,20 @@
                 filteredNodeIds.has(d.source) && filteredNodeIds.has(d.target)
             );
             
-            // データを更新
-            filteredData.nodes = filteredNodes.map(d => ({...d}));
+            // データを更新（重複除去）
+            const uniqueFilteredNodes = new Map();
+            filteredNodes.forEach(node => {
+                if (!uniqueFilteredNodes.has(node.id)) {
+                    uniqueFilteredNodes.set(node.id, {...node});
+                } else {
+                    console.warn(`フィルタ後重複ノード検出: ${node.label} (ID: ${node.id})`);
+                }
+            });
+            
+            filteredData.nodes = Array.from(uniqueFilteredNodes.values());
             filteredData.edges = filteredEdges.map(d => ({...d}));
+            
+            console.log(`フィルタ後ノード数（重複除去後）: ${filteredData.nodes.length}`);
             
             // 素材アイテムを正多角形に配置
             const container = document.getElementById('d3-full-graph');
