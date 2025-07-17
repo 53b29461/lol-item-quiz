@@ -691,6 +691,25 @@
                     });
                 });
                 
+                // 関連ノードを収集（ホバー対象 + 深さ1 + 深さ2）
+                const relatedNodes = new Set([hoveredNode.id, ...depth1, ...depth2]);
+                
+                // 関連ノードを最前面に移動
+                nodes.each(function(d) {
+                    if (relatedNodes.has(d.id)) {
+                        d3.select(this).raise();
+                    }
+                });
+                
+                // ノードの見た目を更新（関連ノードは通常、その他はグレーアウト）
+                nodes.select('circle')
+                    .attr('opacity', d => relatedNodes.has(d.id) ? 1.0 : 0.3)
+                    .attr('filter', d => relatedNodes.has(d.id) ? null : 'grayscale(100%)');
+                
+                nodes.select('image')
+                    .attr('opacity', d => relatedNodes.has(d.id) ? 1.0 : 0.3)
+                    .attr('filter', d => relatedNodes.has(d.id) ? null : 'grayscale(100%)');
+                
                 // エッジの色とスタイルを更新
                 links.attr('stroke', d => {
                     const sourceId = d.source.id;
@@ -777,7 +796,12 @@
                 // ノードを通常に戻す
                 nodes.select('circle')
                      .attr('stroke-width', d => d.category === 'legendary' ? 4 : 3)
-                     .attr('opacity', 1.0);
+                     .attr('opacity', 1.0)
+                     .attr('filter', null);
+                
+                nodes.select('image')
+                     .attr('opacity', 1.0)
+                     .attr('filter', null);
             }
             
             nodes.on('mouseover', function(event, d) {
