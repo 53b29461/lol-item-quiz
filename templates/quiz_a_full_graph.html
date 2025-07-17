@@ -304,9 +304,9 @@
                 node.y = centerY + radius * Math.sin(angle);
             });
             
-            // Kamada-Kawai最適化（簡易版）
-            const maxIterations = 50;
-            const threshold = 0.01;
+            // Kamada-Kawai最適化（簡易版）- パフォーマンス改善
+            const maxIterations = 20;  // 50から20に削減
+            const threshold = 0.05;  // 0.01から0.05に緩和
             
             for (let iter = 0; iter < maxIterations; iter++) {
                 let maxDelta = 0;
@@ -426,11 +426,19 @@
             
             console.log(`ノード数（重複除去後）: ${filteredData.nodes.length}`);
             
-            // 第3段階: ハイブリッドアプローチ
-            // Kamada-Kawaiで初期配置を計算
-            calculateKamadaKawaiLayout(filteredData.nodes, filteredData.edges, width, height);
+            // パフォーマンス最適化: Kamada-Kawaiをスキップし、シンプルな初期配置
+            // 円形配置で初期化（軽量）
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(width, height) * 0.35;
             
-            // D3 forceSimulationで微調整（より穏やかな設定）
+            filteredData.nodes.forEach((d, i) => {
+                const angle = (i / filteredData.nodes.length) * 2 * Math.PI;
+                d.x = centerX + radius * Math.cos(angle);
+                d.y = centerY + radius * Math.sin(angle);
+            });
+            
+            // D3 forceSimulation（最適化版）
             simulation = d3.forceSimulation(filteredData.nodes)
                 .force('link', d3.forceLink(filteredData.edges)
                     .id(d => d.id)
@@ -446,8 +454,13 @@
                     .iterations(3))
                 .force('x', d3.forceX(width / 2).strength(0.1))
                 .force('y', d3.forceY(height / 2).strength(0.1))
-                .alphaDecay(0.01)  // ゆっくり収束
-                .velocityDecay(0.3);  // 速度減衰を調整
+                .alphaDecay(0.02)  // より速く収束
+                .velocityDecay(0.4);  // 速度減衰を増加
+            
+            // 5秒後に自動的にシミュレーションを停止
+            setTimeout(() => {
+                if (simulation) simulation.stop();
+            }, 5000);
             
             // エッジを描画
             const linkGroup = g.append('g').attr('class', 'links');
@@ -690,25 +703,19 @@
         function resetLayout() {
             if (!simulation) return;
             
-            // Kamada-Kawaiで再配置
-            const container = document.getElementById('d3-full-graph');
-            const width = container.clientWidth;
-            const height = container.clientHeight;
-            
             // 全ノードの固定を解除
             filteredData.nodes.forEach(d => {
                 d.fx = null;
                 d.fy = null;
             });
             
-            // Kamada-Kawaiアルゴリズムで再計算
-            calculateKamadaKawaiLayout(filteredData.nodes, filteredData.edges, width, height);
+            // シミュレーションを再開
+            simulation.alpha(1).restart();
             
-            // ノードの位置を即座に更新
-            nodes.attr('transform', d => `translate(${d.x},${d.y})`);
-            
-            // シミュレーションを再開（微調整のため）
-            simulation.alpha(0.3).restart();
+            // 5秒後に自動停止
+            setTimeout(() => {
+                if (simulation) simulation.stop();
+            }, 5000);
         }
         
         function zoomToFit() {
