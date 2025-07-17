@@ -369,12 +369,21 @@
                     .on('drag', dragged)
                     .on('end', dragended));
             
+            // ホバー判定用の透明な大きな円（ノードサイズの1.5倍）
+            nodes.append('circle')
+                .attr('class', 'hover-area')
+                .attr('r', d => getNodeRadius(d) * 1.5)
+                .attr('fill', 'transparent')
+                .attr('stroke', 'none')
+                .style('cursor', 'pointer');
+            
             // ノードのフレーム（円）
             nodes.append('circle')
                 .attr('r', d => getNodeRadius(d))
                 .attr('fill', 'none')
                 .attr('stroke', d => getNodeColor(d).stroke)
-                .attr('stroke-width', d => d.category === 'legendary' ? 4 : 3);
+                .attr('stroke-width', d => d.category === 'legendary' ? 4 : 3)
+                .style('pointer-events', 'none');
             
             // アイテム画像
             nodes.append('image')
@@ -510,11 +519,20 @@
                     .on('drag', dragged)
                     .on('end', dragended));
             
+            // ホバー判定用の透明な大きな円
+            nodeEnter.append('circle')
+                .attr('class', 'hover-area')
+                .attr('r', d => getNodeRadius(d) * 1.5)
+                .attr('fill', 'transparent')
+                .attr('stroke', 'none')
+                .style('cursor', 'pointer');
+            
             nodeEnter.append('circle')
                 .attr('r', d => getNodeRadius(d))
                 .attr('fill', 'none')
                 .attr('stroke', d => getNodeColor(d).stroke)
-                .attr('stroke-width', d => d.category === 'legendary' ? 4 : 3);
+                .attr('stroke-width', d => d.category === 'legendary' ? 4 : 3)
+                .style('pointer-events', 'none');
             
             nodeEnter.append('image')
                 .attr('href', d => `https://ddragon.leagueoflegends.com/cdn/{{ patch_version }}/img/item/${d.itemId}.png`)
