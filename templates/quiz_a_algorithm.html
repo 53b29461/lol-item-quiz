@@ -4,6 +4,7 @@
     <title>クイズA 出題アルゴリズム解説 - League of Legends Item Quiz</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         .algorithm-container {
             max-width: 800px;
@@ -167,6 +168,50 @@
             border-radius: 5px;
             margin: 20px 0;
         }
+        
+        .d3-graph {
+            width: 100%;
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .d3-graph svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .node {
+            cursor: pointer;
+        }
+        
+        .node circle {
+            stroke-width: 2px;
+        }
+        
+        .node text {
+            font-family: sans-serif;
+            font-size: 10px;
+            text-anchor: middle;
+            pointer-events: none;
+        }
+        
+        .link {
+            stroke: #999;
+            stroke-opacity: 0.6;
+            stroke-width: 2px;
+        }
+        
+        .link.parent-child {
+            stroke: #0596aa;
+            stroke-width: 3px;
+        }
+        
+        .link.child-parent {
+            stroke: #28a745;
+            stroke-width: 3px;
+        }
     </style>
 </head>
 <body>
@@ -302,6 +347,13 @@
                     <span style="color: #007bff;">■</span> 中心の親（4個）　<br>
                     <span style="color: #28a745; opacity: 0.7;">□</span> 子の別親（Kindlegem, Winged Moonplate, Phage）　
                     <span style="color: #007bff; opacity: 0.7;">□</span> 親の別子（4個）
+                </div>
+                
+                <h4>D3.js版 - Force-Directed Layout</h4>
+                <div id="giants-belt-d3-graph" class="d3-graph"></div>
+                
+                <div style="margin: 10px 0; font-size: 12px; color: #666;">
+                    D3.js物理シミュレーション - ドラッグして移動可能、ズーム・パン対応
                 </div>
                 
                 <h4>手順2：ひっかけアイテムを探す</h4>
@@ -653,6 +705,160 @@
                         'material-1028': { x: 330, y: 300 }
                     }
                 }
+            });
+            
+            // D3.js Force-Directed Graph
+            const width = 800;
+            const height = 400;
+            
+            // データ準備
+            const nodes = [
+                { id: 'giants-belt', label: 'Giant\'s\nBelt', type: 'center' },
+                { id: 'ruby-crystal', label: 'Ruby\nCrystal', type: 'center_child' },
+                { id: 'parent-3083', label: 'Warmog\'s\nArmor', type: 'center_parent' },
+                { id: 'parent-3143', label: 'Randuin\'s\nOmen', type: 'center_parent' },
+                { id: 'parent-3116', label: 'Rylai\'s\nCrystal\nScepter', type: 'center_parent' },
+                { id: 'parent-3084', label: 'Heartsteel', type: 'center_parent' },
+                { id: 'child-parent-3067', label: 'Kindlegem', type: 'child_other_parent' },
+                { id: 'child-parent-3066', label: 'Winged\nMoonplate', type: 'child_other_parent' },
+                { id: 'child-parent-3044', label: 'Phage', type: 'child_other_parent' },
+                { id: 'material-3801', label: 'Crystalline\nBracer', type: 'parent_other_child' },
+                { id: 'material-3082', label: 'Warden\'s\nMail', type: 'parent_other_child' },
+                { id: 'material-1026', label: 'Blasting\nWand', type: 'parent_other_child' },
+                { id: 'material-1052', label: 'Amplifying\nTome', type: 'parent_other_child' }
+            ];
+            
+            const links = [
+                { source: 'ruby-crystal', target: 'giants-belt', type: 'child-parent' },
+                { source: 'giants-belt', target: 'parent-3083', type: 'parent-child' },
+                { source: 'giants-belt', target: 'parent-3143', type: 'parent-child' },
+                { source: 'giants-belt', target: 'parent-3116', type: 'parent-child' },
+                { source: 'giants-belt', target: 'parent-3084', type: 'parent-child' },
+                { source: 'ruby-crystal', target: 'child-parent-3067', type: 'child-parent' },
+                { source: 'ruby-crystal', target: 'child-parent-3066', type: 'child-parent' },
+                { source: 'ruby-crystal', target: 'child-parent-3044', type: 'child-parent' },
+                { source: 'material-3801', target: 'parent-3083', type: 'child-parent' },
+                { source: 'material-3082', target: 'parent-3143', type: 'child-parent' },
+                { source: 'material-1026', target: 'parent-3116', type: 'child-parent' },
+                { source: 'material-1052', target: 'parent-3116', type: 'child-parent' }
+            ];
+            
+            // SVG作成
+            const svg = d3.select('#giants-belt-d3-graph')
+                .append('svg')
+                .attr('viewBox', [0, 0, width, height]);
+            
+            // ズーム機能
+            const g = svg.append('g');
+            
+            svg.call(d3.zoom()
+                .extent([[0, 0], [width, height]])
+                .scaleExtent([0.5, 3])
+                .on('zoom', (event) => {
+                    g.attr('transform', event.transform);
+                }));
+            
+            // フォースシミュレーション
+            const simulation = d3.forceSimulation(nodes)
+                .force('link', d3.forceLink(links).id(d => d.id).distance(100))
+                .force('charge', d3.forceManyBody().strength(-300))
+                .force('center', d3.forceCenter(width / 2, height / 2))
+                .force('collision', d3.forceCollide().radius(40));
+            
+            // エッジ描画
+            const link = g.append('g')
+                .selectAll('line')
+                .data(links)
+                .join('line')
+                .attr('class', d => `link ${d.type}`)
+                .attr('marker-end', 'url(#arrowhead)');
+            
+            // 矢印マーカー定義
+            svg.append('defs').append('marker')
+                .attr('id', 'arrowhead')
+                .attr('viewBox', '0 -5 10 10')
+                .attr('refX', 25)
+                .attr('refY', 0)
+                .attr('markerWidth', 6)
+                .attr('markerHeight', 6)
+                .attr('orient', 'auto')
+                .append('path')
+                .attr('d', 'M0,-5L10,0L0,5')
+                .attr('fill', '#999');
+            
+            // ノード描画
+            const node = g.append('g')
+                .selectAll('.node')
+                .data(nodes)
+                .join('g')
+                .attr('class', 'node');
+            
+            // ノードの円
+            node.append('circle')
+                .attr('r', d => d.type === 'center' ? 25 : 20)
+                .attr('fill', d => {
+                    switch(d.type) {
+                        case 'center': return '#fff3cd';
+                        case 'center_child': return '#d4edda';
+                        case 'center_parent': return '#cce7ff';
+                        case 'child_other_parent': return '#e2f7e2';
+                        case 'parent_other_child': return '#e6f3ff';
+                        default: return '#f0f0f0';
+                    }
+                })
+                .attr('stroke', d => {
+                    switch(d.type) {
+                        case 'center': return '#ffc107';
+                        case 'center_child': return '#28a745';
+                        case 'center_parent': return '#007bff';
+                        case 'child_other_parent': return '#28a745';
+                        case 'parent_other_child': return '#007bff';
+                        default: return '#ccc';
+                    }
+                })
+                .attr('stroke-width', d => d.type === 'center' ? 4 : 2);
+            
+            // ノードのテキスト
+            node.append('text')
+                .text(d => d.label.replace(/\\n/g, ' '))
+                .attr('dy', '.35em')
+                .attr('font-size', '10px')
+                .attr('text-anchor', 'middle')
+                .attr('fill', '#333');
+            
+            // ドラッグ機能
+            node.call(d3.drag()
+                .on('start', dragstarted)
+                .on('drag', dragged)
+                .on('end', dragended));
+            
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+            
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+            
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+            
+            // シミュレーション更新
+            simulation.on('tick', () => {
+                link
+                    .attr('x1', d => d.source.x)
+                    .attr('y1', d => d.source.y)
+                    .attr('x2', d => d.target.x)
+                    .attr('y2', d => d.target.y);
+                
+                node
+                    .attr('transform', d => `translate(${d.x},${d.y})`);
             });
         });
     </script>
