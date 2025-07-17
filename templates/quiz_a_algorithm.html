@@ -297,10 +297,11 @@
                 <div id="giants-belt-graph" class="cytoscape-graph"></div>
                 
                 <div style="margin: 10px 0; font-size: 14px;">
-                    <span style="color: #0596aa;">■</span> 出題アイテム　
-                    <span style="color: #28a745;">■</span> 正解（子）　
-                    <span style="color: #007bff;">■</span> 正解（親）　
-                    <span style="color: #ff8c00;">■</span> ひっかけ（兄弟・従兄弟）
+                    <span style="color: #ffc107;">■</span> 中心アイテム（Giant's Belt）　
+                    <span style="color: #28a745;">■</span> 中心の子（Ruby Crystal）　
+                    <span style="color: #007bff;">■</span> 中心の親（4個）　<br>
+                    <span style="color: #28a745; opacity: 0.7;">□</span> 子の別親（3個）　
+                    <span style="color: #007bff; opacity: 0.7;">□</span> 親の別子（4個）
                 </div>
                 
                 <h4>手順2：ひっかけアイテムを探す</h4>
@@ -428,28 +429,34 @@
                 container: document.getElementById('giants-belt-graph'),
                 
                 elements: [
-                    // ノード（アイテム）
-                    { data: { id: 'giants-belt', label: 'Giant\'s\nBelt', type: 'target' } },
-                    { data: { id: 'ruby-crystal', label: 'Ruby\nCrystal', type: 'child' } },
-                    { data: { id: 'warmog', label: 'Warmog\'s\nArmor', type: 'parent' } },
-                    { data: { id: 'sunfire', label: 'Sunfire\nAegis', type: 'parent' } },
-                    { data: { id: 'randuins', label: 'Randuin\'s\nOmen', type: 'parent' } },
-                    { data: { id: 'heartsteel', label: 'Heartsteel', type: 'parent' } },
-                    { data: { id: 'kindlegem', label: 'Kindlegem', type: 'cousin' } },
-                    { data: { id: 'liandry', label: 'Liandry\'s\nTorment', type: 'cousin' } },
-                    { data: { id: 'crystal-bracer', label: 'Crystal\nBracer', type: 'cousin' } },
-                    { data: { id: 'rylai', label: 'Rylai\'s Crystal\nScepter', type: 'parent' } },
+                    // ノード（5層構造）
+                    { data: { id: 'giants-belt', label: 'Giant\'s\\nBelt', type: 'center' } },
+                    { data: { id: 'ruby-crystal', label: 'Ruby\\nCrystal', type: 'center_child' } },
+                    { data: { id: 'parent-3083', label: 'Warmog\'s\\nArmor', type: 'center_parent' } },
+                    { data: { id: 'parent-3143', label: 'Randuin\'s\\nOmen', type: 'center_parent' } },
+                    { data: { id: 'parent-3116', label: 'Rylai\'s\\nCrystal\\nScepter', type: 'center_parent' } },
+                    { data: { id: 'parent-3084', label: 'Heartsteel', type: 'center_parent' } },
+                    { data: { id: 'child-parent-3067', label: 'Kindlegem', type: 'child_other_parent' } },
+                    { data: { id: 'child-parent-3801', label: 'Crystalline\\nBracer', type: 'child_other_parent' } },
+                    { data: { id: 'child-parent-3044', label: 'Phage', type: 'child_other_parent' } },
+                    { data: { id: 'material-3801', label: 'Crystalline\\nBracer', type: 'parent_other_child' } },
+                    { data: { id: 'material-3082', label: 'Warden\'s\\nMail', type: 'parent_other_child' } },
+                    { data: { id: 'material-1026', label: 'Blasting\\nWand', type: 'parent_other_child' } },
+                    { data: { id: 'material-1052', label: 'Amplifying\\nTome', type: 'parent_other_child' } },
                     
                     // エッジ（関係）
-                    { data: { source: 'ruby-crystal', target: 'giants-belt', type: 'parent-child' } },
-                    { data: { source: 'giants-belt', target: 'warmog', type: 'parent-child' } },
-                    { data: { source: 'giants-belt', target: 'sunfire', type: 'parent-child' } },
-                    { data: { source: 'giants-belt', target: 'randuins', type: 'parent-child' } },
-                    { data: { source: 'giants-belt', target: 'heartsteel', type: 'parent-child' } },
-                    { data: { source: 'giants-belt', target: 'rylai', type: 'parent-child' } },
-                    { data: { source: 'ruby-crystal', target: 'kindlegem', type: 'sibling' } },
-                    { data: { source: 'ruby-crystal', target: 'crystal-bracer', type: 'sibling' } },
-                    { data: { source: 'kindlegem', target: 'liandry', type: 'cousin' } }
+                    { data: { source: 'ruby-crystal', target: 'giants-belt', type: 'child-parent' } },
+                    { data: { source: 'giants-belt', target: 'parent-3083', type: 'parent-child' } },
+                    { data: { source: 'giants-belt', target: 'parent-3143', type: 'parent-child' } },
+                    { data: { source: 'giants-belt', target: 'parent-3116', type: 'parent-child' } },
+                    { data: { source: 'giants-belt', target: 'parent-3084', type: 'parent-child' } },
+                    { data: { source: 'ruby-crystal', target: 'child-parent-3067', type: 'child-parent' } },
+                    { data: { source: 'ruby-crystal', target: 'child-parent-3801', type: 'child-parent' } },
+                    { data: { source: 'ruby-crystal', target: 'child-parent-3044', type: 'child-parent' } },
+                    { data: { source: 'material-3801', target: 'parent-3083', type: 'child-parent' } },
+                    { data: { source: 'material-3082', target: 'parent-3143', type: 'child-parent' } },
+                    { data: { source: 'material-1026', target: 'parent-3116', type: 'child-parent' } },
+                    { data: { source: 'material-1052', target: 'parent-3116', type: 'child-parent' } }
                 ],
                 
                 style: [
@@ -470,33 +477,45 @@
                         }
                     },
                     {
-                        selector: 'node[type="target"]',
+                        selector: 'node[type="center"]',
                         style: {
                             'background-color': '#fff3cd',
                             'border-color': '#ffc107',
+                            'border-width': 4,
+                            'width': 100,
+                            'height': 60
+                        }
+                    },
+                    {
+                        selector: 'node[type="center_child"]',
+                        style: {
+                            'background-color': '#d4edda',
+                            'border-color': '#28a745',
                             'border-width': 3
                         }
                     },
                     {
-                        selector: 'node[type="child"]',
-                        style: {
-                            'background-color': '#d4edda',
-                            'border-color': '#28a745'
-                        }
-                    },
-                    {
-                        selector: 'node[type="parent"]',
+                        selector: 'node[type="center_parent"]',
                         style: {
                             'background-color': '#cce7ff',
-                            'border-color': '#007bff'
+                            'border-color': '#007bff',
+                            'border-width': 3
                         }
                     },
                     {
-                        selector: 'node[type="cousin"]',
+                        selector: 'node[type="child_other_parent"]',
                         style: {
-                            'background-color': '#fff2e6',
-                            'border-color': '#ff8c00',
+                            'background-color': '#e2f7e2',
+                            'border-color': '#28a745',
                             'border-style': 'dashed'
+                        }
+                    },
+                    {
+                        selector: 'node[type="parent_other_child"]',
+                        style: {
+                            'background-color': '#e6f3ff',
+                            'border-color': '#007bff',
+                            'border-style': 'dotted'
                         }
                     },
                     {
@@ -509,22 +528,11 @@
                         }
                     },
                     {
-                        selector: 'edge[type="sibling"]',
+                        selector: 'edge[type="child-parent"]',
                         style: {
-                            'width': 2,
-                            'line-color': '#ff8c00',
-                            'line-style': 'dashed',
-                            'target-arrow-color': '#ff8c00',
-                            'target-arrow-shape': 'triangle'
-                        }
-                    },
-                    {
-                        selector: 'edge[type="cousin"]',
-                        style: {
-                            'width': 1,
-                            'line-color': '#ff8c00',
-                            'line-style': 'dotted',
-                            'target-arrow-color': '#ff8c00',
+                            'width': 3,
+                            'line-color': '#28a745',
+                            'target-arrow-color': '#28a745',
                             'target-arrow-shape': 'triangle'
                         }
                     }
@@ -534,15 +542,18 @@
                     name: 'preset',
                     positions: {
                         'giants-belt': { x: 400, y: 200 },
-                        'ruby-crystal': { x: 400, y: 300 },
-                        'warmog': { x: 150, y: 100 },
-                        'sunfire': { x: 280, y: 100 },
-                        'randuins': { x: 410, y: 100 },
-                        'heartsteel': { x: 540, y: 100 },
-                        'rylai': { x: 670, y: 100 },
-                        'kindlegem': { x: 250, y: 300 },
-                        'crystal-bracer': { x: 550, y: 300 },
-                        'liandry': { x: 150, y: 150 }
+                        'ruby-crystal': { x: 400, y: 320 },
+                        'parent-3083': { x: 200, y: 80 },
+                        'parent-3143': { x: 320, y: 80 },
+                        'parent-3116': { x: 440, y: 80 },
+                        'parent-3084': { x: 560, y: 80 },
+                        'child-parent-3067': { x: 150, y: 320 },
+                        'child-parent-3801': { x: 300, y: 320 },
+                        'child-parent-3044': { x: 650, y: 320 },
+                        'material-3801': { x: 180, y: 30 },
+                        'material-3082': { x: 290, y: 30 },
+                        'material-1026': { x: 400, y: 30 },
+                        'material-1052': { x: 510, y: 30 }
                     }
                 }
             });
