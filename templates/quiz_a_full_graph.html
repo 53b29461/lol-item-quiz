@@ -145,6 +145,61 @@
             width: 200px;
             margin: 0 10px;
         }
+        .info-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 300px;
+            min-height: 200px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #0596aa;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none;
+        }
+        .info-panel h3 {
+            margin: 0 0 10px 0;
+            color: #0596aa;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .info-panel .item-price {
+            color: #ffc107;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .info-panel .item-description {
+            margin-bottom: 15px;
+            line-height: 1.4;
+            color: #555;
+        }
+        .info-panel .item-stats {
+            margin-top: 10px;
+        }
+        .info-panel .stat-line {
+            margin: 3px 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+        .info-panel .connection-info {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+        .info-panel .connection-info h4 {
+            margin: 0 0 5px 0;
+            color: #666;
+            font-size: 14px;
+        }
+        .info-panel .depth-1 {
+            color: #ff4444;
+        }
+        .info-panel .depth-2 {
+            color: #ff8800;
+        }
     </style>
 </head>
 <body>
@@ -210,7 +265,14 @@
         
         <div class="loading" id="loading">グラフデータを読み込み中...</div>
         
-        <div id="d3-full-graph" class="d3-full-graph" style="display: none;"></div>
+        <div id="d3-full-graph" class="d3-full-graph" style="display: none; position: relative;">
+            <div id="info-panel" class="info-panel">
+                <h3 id="panel-title">アイテムを選択してください</h3>
+                <div id="panel-content">
+                    <p>アイテムにマウスを乗せると詳細情報が表示されます</p>
+                </div>
+            </div>
+        </div>
         
         <div style="margin-top: 30px;">
             <h3>使い方</h3>
@@ -563,10 +625,10 @@
             
             // テキストラベルを削除（画像のみで表示）
             
-            // リッチツールチップの実装
-            const tooltip = d3.select('body').append('div')
-                .attr('class', 'tooltip')
-                .style('opacity', 0);
+            // 固定情報パネルの実装
+            const infoPanel = d3.select('#info-panel');
+            const panelTitle = d3.select('#panel-title');
+            const panelContent = d3.select('#panel-content');
             
             // 深さ別エッジハイライト機能
             function highlightConnectedEdges(hoveredNode) {
@@ -685,15 +747,11 @@
             
             nodes.on('mouseover', function(event, d) {
                 highlightConnectedEdges(d);
-                showTooltip(event, d, tooltip);
-            })
-            .on('mousemove', function(event, d) {
-                tooltip.style('left', (event.pageX + 10) + 'px')
-                       .style('top', (event.pageY - 10) + 'px');
+                showInfoPanel(d);
             })
             .on('mouseout', function(event, d) {
                 resetHighlight();
-                tooltip.transition().duration(200).style('opacity', 0);
+                hideInfoPanel();
             });
             
             // シミュレーションの更新処理
@@ -856,14 +914,12 @@
             
             // ホバーイベントを再設定
             nodes.on('mouseover', function(event, d) {
-                showTooltip(event, d, tooltip);
-            })
-            .on('mousemove', function(event, d) {
-                tooltip.style('left', (event.pageX + 10) + 'px')
-                       .style('top', (event.pageY - 10) + 'px');
+                highlightConnectedEdges(d);
+                showInfoPanel(d);
             })
             .on('mouseout', function(event, d) {
-                tooltip.transition().duration(200).style('opacity', 0);
+                resetHighlight();
+                hideInfoPanel();
             });
             
             // シミュレーションを再開
@@ -960,7 +1016,31 @@
             }
         }
         
-        function showTooltip(event, d, tooltip) {
+        function showInfoPanel(d) {
+            // BFS で深さ1、2の接続を探索（接続情報用）
+            const depth1 = new Set();
+            const depth2 = new Set();
+            
+            // 深さ1の接続を探索
+            filteredData.edges.forEach(edge => {
+                if (edge.source.id === d.id) {
+                    depth1.add(edge.target.id);
+                } else if (edge.target.id === d.id) {
+                    depth1.add(edge.source.id);
+                }
+            });
+            
+            // 深さ2の接続を探索
+            depth1.forEach(nodeId => {
+                filteredData.edges.forEach(edge => {
+                    if (edge.source.id === nodeId && edge.target.id !== d.id && !depth1.has(edge.target.id)) {
+                        depth2.add(edge.target.id);
+                    } else if (edge.target.id === nodeId && edge.source.id !== d.id && !depth1.has(edge.source.id)) {
+                        depth2.add(edge.source.id);
+                    }
+                });
+            });
+            
             // ステータス情報を整形
             let statsHtml = '';
             if (d.stats && Object.keys(d.stats).length > 0) {
@@ -975,18 +1055,34 @@
                 statsHtml += '</div>';
             }
             
-            // ツールチップの内容を作成
-            const tooltipContent = `
-                <div class="item-name">${d.label}</div>
+            // 接続情報を整形
+            let connectionHtml = '';
+            if (depth1.size > 0 || depth2.size > 0) {
+                connectionHtml = '<div class="connection-info">';
+                if (depth1.size > 0) {
+                    connectionHtml += `<h4>直接接続 <span class="depth-1">(${depth1.size}個)</span></h4>`;
+                }
+                if (depth2.size > 0) {
+                    connectionHtml += `<h4>2段階接続 <span class="depth-2">(${depth2.size}個)</span></h4>`;
+                }
+                connectionHtml += '</div>';
+            }
+            
+            // パネルの内容を更新
+            panelTitle.text(d.label);
+            panelContent.html(`
                 <div class="item-price">${d.price}G</div>
                 ${d.description ? `<div class="item-description">${d.description}</div>` : ''}
                 ${statsHtml}
-            `;
+                ${connectionHtml}
+            `);
             
-            tooltip.html(tooltipContent)
-                   .style('left', (event.pageX + 10) + 'px')
-                   .style('top', (event.pageY - 10) + 'px')
-                   .transition().duration(200).style('opacity', 1);
+            // パネルを表示
+            infoPanel.style('display', 'block');
+        }
+        
+        function hideInfoPanel() {
+            infoPanel.style('display', 'none');
         }
         
         function getStatName(stat) {
