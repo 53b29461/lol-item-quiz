@@ -74,13 +74,19 @@ def analyze_full_graph():
         else:
             category = 'isolated'
         
+        # ステータス情報を抽出
+        stats = item.get('stats', {})
+        description = item.get('plaintext', '')
+        
         # ノードデータ
         nodes.append({
             'id': item_id,
             'label': name,
             'category': category,
             'price': price,
-            'itemId': item_id
+            'itemId': item_id,
+            'stats': stats,
+            'description': description
         })
         
         # エッジデータ（親子関係）

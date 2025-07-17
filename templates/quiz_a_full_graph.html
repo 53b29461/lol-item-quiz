@@ -97,6 +97,42 @@
             font-size: 18px;
             color: #666;
         }
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 1000;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            border: 1px solid #ffc107;
+        }
+        .tooltip .item-name {
+            font-weight: bold;
+            font-size: 14px;
+            color: #ffc107;
+            margin-bottom: 6px;
+        }
+        .tooltip .item-price {
+            color: #ffc107;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+        .tooltip .item-description {
+            margin-bottom: 8px;
+            line-height: 1.4;
+            color: #ccc;
+        }
+        .tooltip .item-stats {
+            margin-top: 8px;
+        }
+        .tooltip .stat-line {
+            margin: 2px 0;
+            color: #88ff88;
+        }
         .filter-controls {
             margin: 15px 0;
             text-align: center;
@@ -352,9 +388,21 @@
             
             // テキストラベルを削除（画像のみで表示）
             
-            // ホバーイベント（ツールチップ表示）
-            nodes.append('title')
-                .text(d => `${d.label} (${d.price}G)`);
+            // リッチツールチップの実装
+            const tooltip = d3.select('body').append('div')
+                .attr('class', 'tooltip')
+                .style('opacity', 0);
+            
+            nodes.on('mouseover', function(event, d) {
+                showTooltip(event, d, tooltip);
+            })
+            .on('mousemove', function(event, d) {
+                tooltip.style('left', (event.pageX + 10) + 'px')
+                       .style('top', (event.pageY - 10) + 'px');
+            })
+            .on('mouseout', function(event, d) {
+                tooltip.transition().duration(200).style('opacity', 0);
+            });
             
             // シミュレーションの更新処理
             simulation.on('tick', () => {
@@ -479,13 +527,19 @@
             
             // テキストラベルを削除（画像のみで表示）
             
-            // ツールチップを追加
-            nodeEnter.append('title')
-                .text(d => `${d.label} (${d.price}G)`);
-            
             nodes = nodeEnter.merge(nodes);
             
-            // ホバーイベントはツールチップで十分
+            // ホバーイベントを再設定
+            nodes.on('mouseover', function(event, d) {
+                showTooltip(event, d, tooltip);
+            })
+            .on('mousemove', function(event, d) {
+                tooltip.style('left', (event.pageX + 10) + 'px')
+                       .style('top', (event.pageY - 10) + 'px');
+            })
+            .on('mouseout', function(event, d) {
+                tooltip.transition().duration(200).style('opacity', 0);
+            });
             
             // シミュレーションを再開
             simulation.alpha(1).restart();
@@ -564,6 +618,57 @@
                 simulation.stop();
                 isPaused = true;
             }
+        }
+        
+        function showTooltip(event, d, tooltip) {
+            // ステータス情報を整形
+            let statsHtml = '';
+            if (d.stats && Object.keys(d.stats).length > 0) {
+                statsHtml = '<div class="item-stats">';
+                for (const [stat, value] of Object.entries(d.stats)) {
+                    const statName = getStatName(stat);
+                    if (statName && value !== 0) {
+                        const displayValue = value > 0 ? `+${value}` : `${value}`;
+                        statsHtml += `<div class="stat-line">${displayValue} ${statName}</div>`;
+                    }
+                }
+                statsHtml += '</div>';
+            }
+            
+            // ツールチップの内容を作成
+            const tooltipContent = `
+                <div class="item-name">${d.label}</div>
+                <div class="item-price">${d.price}G</div>
+                ${d.description ? `<div class="item-description">${d.description}</div>` : ''}
+                ${statsHtml}
+            `;
+            
+            tooltip.html(tooltipContent)
+                   .style('left', (event.pageX + 10) + 'px')
+                   .style('top', (event.pageY - 10) + 'px')
+                   .transition().duration(200).style('opacity', 1);
+        }
+        
+        function getStatName(stat) {
+            const statNames = {
+                'FlatHPPoolMod': 'ヘルス',
+                'FlatMPPoolMod': 'マナ', 
+                'FlatArmorMod': '物理防御',
+                'FlatSpellBlockMod': '魔法防御',
+                'FlatPhysicalDamageMod': '攻撃力',
+                'FlatMagicDamageMod': 'AP',
+                'PercentAttackSpeedMod': '攻撃速度',
+                'PercentMovementSpeedMod': '移動速度',
+                'FlatCritChanceMod': 'クリティカル率',
+                'FlatCritDamageMod': 'クリティカルダメージ',
+                'PercentLifeStealMod': 'ライフスティール',
+                'PercentSpellVampMod': 'スペルヴァンプ',
+                'FlatHPRegenMod': 'ヘルス回復',
+                'FlatMPRegenMod': 'マナ回復',
+                'PercentHPRegenMod': 'ヘルス回復%',
+                'PercentMPRegenMod': 'マナ回復%'
+            };
+            return statNames[stat] || stat;
         }
         
         // ページ読み込み時にデータを読み込み
