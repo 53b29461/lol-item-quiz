@@ -47,35 +47,31 @@
             height: 40px;
             margin-right: 10px;
         }
-        .code-block {
-            background: #f5f5f5;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 15px;
-            margin: 15px 0;
-            font-family: monospace;
-            font-size: 14px;
-        }
-        .flowchart {
+        .step-box {
             background: #fff;
             border: 1px solid #ddd;
             border-radius: 5px;
             padding: 20px;
             margin: 20px 0;
-            text-align: center;
         }
-        .step {
+        .step-number {
             background: #0596aa;
             color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            margin: 10px auto;
-            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
         }
-        .arrow {
-            font-size: 24px;
-            color: #0596aa;
-            margin: 10px 0;
+        .step-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: bold;
         }
         ul {
             margin-left: 20px;
@@ -93,155 +89,302 @@
         .back-link:hover {
             background: #047a8a;
         }
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        .correct-answer {
+            background: #d4edda;
+            padding: 2px 5px;
+            border-radius: 3px;
+            color: #155724;
+        }
+        .tree-diagram {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .tree-level {
+            margin: 20px 0;
+        }
+        .tree-item {
+            display: inline-block;
+            background: white;
+            border: 2px solid #0596aa;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 5px;
+            min-width: 120px;
+        }
+        .tree-item.target {
+            background: #fff3cd;
+            border-color: #ffc107;
+            font-weight: bold;
+        }
+        .tree-item.material {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        .tree-item.synthesis {
+            background: #cce7ff;
+            border-color: #007bff;
+        }
+        .tree-arrow {
+            font-size: 24px;
+            color: #0596aa;
+            margin: 10px 0;
+        }
+        .tree-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="algorithm-container">
-        <h1>クイズA 出題アルゴリズム解説</h1>
+        <h1>クイズA 出題の仕組み</h1>
         
         <div class="algorithm-section">
-            <h2>概要</h2>
-            <p>クイズAは「表示されたアイテムに関連するアイテムをすべて選択する」クイズです。<br>
-            プレイヤーは、提示されたアイテムの素材アイテム、または逆にそのアイテムを素材として使用する合成先アイテムを、10個の選択肢の中から見つけ出す必要があります。</p>
+            <h2>クイズAって何？</h2>
+            <p>クイズAは、画面に表示されたアイテムに<strong>関係するアイテム</strong>をすべて見つけるクイズです。</p>
+            <p>「関係するアイテム」とは：</p>
+            <ul>
+                <li><strong>素材アイテム</strong>：そのアイテムを作るのに必要なアイテム</li>
+                <li><strong>合成先アイテム</strong>：そのアイテムを使って作れるアイテム</li>
+            </ul>
+            <p>10個の選択肢の中から、正解をすべて見つけて選んでください！</p>
         </div>
 
         <div class="algorithm-section">
-            <h2>出題フロー</h2>
-            <div class="flowchart">
-                <div class="step">1. アイテムデータ取得</div>
-                <div class="arrow">↓</div>
-                <div class="step">2. フィルタリング処理</div>
-                <div class="arrow">↓</div>
-                <div class="step">3. アイテムツリー構築</div>
-                <div class="arrow">↓</div>
-                <div class="step">4. 大きなツリーを持つアイテム選択</div>
-                <div class="arrow">↓</div>
-                <div class="step">5. 拡張ファミリーから選択肢生成</div>
-                <div class="arrow">↓</div>
-                <div class="step">6. クイズ出題</div>
+            <h2>クイズが作られる手順</h2>
+            
+            <div class="step-box">
+                <div class="step-title">
+                    <span class="step-number">1</span>
+                    出題するアイテムを選ぶ
+                </div>
+                <p>まず、League of Legendsの全アイテムの中から出題するアイテムを1つ選びます。</p>
+                <p><strong>選ばれる条件：</strong></p>
+                <ul>
+                    <li>サモナーズリフト（普通のマップ）で使えるアイテム</li>
+                    <li>消耗品（ポーション等）、トリンケット、ブーツ、ジャングル専用アイテムは除く</li>
+                    <li>関係するアイテムが5個以上あるもの（難しすぎず簡単すぎないため）</li>
+                </ul>
+            </div>
+
+            <div class="step-box">
+                <div class="step-title">
+                    <span class="step-number">2</span>
+                    正解アイテムを決める
+                </div>
+                <p>選んだアイテムに関係するアイテムをすべて見つけて、これが正解になります。</p>
+                <p><strong>正解になるアイテム：</strong></p>
+                <ul>
+                    <li>そのアイテムの素材として使われているアイテム</li>
+                    <li>そのアイテムを素材として使うアイテム</li>
+                </ul>
+            </div>
+
+            <div class="step-box">
+                <div class="step-title">
+                    <span class="step-number">3</span>
+                    選択肢を10個作る
+                </div>
+                <p>正解アイテムと、ひっかけ用のアイテムを混ぜて選択肢を作ります。</p>
+                <p><strong>選択肢に含まれるアイテム：</strong></p>
+                <ul>
+                    <li><span class="correct-answer">正解アイテム</span>：手順2で見つけた関係アイテム</li>
+                    <li>ひっかけアイテム：正解アイテムに似ているけど違うアイテム</li>
+                </ul>
+                <p><strong>ひっかけアイテムの作り方：</strong></p>
+                <ul>
+                    <li>正解アイテムと似たような関係にあるアイテムを探す</li>
+                    <li>同じ素材を使う別のアイテムや、似たような素材など</li>
+                    <li>値段が500ゴールド以上のアイテムだけを選ぶ（安すぎるアイテムは除く）</li>
+                </ul>
+                
+                <div class="tree-diagram">
+                    <h4>アイテムの関係図</h4>
+                    <div class="tree-level">
+                        <div class="tree-label">このアイテムを使って作れるもの</div>
+                        <div class="tree-item synthesis">完成アイテムA</div>
+                        <div class="tree-item synthesis">完成アイテムB</div>
+                        <div class="tree-item synthesis">完成アイテムC</div>
+                    </div>
+                    <div class="tree-arrow">↑</div>
+                    <div class="tree-level">
+                        <div class="tree-label">出題されるアイテム</div>
+                        <div class="tree-item target">出題アイテム</div>
+                    </div>
+                    <div class="tree-arrow">↑</div>
+                    <div class="tree-level">
+                        <div class="tree-label">このアイテムを作るのに必要なもの</div>
+                        <div class="tree-item material">素材アイテムA</div>
+                        <div class="tree-item material">素材アイテムB</div>
+                    </div>
+                </div>
+                
+                <p>正解は<span class="correct-answer">緑色（素材）</span>と<span class="correct-answer" style="background: #cce7ff; color: #004085;">青色（完成品）</span>のアイテムです！</p>
             </div>
         </div>
 
         <div class="algorithm-section">
-            <h2>詳細アルゴリズム</h2>
-            
-            <h3>1. フィルタリング条件</h3>
-            <ul>
-                <li>サモナーズリフト（マップ11）で使用可能なアイテム</li>
-                <li>消耗品、トリンケット、ブーツ、ジャングル、レーン専用アイテムを除外</li>
-                <li>ロングソードなどの基本アイテムを除外</li>
-                <li>オルン専用アイテムを除外</li>
-                <li>特定の除外IDリスト（6693, 6673, 4641, 4637, 1516-1519）に含まれないもの</li>
-            </ul>
-
-            <h3>2. 大きなツリーの定義</h3>
-            <p>アイテムツリー内のアイテム数が5個以上のものを「大きなツリー」として選択対象とします。</p>
-
-            <h3>3. 拡張ファミリーアルゴリズム</h3>
-            <p>選択肢を生成するために「拡張ファミリー」という概念を使用します：</p>
-            <ul>
-                <li>直接の親アイテム（素材）と子アイテム（派生アイテム）</li>
-                <li>その親子アイテムのさらなる親子アイテム（2階層目）</li>
-                <li>さらにその親子アイテム（3階層目）</li>
-                <li>500ゴールド以上のアイテムのみを選択肢として採用</li>
-            </ul>
-        </div>
-
-        <div class="algorithm-section">
-            <h2>具体例</h2>
+            <h2>具体例で見てみよう</h2>
             
             <div class="example-box">
-                <h4>例1: ジャイアントベルト</h4>
+                <h4>例1: ジャイアントベルトが出題された場合</h4>
                 <div class="item-example">
                     <img src="https://ddragon.leagueoflegends.com/cdn/{{ patch_version }}/img/item/1011.png" alt="ジャイアントベルト">
-                    <strong>ジャイアントベルト（900ゴールド）</strong>
+                    <strong>出題アイテム：ジャイアントベルト（900ゴールド）</strong>
                 </div>
                 
-                <p><strong>関連アイテム（正解）：</strong></p>
+                <h4>手順1：正解を探す</h4>
+                <p><strong>ジャイアントベルトの素材：</strong></p>
                 <ul>
-                    <li>素材アイテム：ルビークリスタル（400ゴールド）</li>
-                    <li>合成先アイテム：ウォーモグアーマー、サンファイアイージス、ランデュインオーメン、フローズンマレット等</li>
+                    <li>ルビークリスタル（400ゴールド）</li>
+                </ul>
+                <p><strong>ジャイアントベルトを使って作れるアイテム：</strong></p>
+                <ul>
+                    <li>ウォーモグアーマー、サンファイアイージス、ランデュインオーメン、フローズンマレット など</li>
                 </ul>
                 
-                <p><strong>選択肢の生成過程：</strong></p>
-                <ol>
-                    <li>直接の関係：
-                        <ul>
-                            <li>素材：ルビークリスタル</li>
-                            <li>合成先：ウォーモグアーマー、サンファイアイージス、ランデュインオーメンなど</li>
-                        </ul>
-                    </li>
-                    <li>拡張ファミリー：
-                        <ul>
-                            <li>ルビークリスタルを使う他のアイテム：キンドルジェム、ライラインドリークリスタルセプターなど</li>
-                            <li>合成先アイテムの他の素材：キンドルジェム、ソーンメイル、バミシンダーなど</li>
-                        </ul>
-                    </li>
-                    <li>500ゴールド以上でフィルタリング後、ランダムに10個選択</li>
-                </ol>
+                <div class="tree-diagram">
+                    <h4>ジャイアントベルトの関係図</h4>
+                    <div class="tree-level">
+                        <div class="tree-label">ジャイアントベルトを使って作れるもの（正解）</div>
+                        <div class="tree-item synthesis">ウォーモグアーマー</div>
+                        <div class="tree-item synthesis">サンファイアイージス</div>
+                        <div class="tree-item synthesis">ランデュインオーメン</div>
+                        <div class="tree-item synthesis">フローズンマレット</div>
+                    </div>
+                    <div class="tree-arrow">↑</div>
+                    <div class="tree-level">
+                        <div class="tree-label">出題アイテム</div>
+                        <div class="tree-item target">ジャイアントベルト</div>
+                    </div>
+                    <div class="tree-arrow">↑</div>
+                    <div class="tree-level">
+                        <div class="tree-label">ジャイアントベルトを作るのに必要なもの（正解）</div>
+                        <div class="tree-item material">ルビークリスタル</div>
+                    </div>
+                </div>
                 
-                <p><strong>選択肢例：</strong><br>
-                ウォーモグアーマー（正解）、サンファイアイージス（正解）、ランデュインオーメン（正解）、フローズンマレット（正解）、キンドルジェム、ライラインドリークリスタルセプター、ソーンメイル、バミシンダー、デッドマンプレート、ガーゴイルストーンプレート</p>
+                <h4>手順2：ひっかけアイテムを探す</h4>
+                <p>正解アイテムと似たような関係にあるアイテムを探します：</p>
+                <ul>
+                    <li>ルビークリスタルを使う他のアイテム：キンドルジェム、ライラインドリークリスタルセプター</li>
+                    <li>ジャイアントベルトアイテムの他の素材：キンドルジェム、ソーンメイル、バミシンダー</li>
+                </ul>
+                
+                <h4>手順3：選択肢完成</h4>
+                <p><strong>10個の選択肢例：</strong></p>
+                <ol>
+                    <li><span class="correct-answer">ウォーモグアーマー（正解）</span></li>
+                    <li><span class="correct-answer">サンファイアイージス（正解）</span></li>
+                    <li><span class="correct-answer">ランデュインオーメン（正解）</span></li>
+                    <li><span class="correct-answer">フローズンマレット（正解）</span></li>
+                    <li>キンドルジェム（ひっかけ）</li>
+                    <li>ライラインドリークリスタルセプター（ひっかけ）</li>
+                    <li>ソーンメイル（ひっかけ）</li>
+                    <li>バミシンダー（ひっかけ）</li>
+                    <li>デッドマンプレート（ひっかけ）</li>
+                    <li>ガーゴイルストーンプレート（ひっかけ）</li>
+                </ol>
             </div>
 
             <div class="example-box">
-                <h4>例2: フェアリーチャーム</h4>
+                <h4>例2: フェアリーチャームが出題された場合</h4>
                 <div class="item-example">
                     <img src="https://ddragon.leagueoflegends.com/cdn/{{ patch_version }}/img/item/1004.png" alt="フェアリーチャーム">
-                    <strong>フェアリーチャーム（250ゴールド）</strong>
+                    <strong>出題アイテム：フェアリーチャーム（250ゴールド）</strong>
                 </div>
                 
-                <p><strong>関連アイテム（正解）：</strong></p>
+                <h4>手順1：正解を探す</h4>
+                <p><strong>フェアリーチャームの素材：</strong></p>
                 <ul>
-                    <li>素材アイテム：なし（基本アイテム）</li>
-                    <li>合成先アイテム：アーデントセンサー、フォービドンアイドル、ハーモニックエコー、ミカエルのるつぼ等</li>
+                    <li>なし（基本アイテムなので、これ以上分解できない）</li>
+                </ul>
+                <p><strong>フェアリーチャームを使って作れるアイテム：</strong></p>
+                <ul>
+                    <li>アーデントセンサー、フォービドンアイドル、ハーモニックエコー、ミカエルのるつぼ など</li>
                 </ul>
                 
-                <p><strong>選択肢の生成過程：</strong></p>
-                <ol>
-                    <li>直接の関係：
-                        <ul>
-                            <li>素材：なし（フェアリーチャームは基本アイテム）</li>
-                            <li>合成先：アーデントセンサー、フォービドンアイドル、ハーモニックエコー、ミカエルのるつぼなど</li>
-                        </ul>
-                    </li>
-                    <li>拡張ファミリー：
-                        <ul>
-                            <li>合成先アイテムの他の素材：ブラスティングワンド、サッパイアクリスタル、アンプリファイングトームなど</li>
-                            <li>合成先アイテムからさらに合成される上位アイテム：スタッフオブフローイングウォーター等</li>
-                        </ul>
-                    </li>
-                    <li>500ゴールド以上でフィルタリング後、ランダムに10個選択</li>
-                </ol>
+                <div class="tree-diagram">
+                    <h4>フェアリーチャームの関係図</h4>
+                    <div class="tree-level">
+                        <div class="tree-label">フェアリーチャームを使って作れるもの（正解）</div>
+                        <div class="tree-item synthesis">アーデントセンサー</div>
+                        <div class="tree-item synthesis">フォービドンアイドル</div>
+                        <div class="tree-item synthesis">ハーモニックエコー</div>
+                        <div class="tree-item synthesis">ミカエルのるつぼ</div>
+                    </div>
+                    <div class="tree-arrow">↑</div>
+                    <div class="tree-level">
+                        <div class="tree-label">出題アイテム</div>
+                        <div class="tree-item target">フェアリーチャーム</div>
+                    </div>
+                    <div class="tree-arrow">↑</div>
+                    <div class="tree-level">
+                        <div class="tree-label">フェアリーチャームを作るのに必要なもの</div>
+                        <div class="tree-item" style="background: #f8f9fa; color: #6c757d;">なし（基本アイテム）</div>
+                    </div>
+                </div>
                 
-                <p><strong>選択肢例：</strong><br>
-                アーデントセンサー（正解）、フォービドンアイドル（正解）、ハーモニックエコー（正解）、ミカエルのるつぼ（正解）、ブラスティングワンド、サッパイアクリスタル、スタッフオブフローイングウォーター、シュレリアのレクイエム、リデンプション、ルーデンテンペスト</p>
+                <h4>手順2：ひっかけアイテムを探す</h4>
+                <p>正解アイテムと似たような関係にあるアイテムを探します：</p>
+                <ul>
+                    <li>フェアリーチャームアイテムの他の素材：ブラスティングワンド、サッパイアクリスタル、アンプリファイングトーム</li>
+                    <li>似たような効果を持つサポートアイテム：スタッフオブフローイングウォーター、シュレリアのレクイエム</li>
+                </ul>
+                
+                <h4>手順3：選択肢完成</h4>
+                <p><strong>10個の選択肢例：</strong></p>
+                <ol>
+                    <li><span class="correct-answer">アーデントセンサー（正解）</span></li>
+                    <li><span class="correct-answer">フォービドンアイドル（正解）</span></li>
+                    <li><span class="correct-answer">ハーモニックエコー（正解）</span></li>
+                    <li><span class="correct-answer">ミカエルのるつぼ（正解）</span></li>
+                    <li>ブラスティングワンド（ひっかけ）</li>
+                    <li>サッパイアクリスタル（ひっかけ）</li>
+                    <li>スタッフオブフローイングウォーター（ひっかけ）</li>
+                    <li>シュレリアのレクイエム（ひっかけ）</li>
+                    <li>リデンプション（ひっかけ）</li>
+                    <li>ルーデンテンペスト（ひっかけ）</li>
+                </ol>
             </div>
         </div>
 
         <div class="algorithm-section">
-            <h2>難易度調整の仕組み</h2>
+            <h2>なぜこの仕組みなの？</h2>
+            
+            <h3>適度な難易度にするため</h3>
             <ul>
-                <li><strong>拡張ファミリーによる選択肢の多様性</strong>：関連アイテムを幅広く含めることで、単純な暗記では対応できない出題を実現</li>
-                <li><strong>500ゴールド制限</strong>：基本アイテム（ロングソード等）を除外し、中級以上のアイテムのみを選択肢とすることで適度な難易度を維持</li>
-                <li><strong>ランダム性</strong>：同じアイテムでも毎回異なる選択肢が表示され、繰り返しプレイの価値を高める</li>
+                <li><strong>簡単すぎない</strong>：ひっかけアイテムがあることで、単純な暗記では解けない</li>
+                <li><strong>難しすぎない</strong>：関係するアイテムなので、完全にランダムではない</li>
+                <li><strong>勉強になる</strong>：アイテム同士のつながりを覚えられる</li>
+            </ul>
+            
+            <h3>毎回違う問題にするため</h3>
+            <ul>
+                <li>同じアイテムが出題されても、ひっかけアイテムがランダムに変わる</li>
+                <li>何度やっても飽きない</li>
+                <li>本当の理解が必要になる</li>
             </ul>
         </div>
 
         <div class="algorithm-section">
-            <h2>技術的な実装ポイント</h2>
-            <div class="code-block">
-                # アイテムツリーの構築<br>
-                connect_parents(filtered_items, all_trees)<br><br>
-                # 大きなツリーの選定（5個以上のアイテムを持つもの）<br>
-                large_trees = {item_id: tree for item_id, tree in all_trees.items() <br>
-                              if tree and len(get_tree_item_names(tree, all_trees)) >= 5}<br><br>
-                # 拡張ファミリーの取得（3階層まで探索）<br>
-                extended_family = get_extended_family(item_id, all_trees, all_items)<br><br>
-                # 500ゴールド以上でフィルタリング<br>
-                extended_family = [family_id for family_id in extended_family <br>
-                                  if items[family_id]['gold']['total'] >= 500]
-            </div>
+            <h2>攻略のコツ</h2>
+            <ul>
+                <li><strong>アイテムの材料を覚える</strong>：「このアイテムは何から作られているか？」</li>
+                <li><strong>アイテムの使い道を覚える</strong>：「このアイテムは何を作るのに使うか？」</li>
+                <li><strong>似たようなアイテムに注意</strong>：ひっかけに惑わされないように</li>
+                <li><strong>値段も覚える</strong>：高いアイテムほど選択肢に出やすい</li>
+            </ul>
         </div>
 
         <a href="/" class="back-link">メインページに戻る</a>
