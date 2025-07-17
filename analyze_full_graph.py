@@ -9,7 +9,7 @@ import json
 patch_version = "15.13.1"
 
 def filter_items(all_items):
-    """app.pyと同じフィルタリング処理"""
+    """app.pyと同じフィルタリング処理 + アリーナ版除外"""
     map_filtered_items = {item_id: item for item_id, item in all_items.items() if item.get('maps', {}).get('11', False) and not all(item.get('maps', {}).get(map_id, False) for map_id in ['11', '12', '21', '30'])}
     
     target_tags = ['Consumable', 'Trinket', 'Boots', 'Jungle', 'Lane']
@@ -21,7 +21,10 @@ def filter_items(all_items):
     exclude_ids = ['6693', '6673', '4641', '4637', '1516', '1517', '1518', '1519']
     last_final_filtered_items = {item_id: item for item_id, item in final_filtered_items.items() if item_id not in exclude_ids}
     
-    return last_final_filtered_items
+    # アリーナ版アイテム（IDが32で始まる）を除外
+    arena_filtered_items = {item_id: item for item_id, item in last_final_filtered_items.items() if not item_id.startswith('32')}
+    
+    return arena_filtered_items
 
 def analyze_full_graph():
     # データ取得

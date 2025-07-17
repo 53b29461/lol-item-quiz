@@ -62,7 +62,10 @@ def filter_items(all_items):
     exclude_ids = ['6693', '6673', '4641', '4637', '1516', '1517', '1518', '1519']
     last_final_filtered_items = {item_id: item for item_id, item in final_filtered_items.items() if item_id not in exclude_ids}
     
-    return last_final_filtered_items
+    # アリーナ版アイテム（IDが32で始まる）を除外
+    arena_filtered_items = {item_id: item for item_id, item in last_final_filtered_items.items() if not item_id.startswith('32')}
+    
+    return arena_filtered_items
 
 def connect_parents(items, trees):
     for item_id, item in items.items():
