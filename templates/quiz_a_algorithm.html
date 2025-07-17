@@ -346,7 +346,7 @@
                     <span style="color: #28a745;">■</span> 中心の子（ルビークリスタル）　
                     <span style="color: #007bff;">■</span> 中心の親（4個）　<br>
                     <span style="color: #28a745; opacity: 0.7;">□</span> 子の別親（キンドルジェム、ウイングムーンプレート、ファージ）　
-                    <span style="color: #007bff; opacity: 0.7;">□</span> 関連素材（線なし）
+                    <span style="color: #007bff; opacity: 0.7;">□</span> 親の子どもたち（線あり）
                 </div>
                 
                 <h4>D3.js版 - Force-Directed Layout</h4>
@@ -513,7 +513,12 @@
                     { data: { source: 'giants-belt', target: 'parent-3084', type: 'parent-child' } },
                     { data: { source: 'ruby-crystal', target: 'child-parent-3067', type: 'child-parent' } },
                     { data: { source: 'ruby-crystal', target: 'child-parent-3066', type: 'child-parent' } },
-                    { data: { source: 'ruby-crystal', target: 'child-parent-3044', type: 'child-parent' } }
+                    { data: { source: 'ruby-crystal', target: 'child-parent-3044', type: 'child-parent' } },
+                    // ハートスチールの子どもたち
+                    { data: { source: 'material-3801', target: 'parent-3084', type: 'child-parent' } },
+                    // ライライクリスタルセプターの子どもたち
+                    { data: { source: 'material-1026', target: 'parent-3116', type: 'child-parent' } },
+                    { data: { source: 'material-1052', target: 'parent-3116', type: 'child-parent' } }
                 ],
                 
                 style: [
@@ -732,7 +737,12 @@
                 { source: 'giants-belt', target: 'parent-3084', type: 'parent-child' },
                 { source: 'ruby-crystal', target: 'child-parent-3067', type: 'child-parent' },
                 { source: 'ruby-crystal', target: 'child-parent-3066', type: 'child-parent' },
-                { source: 'ruby-crystal', target: 'child-parent-3044', type: 'child-parent' }
+                { source: 'ruby-crystal', target: 'child-parent-3044', type: 'child-parent' },
+                // ハートスチールの子どもたち
+                { source: 'material-3801', target: 'parent-3084', type: 'child-parent' },
+                // ライライクリスタルセプターの子どもたち
+                { source: 'material-1026', target: 'parent-3116', type: 'child-parent' },
+                { source: 'material-1052', target: 'parent-3116', type: 'child-parent' }
             ];
             
             // SVG作成
