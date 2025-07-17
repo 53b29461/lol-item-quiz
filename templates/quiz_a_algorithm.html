@@ -346,6 +346,15 @@
                     <li>アーデントセンサー、フォービドンアイドル、ハーモニックエコー、ミカエルのるつぼ など</li>
                 </ul>
                 
+                <h4>フェアリーチャームの家族関係図</h4>
+                <div id="faerie-charm-graph" class="cytoscape-graph"></div>
+                
+                <div style="margin: 10px 0; font-size: 14px;">
+                    <span style="color: #ffc107;">■</span> 中心アイテム（Faerie Charm）　
+                    <span style="color: #007bff;">■</span> 中心の親（1個）　
+                    <span style="color: #007bff; opacity: 0.7;">□</span> 親の別子（1個）
+                </div>
+                
                 <div class="tree-diagram">
                     <h4>フェアリーチャームの家族関係図</h4>
                     <div class="tree-level">
@@ -554,6 +563,94 @@
                         'material-3082': { x: 290, y: 30 },
                         'material-1026': { x: 400, y: 30 },
                         'material-1052': { x: 510, y: 30 }
+                    }
+                }
+            });
+            
+            // フェアリーチャームの家族関係グラフ
+            var cy2 = cytoscape({
+                container: document.getElementById('faerie-charm-graph'),
+                
+                elements: [
+                    // ノード（3層構造）
+                    { data: { id: 'faerie-charm', label: 'Faerie\\nCharm', type: 'center' } },
+                    { data: { id: 'parent-3012', label: 'Chalice\\nof\\nBlessing', type: 'center_parent' } },
+                    { data: { id: 'material-1028', label: 'Ruby\\nCrystal', type: 'parent_other_child' } },
+                    
+                    // エッジ（関係）
+                    { data: { source: 'faerie-charm', target: 'parent-3012', type: 'parent-child' } },
+                    { data: { source: 'material-1028', target: 'parent-3012', type: 'child-parent' } }
+                ],
+                
+                style: [
+                    {
+                        selector: 'node',
+                        style: {
+                            'background-color': '#f0f0f0',
+                            'label': 'data(label)',
+                            'text-valign': 'center',
+                            'text-halign': 'center',
+                            'text-wrap': 'wrap',
+                            'font-size': '10px',
+                            'color': '#333',
+                            'width': 80,
+                            'height': 50,
+                            'border-width': 2,
+                            'border-color': '#ccc'
+                        }
+                    },
+                    {
+                        selector: 'node[type="center"]',
+                        style: {
+                            'background-color': '#fff3cd',
+                            'border-color': '#ffc107',
+                            'border-width': 4,
+                            'width': 100,
+                            'height': 60
+                        }
+                    },
+                    {
+                        selector: 'node[type="center_parent"]',
+                        style: {
+                            'background-color': '#cce7ff',
+                            'border-color': '#007bff',
+                            'border-width': 3
+                        }
+                    },
+                    {
+                        selector: 'node[type="parent_other_child"]',
+                        style: {
+                            'background-color': '#e6f3ff',
+                            'border-color': '#007bff',
+                            'border-style': 'dotted'
+                        }
+                    },
+                    {
+                        selector: 'edge[type="parent-child"]',
+                        style: {
+                            'width': 3,
+                            'line-color': '#0596aa',
+                            'target-arrow-color': '#0596aa',
+                            'target-arrow-shape': 'triangle'
+                        }
+                    },
+                    {
+                        selector: 'edge[type="child-parent"]',
+                        style: {
+                            'width': 3,
+                            'line-color': '#28a745',
+                            'target-arrow-color': '#28a745',
+                            'target-arrow-shape': 'triangle'
+                        }
+                    }
+                ],
+                
+                layout: {
+                    name: 'preset',
+                    positions: {
+                        'faerie-charm': { x: 400, y: 250 },
+                        'parent-3012': { x: 400, y: 120 },
+                        'material-1028': { x: 400, y: 50 }
                     }
                 }
             });
