@@ -200,6 +200,21 @@
         .info-panel .depth-2 {
             color: #ff8800;
         }
+        
+        /* 辺の長さ均等化のための視覚効果 */
+        .uniform-edge-layout .node {
+            opacity: 0.9;
+        }
+        
+        .uniform-edge-layout .link {
+            stroke-width: 2;
+            opacity: 0.8;
+        }
+        
+        .uniform-edge-layout .overlapping-nodes {
+            stroke-width: 3;
+            stroke-dasharray: 5,5;
+        }
     </style>
 </head>
 <body>
@@ -265,31 +280,32 @@
         
         <div class="loading" id="loading">グラフデータを読み込み中...</div>
         
-        <div id="d3-full-graph" class="d3-full-graph" style="display: none; position: relative;">
+        <div id="d3-full-graph" class="d3-full-graph uniform-edge-layout" style="display: none; position: relative;">
             <div id="info-panel" class="info-panel">
                 <h3 id="panel-title">アイテムを選択してください</h3>
                 <div id="panel-content">
                     <p>アイテムにマウスを乗せると詳細情報が表示されます</p>
+                    <p><strong>辺の長さ均等化モード</strong>: 全ての辺が同じ長さになるように配置されます</p>
                 </div>
             </div>
         </div>
         
         <div style="margin-top: 30px;">
+            <h3>辺の長さ均等化モード</h3>
+            <ul>
+                <li><strong>均等な辺の長さ</strong>: 全ての辺が80pxの同じ長さになるように配置</li>
+                <li><strong>幾何学的な美しさ</strong>: 規則正しいパターンで視覚的に美しいグラフ</li>
+                <li><strong>重なり許容</strong>: ノードの重なりを許可し、構造を優先</li>
+                <li><strong>自然な配置</strong>: 15秒間の物理シミュレーションで自然に収束</li>
+            </ul>
+            
             <h3>使い方</h3>
             <ul>
-                <li><strong>物理シミュレーション</strong>: D3.jsによる動的レイアウト</li>
+                <li><strong>レイアウト リセット</strong>: 新しいランダム配置で再計算</li>
                 <li><strong>価格フィルター</strong>: 指定した価格帯のアイテムのみ表示</li>
                 <li><strong>ズーム・パン</strong>: マウスホイールでズーム、ドラッグで移動</li>
                 <li><strong>ノードドラッグ</strong>: ノードをドラッグして位置調整可能</li>
-                <li><strong>アニメーション制御</strong>: 停止/再開ボタンでパフォーマンス調整</li>
-            </ul>
-            
-            <h3>グラフの読み方</h3>
-            <ul>
-                <li><strong>ノード</strong>: 各アイテムを表示（画像付き）</li>
-                <li><strong>エッジ</strong>: 素材関係（矢印は合成方向）</li>
-                <li><strong>色分け</strong>: 関係性に基づく分類（素材・中間・レジェンダリー）</li>
-                <li><strong>サイズ</strong>: アイテムの重要度（多く使われる素材ほど大きく表示）</li>
+                <li><strong>深さ別ハイライト</strong>: ホバー時に関係性を色分け表示</li>
             </ul>
         </div>
         
@@ -488,77 +504,40 @@
             
             console.log(`ノード数（重複除去後）: ${filteredData.nodes.length}`);
             
-            // 素材アイテムの最適配置順（グループベース総当たり最適化）
-            const optimalBasicOrder = [
-                "1052", // 増魔の書 (AP)
-                "1027", // サファイア クリスタル (AP)
-                "1004", // フェアリー チャーム (AP)
-                "1026", // ブラスティング ワンド (AP)
-                "1058", // ムダニ デカイ ロッド (AP)
-                "3070", // 女神の涙 (AP)
-                "1042", // ダガー (AD)
-                "1018", // アジリティ クローク (AD)
-                "1038", // B. F. ソード (AD)
-                "1036", // ロング ソード (AD)
-                "1037", // ピッケル (AD)
-                "1006", // 再生の珠 (Tank)
-                "1028", // ルビー クリスタル (Tank)
-                "1033", // ヌルマジック マント (Tank)
-                "1029", // クロース アーマー (Tank)
-                "2022"  // 輝きのモート (Other)
-            ];
-            
-            // 素材アイテムを最適順で配置
+            // 辺の長さ均等化システム
+            const IDEAL_EDGE_LENGTH = 80;  // 理想的な辺の長さ
             const centerX = width / 2;
             const centerY = height / 2;
-            const radius = Math.min(width, height) * 0.35;
             
-            const basicItems = filteredData.nodes.filter(d => d.category === 'basic');
-            const otherItems = filteredData.nodes.filter(d => d.category !== 'basic');
-            
-            // 素材アイテムを最適順で正多角形に配置
-            basicItems.forEach((d) => {
-                const orderIndex = optimalBasicOrder.indexOf(d.id);
-                if (orderIndex !== -1) {
-                    const angle = (orderIndex / optimalBasicOrder.length) * 2 * Math.PI - Math.PI / 2; // 上から開始
-                    d.x = centerX + radius * Math.cos(angle);
-                    d.y = centerY + radius * Math.sin(angle);
-                    d.fx = d.x;  // 固定
-                    d.fy = d.y;
-                }
-            });
-            
-            // その他のアイテムは中心付近にランダム配置
-            otherItems.forEach((d) => {
+            // 初期配置: 全ノードを中心付近にランダム配置
+            filteredData.nodes.forEach(d => {
                 const angle = Math.random() * 2 * Math.PI;
-                const r = Math.random() * radius * 0.6;
+                const r = Math.random() * Math.min(width, height) * 0.3;
                 d.x = centerX + r * Math.cos(angle);
                 d.y = centerY + r * Math.sin(angle);
             });
             
-            // D3 forceSimulation（最適化版）
+            // 辺の長さ均等化に特化したシミュレーション
             simulation = d3.forceSimulation(filteredData.nodes)
                 .force('link', d3.forceLink(filteredData.edges)
                     .id(d => d.id)
-                    .distance(60)  // 短い辺を目指す
-                    .strength(1.0))  // 強い引力
+                    .distance(IDEAL_EDGE_LENGTH)  // 理想的な辺の長さに固定
+                    .strength(1.5))  // 強い引力で辺の長さを均等化
                 .force('charge', d3.forceManyBody()
-                    .strength(-300)  // 適度な斥力
-                    .distanceMax(200))  // 遠距離の影響を制限
-                .force('center', d3.forceCenter(width / 2, height / 2))
+                    .strength(-200)  // 軽い斥力（重なりを許容）
+                    .distanceMax(IDEAL_EDGE_LENGTH * 2))  // 影響範囲を制限
+                .force('center', d3.forceCenter(width / 2, height / 2).strength(0.1))
                 .force('collision', d3.forceCollide()
-                    .radius(d => getNodeRadius(d) + 5)  // 最小限の間隔
-                    .strength(1.0)
-                    .iterations(3))
-                .force('x', d3.forceX(width / 2).strength(0.1))
-                .force('y', d3.forceY(height / 2).strength(0.1))
-                .alphaDecay(0.02)  // より速く収束
-                .velocityDecay(0.4);  // 速度減衰を増加
+                    .radius(d => getNodeRadius(d) * 0.5)  // 重なりを許容
+                    .strength(0.3)  // 弱い衝突回避
+                    .iterations(1))
+                .alphaDecay(0.005)  // ゆっくり収束で安定化
+                .velocityDecay(0.2);  // 低い速度減衰で自然な動き
             
-            // 5秒後に自動的にシミュレーションを停止
+            // 15秒後に自動的にシミュレーションを停止
             setTimeout(() => {
                 if (simulation) simulation.stop();
-            }, 5000);
+            }, 15000);
             
             // エッジを描画
             const linkGroup = g.append('g').attr('class', 'links');
@@ -797,11 +776,9 @@
         
         function dragended(event, d) {
             if (!event.active) simulation.alphaTarget(0);
-            // 素材アイテムは固定位置を維持
-            if (d.category !== 'basic') {
-                d.fx = null;
-                d.fy = null;
-            }
+            // 辺の長さ均等化では全ノードを自由に配置
+            d.fx = null;
+            d.fy = null;
         }
         
         
@@ -840,25 +817,20 @@
             
             console.log(`フィルタ後ノード数（重複除去後）: ${filteredData.nodes.length}`);
             
-            // 素材アイテムを最適配置で固定
+            // 辺の長さ均等化のため、フィルタ後も初期配置を再実行
             const container = document.getElementById('d3-full-graph');
             const width = container.clientWidth;
             const height = container.clientHeight;
             const centerX = width / 2;
             const centerY = height / 2;
-            const radius = Math.min(width, height) * 0.35;
+            const IDEAL_EDGE_LENGTH = 80;
             
-            // フィルタ後も素材アイテムの最適配置を維持
-            const basicFilteredItems = filteredData.nodes.filter(d => d.category === 'basic');
-            basicFilteredItems.forEach((d) => {
-                const orderIndex = optimalBasicOrder.indexOf(d.id);
-                if (orderIndex !== -1) {
-                    const angle = (orderIndex / optimalBasicOrder.length) * 2 * Math.PI - Math.PI / 2;
-                    d.x = centerX + radius * Math.cos(angle);
-                    d.y = centerY + radius * Math.sin(angle);
-                    d.fx = d.x;
-                    d.fy = d.y;
-                }
+            // 全ノードを中心付近にランダム配置
+            filteredData.nodes.forEach(d => {
+                const angle = Math.random() * 2 * Math.PI;
+                const r = Math.random() * Math.min(width, height) * 0.3;
+                d.x = centerX + r * Math.cos(angle);
+                d.y = centerY + r * Math.sin(angle);
             });
             
             // シミュレーションを再初期化
@@ -942,41 +914,26 @@
             const height = container.clientHeight;
             const centerX = width / 2;
             const centerY = height / 2;
-            const radius = Math.min(width, height) * 0.35;
             
-            // optimalBasicOrderを関数内で定義（グループベース総当たり最適化）
-            const optimalBasicOrder = [
-                "1052", "1027", "1004", "1026", "1058", "3070", "1042",
-                "1018", "1038", "1036", "1037", "1006", "1028", "1033",
-                "1029", "2022"
-            ];
-            
-            // 素材アイテムを最適配置に再配置
-            const basicItems = filteredData.nodes.filter(d => d.category === 'basic');
-            basicItems.forEach((d) => {
-                const orderIndex = optimalBasicOrder.indexOf(d.id);
-                if (orderIndex !== -1) {
-                    const angle = (orderIndex / optimalBasicOrder.length) * 2 * Math.PI - Math.PI / 2;
-                    d.fx = centerX + radius * Math.cos(angle);
-                    d.fy = centerY + radius * Math.sin(angle);
-                }
-            });
-            
-            // その他のノードの固定を解除
+            // 全ノードの固定を解除
             filteredData.nodes.forEach(d => {
-                if (d.category !== 'basic') {
-                    d.fx = null;
-                    d.fy = null;
-                }
+                d.fx = null;
+                d.fy = null;
+                
+                // 新しいランダム配置
+                const angle = Math.random() * 2 * Math.PI;
+                const r = Math.random() * Math.min(width, height) * 0.3;
+                d.x = centerX + r * Math.cos(angle);
+                d.y = centerY + r * Math.sin(angle);
             });
             
             // シミュレーションを再開
             simulation.alpha(1).restart();
             
-            // 5秒後に自動停止
+            // 15秒後に自動停止
             setTimeout(() => {
                 if (simulation) simulation.stop();
-            }, 5000);
+            }, 15000);
         }
         
         function zoomToFit() {
