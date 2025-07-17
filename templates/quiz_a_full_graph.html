@@ -426,25 +426,25 @@
             
             console.log(`ノード数（重複除去後）: ${filteredData.nodes.length}`);
             
-            // 素材アイテムの最適配置順（接続度に基づく）
+            // 素材アイテムの最適配置順（辺の長さ総和最小化）
             const optimalBasicOrder = [
-                '1036', // ロング ソード
-                '1018', // アジリティ クローク
-                '1037', // ピッケル
-                '1038', // B. F. ソード
-                '1028', // ルビー クリスタル
-                '2022', // 輝きのモート
-                '1052', // 増魔の書
-                '1027', // サファイア クリスタル
-                '1029', // クロース アーマー
-                '1033', // ヌルマジック マント
-                '1004', // フェアリー チャーム
-                '1042', // ダガー
-                '1006', // 再生の珠
-                '1026', // ブラスティング ワンド
-                '3070', // 女神の涙
-                '1058', // ムダニ デカイ ロッド
-                '4638'  // ウォッチフル ワードストーン
+                "1037", // ピッケル
+                "1026", // ブラスティング ワンド
+                "1004", // フェアリー チャーム
+                "1052", // 増魔の書
+                "2022", // 輝きのモート
+                "1027", // サファイア クリスタル
+                "1028", // ルビー クリスタル
+                "1029", // クロース アーマー
+                "1033", // ヌルマジック マント
+                "1006", // 再生の珠
+                "1058", // ムダニ デカイ ロッド
+                "1036", // ロング ソード
+                "1042", // ダガー
+                "3070", // 女神の涙
+                "1018", // アジリティ クローク
+                "4638", // ウォッチフル ワードストーン
+                "1038"  // B. F. ソード
             ];
             
             // 素材アイテムを最適順で配置
@@ -568,7 +568,123 @@
                 .attr('class', 'tooltip')
                 .style('opacity', 0);
             
+            // 深さ別エッジハイライト機能
+            function highlightConnectedEdges(hoveredNode) {
+                // BFS で深さ1、2の接続を探索
+                const depth1 = new Set();
+                const depth2 = new Set();
+                
+                // 深さ1の接続を探索
+                filteredData.edges.forEach(edge => {
+                    if (edge.source.id === hoveredNode.id) {
+                        depth1.add(edge.target.id);
+                    } else if (edge.target.id === hoveredNode.id) {
+                        depth1.add(edge.source.id);
+                    }
+                });
+                
+                // 深さ2の接続を探索
+                depth1.forEach(nodeId => {
+                    filteredData.edges.forEach(edge => {
+                        if (edge.source.id === nodeId && edge.target.id !== hoveredNode.id && !depth1.has(edge.target.id)) {
+                            depth2.add(edge.target.id);
+                        } else if (edge.target.id === nodeId && edge.source.id !== hoveredNode.id && !depth1.has(edge.source.id)) {
+                            depth2.add(edge.source.id);
+                        }
+                    });
+                });
+                
+                // エッジの色とスタイルを更新
+                links.attr('stroke', d => {
+                    const sourceId = d.source.id;
+                    const targetId = d.target.id;
+                    
+                    // 深さ1の接続
+                    if ((sourceId === hoveredNode.id && depth1.has(targetId)) || 
+                        (targetId === hoveredNode.id && depth1.has(sourceId))) {
+                        return '#ff4444';  // 赤
+                    }
+                    // 深さ2の接続
+                    else if ((depth1.has(sourceId) && depth2.has(targetId)) || 
+                             (depth1.has(targetId) && depth2.has(sourceId))) {
+                        return '#ff8800';  // オレンジ
+                    }
+                    // その他
+                    else {
+                        return '#ddd';  // 薄い灰色
+                    }
+                })
+                .attr('stroke-width', d => {
+                    const sourceId = d.source.id;
+                    const targetId = d.target.id;
+                    
+                    // 深さ1の接続
+                    if ((sourceId === hoveredNode.id && depth1.has(targetId)) || 
+                        (targetId === hoveredNode.id && depth1.has(sourceId))) {
+                        return 4;  // 太い
+                    }
+                    // 深さ2の接続
+                    else if ((depth1.has(sourceId) && depth2.has(targetId)) || 
+                             (depth1.has(targetId) && depth2.has(sourceId))) {
+                        return 2;  // 中程度
+                    }
+                    // その他
+                    else {
+                        return 1;  // 細い
+                    }
+                })
+                .attr('opacity', d => {
+                    const sourceId = d.source.id;
+                    const targetId = d.target.id;
+                    
+                    // 深さ1、2の接続
+                    if ((sourceId === hoveredNode.id && depth1.has(targetId)) || 
+                        (targetId === hoveredNode.id && depth1.has(sourceId)) ||
+                        (depth1.has(sourceId) && depth2.has(targetId)) || 
+                        (depth1.has(targetId) && depth2.has(sourceId))) {
+                        return 1.0;  // 完全に表示
+                    }
+                    // その他
+                    else {
+                        return 0.3;  // 半透明
+                    }
+                });
+                
+                // ノードの強調
+                nodes.select('circle').attr('stroke-width', d => {
+                    if (d.id === hoveredNode.id) {
+                        return 6;  // 選択されたノード
+                    } else if (depth1.has(d.id)) {
+                        return 4;  // 深さ1のノード
+                    } else if (depth2.has(d.id)) {
+                        return 3;  // 深さ2のノード
+                    } else {
+                        return d.category === 'legendary' ? 4 : 3;  // 通常
+                    }
+                })
+                .attr('opacity', d => {
+                    if (d.id === hoveredNode.id || depth1.has(d.id) || depth2.has(d.id)) {
+                        return 1.0;  // 完全に表示
+                    } else {
+                        return 0.5;  // 半透明
+                    }
+                });
+            }
+            
+            function resetHighlight() {
+                // エッジを通常に戻す
+                links.attr('stroke', '#ccc')
+                     .attr('stroke-width', 1)
+                     .attr('opacity', 1.0);
+                
+                // ノードを通常に戻す
+                nodes.select('circle')
+                     .attr('stroke-width', d => d.category === 'legendary' ? 4 : 3)
+                     .attr('opacity', 1.0);
+            }
+            
             nodes.on('mouseover', function(event, d) {
+                highlightConnectedEdges(d);
                 showTooltip(event, d, tooltip);
             })
             .on('mousemove', function(event, d) {
@@ -576,6 +692,7 @@
                        .style('top', (event.pageY - 10) + 'px');
             })
             .on('mouseout', function(event, d) {
+                resetHighlight();
                 tooltip.transition().duration(200).style('opacity', 0);
             });
             
@@ -644,11 +761,11 @@
                 filteredNodeIds.has(d.source) && filteredNodeIds.has(d.target)
             );
             
-            // optimalBasicOrderを関数内で定義
+            // optimalBasicOrderを関数内で定義（辺の長さ総和最小化）
             const optimalBasicOrder = [
-                '1036', '1018', '1037', '1038', '1028', '2022', '1052',
-                '1027', '1029', '1033', '1004', '1042', '1006', '1026',
-                '3070', '1058', '4638'
+                "1037", "1026", "1004", "1052", "2022", "1027", "1028",
+                "1029", "1033", "1006", "1058", "1036", "1042", "3070",
+                "1018", "4638", "1038"
             ];
             
             // データを更新（重複除去）
@@ -772,11 +889,11 @@
             const centerY = height / 2;
             const radius = Math.min(width, height) * 0.35;
             
-            // optimalBasicOrderを関数内で定義
+            // optimalBasicOrderを関数内で定義（辺の長さ総和最小化）
             const optimalBasicOrder = [
-                '1036', '1018', '1037', '1038', '1028', '2022', '1052',
-                '1027', '1029', '1033', '1004', '1042', '1006', '1026',
-                '3070', '1058', '4638'
+                "1037", "1026", "1004", "1052", "2022", "1027", "1028",
+                "1029", "1033", "1006", "1058", "1036", "1042", "3070",
+                "1018", "4638", "1038"
             ];
             
             // 素材アイテムを最適配置に再配置
