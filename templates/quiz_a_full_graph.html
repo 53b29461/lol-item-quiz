@@ -548,11 +548,8 @@
                 .attr('stroke-width', 1)
                 .attr('marker-end', 'url(#arrowhead)');
             
-            // 矢印マーカーとグロー効果を定義
-            const defs = svg.append('defs');
-            
-            // 矢印マーカー
-            defs.append('marker')
+            // 矢印マーカーを定義
+            svg.append('defs').append('marker')
                 .attr('id', 'arrowhead')
                 .attr('viewBox', '0 -5 10 10')
                 .attr('refX', 8)
@@ -563,24 +560,6 @@
                 .append('path')
                 .attr('d', 'M0,-5L10,0L0,5')
                 .attr('fill', '#ccc');
-            
-            // グロー効果フィルタ
-            const glowFilter = defs.append('filter')
-                .attr('id', 'glow')
-                .attr('width', '300%')
-                .attr('height', '300%')
-                .attr('x', '-100%')
-                .attr('y', '-100%');
-            
-            glowFilter.append('feGaussianBlur')
-                .attr('stdDeviation', '3')
-                .attr('result', 'coloredBlur');
-            
-            const feMerge = glowFilter.append('feMerge');
-            feMerge.append('feMergeNode')
-                .attr('in', 'coloredBlur');
-            feMerge.append('feMergeNode')
-                .attr('in', 'SourceGraphic');
             
             // ノードグループを作成
             const nodeGroup = g.append('g').attr('class', 'nodes');
@@ -654,17 +633,6 @@
                         }
                     });
                 });
-                
-                // ホバー対象ノードを最前面に移動
-                const hoveredNodeElement = d3.select(event.currentTarget);
-                hoveredNodeElement.raise();
-                
-                // ホバー対象ノードにハイライト効果を適用
-                hoveredNodeElement.select('circle')
-                    .attr('stroke', '#FFD700')  // ゴールド色の枠線
-                    .attr('stroke-width', 6)
-                    .attr('filter', 'url(#glow)')  // グロー効果
-                    .style('opacity', 1.0);
                 
                 // エッジの色とスタイルを更新
                 links.attr('stroke', d => {
@@ -751,9 +719,7 @@
                 
                 // ノードを通常に戻す
                 nodes.select('circle')
-                     .attr('stroke', d => d.category === 'legendary' ? '#8B4513' : '#4169E1')  // 元の色に戻す
                      .attr('stroke-width', d => d.category === 'legendary' ? 4 : 3)
-                     .attr('filter', null)  // グロー効果を削除
                      .attr('opacity', 1.0);
             }
             
