@@ -582,6 +582,7 @@
         let nodeRadiusMultiplier = 1.0;
         let heatmapRadiusMultiplier = 1.0;
         let radiusChart = null;
+        let chartVisible = false;
         
         // ヒートマップ設定をグローバルに移動
         let heatmapEnabled = true;  // デフォルトでONに変更
@@ -1308,10 +1309,14 @@
             }
             
             // グラフが表示されている場合は更新
-            const chartContainer = document.getElementById('radius-chart-container');
-            if (radiusChart && chartContainer && chartContainer.style.display !== 'none') {
+            console.log('Chart visible flag:', chartVisible);
+            console.log('radiusChart exists:', !!radiusChart);
+            
+            if (chartVisible) {
                 console.log('関数グラフを更新中...');
                 updateRadiusChart();
+            } else {
+                console.log('関数グラフは非表示のため更新をスキップ');
             }
         }
         
@@ -1323,6 +1328,7 @@
             if (container.style.display === 'none') {
                 container.style.display = 'block';
                 button.textContent = '関数グラフを非表示';
+                chartVisible = true;
                 if (!radiusChart) {
                     createRadiusChart();
                 } else {
@@ -1331,12 +1337,20 @@
             } else {
                 container.style.display = 'none';
                 button.textContent = '関数グラフを表示';
+                chartVisible = false;
             }
         }
         
         // 半径関数グラフの作成
         function createRadiusChart() {
-            const ctx = document.getElementById('radius-chart').getContext('2d');
+            console.log('createRadiusChart() called');
+            const canvasElement = document.getElementById('radius-chart');
+            if (!canvasElement) {
+                console.error('Canvas element not found');
+                return;
+            }
+            
+            const ctx = canvasElement.getContext('2d');
             
             // 価格データポイント（0～5000G）
             const pricePoints = [];
@@ -1383,58 +1397,63 @@
                 borderWidth: 3
             });
             
-            radiusChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    datasets: datasets
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            type: 'linear',
-                            position: 'bottom',
-                            title: {
-                                display: true,
-                                text: 'アイテム価格（G）'
-                            },
-                            min: 0,
-                            max: 5000
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'ノード半径（px）'
-                            },
-                            min: 0,
-                            max: 60
-                        }
+            try {
+                radiusChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        datasets: datasets
                     },
-                    plugins: {
-                        legend: {
-                            display: false  // 凡例を非表示
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                type: 'linear',
+                                position: 'bottom',
+                                title: {
+                                    display: true,
+                                    text: 'アイテム価格（G）'
+                                },
+                                min: 0,
+                                max: 5000
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'ノード半径（px）'
+                                },
+                                min: 0,
+                                max: 60
+                            }
                         },
-                        tooltip: {
-                            mode: 'nearest',
-                            intersect: false,
-                            callbacks: {
-                                label: function(context) {
-                                    return selectedFunc.name + ': ' + 
-                                           context.parsed.x + 'G → ' + 
-                                           context.parsed.y.toFixed(1) + 'px';
+                        plugins: {
+                            legend: {
+                                display: false  // 凡例を非表示
+                            },
+                            tooltip: {
+                                mode: 'nearest',
+                                intersect: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        return selectedFunc.name + ': ' + 
+                                               context.parsed.x + 'G → ' + 
+                                               context.parsed.y.toFixed(1) + 'px';
+                                    }
                                 }
                             }
-                        }
-                    },
-                    animation: {
-                        onComplete: function() {
-                            // アニメーション完了後にアイテム画像を描画
-                            drawItemImages(ctx, exampleItems, currentFunc);
+                        },
+                        animation: {
+                            onComplete: function() {
+                                // アニメーション完了後にアイテム画像を描画
+                                drawItemImages(ctx, exampleItems, currentFunc);
+                            }
                         }
                     }
-                }
-            });
+                });
+                console.log('Chart created successfully');
+            } catch (error) {
+                console.error('Error creating chart:', error);
+            }
         }
         
         // アイテム画像を描画する関数
@@ -1489,17 +1508,22 @@
         // 半径関数グラフの更新
         function updateRadiusChart() {
             console.log('updateRadiusChart() called');
-            if (!radiusChart) {
-                console.log('radiusChart not found, creating new chart');
-                createRadiusChart();
-                return;
-            }
             
-            console.log('Destroying existing chart and creating new one');
-            // グラフを再作成（選択された関数のみ表示するため）
-            radiusChart.destroy();
-            radiusChart = null;
-            createRadiusChart();
+            try {
+                if (radiusChart) {
+                    console.log('Destroying existing chart');
+                    radiusChart.destroy();
+                    radiusChart = null;
+                }
+                
+                console.log('Creating new chart');
+                createRadiusChart();
+                
+            } catch (error) {
+                console.error('Error in updateRadiusChart:', error);
+                radiusChart = null;
+                createRadiusChart();
+            }
         }
         
         // 半径計算関数（チャート用）
