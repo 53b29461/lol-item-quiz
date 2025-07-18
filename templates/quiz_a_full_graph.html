@@ -423,7 +423,7 @@
         
         <div class="filter-controls">
             <label for="radius-function">半径関数:</label>
-            <select id="radius-function">
+            <select id="radius-function" onchange="handleRadiusFunctionChange()">
                 <option value="logarithmic">対数関数</option>
                 <option value="exponential">指数関数</option>
                 <option value="linear">線形関数</option>
@@ -1280,23 +1280,16 @@
             return minRadius + (maxRadius - minRadius) * scaledRatio;
         }
         
-        // DOMコンテンツ読み込み完了時の処理
-        document.addEventListener('DOMContentLoaded', function() {
-            // プルダウンの変更を監視
-            const radiusFunctionSelect = document.getElementById('radius-function');
-            if (radiusFunctionSelect) {
-                radiusFunctionSelect.addEventListener('change', function() {
-                    console.log('プルダウンが変更されました:', this.value);
-                    updateRadiusFunction();
-                    
-                    // 関数グラフが表示されている場合は即座に更新
-                    if (chartVisible) {
-                        console.log('プルダウン変更による関数グラフの即座更新');
-                        setTimeout(updateRadiusChart, 100);
-                    }
-                });
+        // プルダウン変更時の処理（シンプル版）
+        function handleRadiusFunctionChange() {
+            console.log('プルダウンが変更されました');
+            updateRadiusFunction();
+            // 関数グラフが存在する場合は即座に更新
+            if (radiusChart) {
+                console.log('プルダウン変更による関数グラフの即座更新');
+                updateRadiusChart();
             }
-        });
+        }
         
         // 半径関数変更時の処理
         function updateRadiusFunction() {
@@ -1326,19 +1319,8 @@
                 console.warn('グラフが初期化されていません');
             }
             
-            // グラフが表示されている場合は更新
-            console.log('Chart visible flag:', chartVisible);
-            console.log('radiusChart exists:', !!radiusChart);
-            
-            if (chartVisible && radiusChart) {
-                console.log('関数グラフを更新中...');
-                updateRadiusChart();
-            } else if (chartVisible) {
-                console.log('グラフが表示されているが、チャートオブジェクトが存在しない');
-                updateRadiusChart();
-            } else {
-                console.log('関数グラフは非表示のため更新をスキップ');
-            }
+            // 関数グラフが存在する場合は常に更新（重複を避けるため削除）
+            // updateRadiusChart()は handleRadiusFunctionChange() で呼び出し済み
         }
         
         // 半径関数グラフの表示/非表示を切り替え
@@ -1530,18 +1512,75 @@
         function updateRadiusChart() {
             console.log('updateRadiusChart() called');
             
+            if (!radiusChart) {
+                console.log('No chart exists, creating new chart');
+                createRadiusChart();
+                return;
+            }
+            
             try {
-                if (radiusChart) {
-                    console.log('Destroying existing chart');
-                    radiusChart.destroy();
-                    radiusChart = null;
+                console.log('Updating existing chart data');
+                
+                // 現在選択されている関数を取得
+                const currentFunc = document.getElementById('radius-function').value;
+                console.log('Current function:', currentFunc);
+                
+                // 価格データポイント（0～5000G）
+                const pricePoints = [];
+                for (let i = 0; i <= 5000; i += 50) {
+                    pricePoints.push(i);
                 }
                 
-                console.log('Creating new chart');
-                createRadiusChart();
+                // 関数マッピング
+                const functionMap = {
+                    'logarithmic': { name: '対数関数', color: '#FF6B6B' },
+                    'exponential': { name: '指数関数', color: '#4ECDC4' },
+                    'linear': { name: '線形関数', color: '#45B7D1' },
+                    'sqrt': { name: 'ルート関数', color: '#96CEB4' }
+                };
+                
+                const selectedFunc = functionMap[currentFunc];
+                
+                // 新しいデータを計算
+                const newData = pricePoints.map(price => {
+                    return {
+                        x: price,
+                        y: calculateRadius(price, currentFunc)
+                    };
+                });
+                
+                // チャートデータを更新
+                radiusChart.data.datasets[0].data = newData;
+                radiusChart.data.datasets[0].label = selectedFunc.name;
+                radiusChart.data.datasets[0].borderColor = selectedFunc.color;
+                radiusChart.data.datasets[0].backgroundColor = selectedFunc.color + '20';
+                
+                // チャートを更新
+                radiusChart.update();
+                
+                // 実例アイテムを再描画
+                const exampleItems = [
+                    { name: 'ドランブレード', price: 450, symbol: 'D', bgColor: '#ff6b6b' },
+                    { name: 'ベルトリ', price: 1300, symbol: 'V', bgColor: '#4ecdc4' },
+                    { name: 'インフィニティエッジ', price: 3400, symbol: 'IE', bgColor: '#45b7d1' }
+                ];
+                
+                setTimeout(() => {
+                    const ctx = document.getElementById('radius-chart').getContext('2d');
+                    // 前のアイテム画像をクリア
+                    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                    // チャートを再描画
+                    radiusChart.update();
+                    // 新しいアイテムを描画
+                    drawItemImages(ctx, exampleItems, currentFunc);
+                }, 100);
+                
+                console.log('Chart updated successfully');
                 
             } catch (error) {
-                console.error('Error in updateRadiusChart:', error);
+                console.error('Error updating chart:', error);
+                // エラーの場合は再作成
+                radiusChart.destroy();
                 radiusChart = null;
                 createRadiusChart();
             }
