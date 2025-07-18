@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .full-graph-container {
             max-width: 1400px;
@@ -429,6 +430,7 @@
                 <option value="sqrt">ルート関数</option>
             </select>
             <button onclick="updateRadiusFunction()">グラフ更新</button>
+            <button onclick="toggleRadiusChart()" id="chart-toggle-btn">関数グラフを表示</button>
             
             <div class="radius-controls">
                 <label for="node-radius-multiplier">ノード半径:</label>
@@ -455,6 +457,17 @@
         </div>
         
         <div class="loading" id="loading">グラフデータを読み込み中...</div>
+        
+        <!-- 半径関数グラフ -->
+        <div id="radius-chart-container" style="display: none; margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
+            <h4 style="text-align: center; margin-bottom: 20px;">半径関数の比較グラフ</h4>
+            <div style="position: relative; height: 400px; width: 100%;">
+                <canvas id="radius-chart"></canvas>
+            </div>
+            <div style="margin-top: 15px; text-align: center; color: #666;">
+                <small>横軸: アイテム価格（G）　縦軸: ノード半径（px）</small>
+            </div>
+        </div>
         
         <div id="d3-full-graph" class="d3-full-graph uniform-edge-layout" style="display: none; position: relative;">
             <div id="info-panel" class="info-panel">
@@ -568,6 +581,7 @@
         let heatmapLayers = {};
         let nodeRadiusMultiplier = 1.0;
         let heatmapRadiusMultiplier = 1.0;
+        let radiusChart = null;
         
         // ヒートマップ設定をグローバルに移動
         let heatmapEnabled = true;  // デフォルトでONに変更
@@ -1292,6 +1306,194 @@
             } else {
                 console.warn('グラフが初期化されていません');
             }
+            
+            // グラフが表示されている場合は更新
+            if (radiusChart) {
+                updateRadiusChart();
+            }
+        }
+        
+        // 半径関数グラフの表示/非表示を切り替え
+        function toggleRadiusChart() {
+            const container = document.getElementById('radius-chart-container');
+            const button = document.getElementById('chart-toggle-btn');
+            
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                button.textContent = '関数グラフを非表示';
+                if (!radiusChart) {
+                    createRadiusChart();
+                } else {
+                    updateRadiusChart();
+                }
+            } else {
+                container.style.display = 'none';
+                button.textContent = '関数グラフを表示';
+            }
+        }
+        
+        // 半径関数グラフの作成
+        function createRadiusChart() {
+            const ctx = document.getElementById('radius-chart').getContext('2d');
+            
+            // 価格データポイント（0～5000G）
+            const pricePoints = [];
+            for (let i = 0; i <= 5000; i += 50) {
+                pricePoints.push(i);
+            }
+            
+            // 実例アイテム（価格で選択）
+            const exampleItems = [
+                { name: 'ドランブレード', price: 450, color: '#FF6B6B' },
+                { name: 'ベルトリ', price: 1300, color: '#4ECDC4' },
+                { name: 'インフィニティエッジ', price: 3400, color: '#45B7D1' }
+            ];
+            
+            const datasets = [];
+            
+            // 各関数のデータセットを作成
+            const functions = [
+                { name: '対数関数', key: 'logarithmic', color: '#FF6B6B' },
+                { name: '指数関数', key: 'exponential', color: '#4ECDC4' },
+                { name: '線形関数', key: 'linear', color: '#45B7D1' },
+                { name: 'ルート関数', key: 'sqrt', color: '#96CEB4' }
+            ];
+            
+            functions.forEach(func => {
+                const data = pricePoints.map(price => {
+                    return {
+                        x: price,
+                        y: calculateRadius(price, func.key)
+                    };
+                });
+                
+                datasets.push({
+                    label: func.name,
+                    data: data,
+                    borderColor: func.color,
+                    backgroundColor: func.color + '20',
+                    fill: false,
+                    tension: 0.1,
+                    pointRadius: 0,
+                    pointHoverRadius: 4
+                });
+            });
+            
+            // 実例アイテムのポイント
+            exampleItems.forEach(item => {
+                const data = functions.map(func => ({
+                    x: item.price,
+                    y: calculateRadius(item.price, func.key)
+                }));
+                
+                datasets.push({
+                    label: item.name + ' (' + item.price + 'G)',
+                    data: data,
+                    borderColor: item.color,
+                    backgroundColor: item.color,
+                    pointRadius: 8,
+                    pointHoverRadius: 10,
+                    showLine: false,
+                    pointStyle: 'circle',
+                    pointBorderWidth: 2,
+                    pointBorderColor: '#fff'
+                });
+            });
+            
+            radiusChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            title: {
+                                display: true,
+                                text: 'アイテム価格（G）'
+                            },
+                            min: 0,
+                            max: 5000
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'ノード半径（px）'
+                            },
+                            min: 0
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            mode: 'nearest',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + 
+                                           context.parsed.x + 'G → ' + 
+                                           context.parsed.y.toFixed(1) + 'px';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 半径関数グラフの更新
+        function updateRadiusChart() {
+            if (!radiusChart) return;
+            
+            const currentFunc = document.getElementById('radius-function').value;
+            
+            // 現在選択されている関数を強調
+            radiusChart.data.datasets.forEach((dataset, index) => {
+                if (index < 4) { // 関数のデータセット
+                    const functions = ['logarithmic', 'exponential', 'linear', 'sqrt'];
+                    const isSelected = functions[index] === currentFunc;
+                    dataset.borderWidth = isSelected ? 4 : 2;
+                    dataset.pointRadius = isSelected ? 2 : 0;
+                }
+            });
+            
+            radiusChart.update();
+        }
+        
+        // 半径計算関数（チャート用）
+        function calculateRadius(price, functionType) {
+            const minRadius = 15;
+            const maxRadius = 50;
+            const maxPrice = 5000;
+            
+            const ratio = Math.min(price / maxPrice, 1);
+            let scaledRatio;
+            
+            switch(functionType) {
+                case 'logarithmic':
+                    scaledRatio = Math.log(1 + ratio * 9) / Math.log(10);
+                    break;
+                case 'exponential':
+                    scaledRatio = Math.pow(ratio, 2);
+                    break;
+                case 'linear':
+                    scaledRatio = ratio;
+                    break;
+                case 'sqrt':
+                    scaledRatio = Math.sqrt(ratio);
+                    break;
+                default:
+                    scaledRatio = ratio;
+            }
+            
+            return minRadius + (maxRadius - minRadius) * scaledRatio;
         }
         
         function getNodeRadius(d) {
