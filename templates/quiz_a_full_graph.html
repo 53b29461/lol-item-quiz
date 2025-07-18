@@ -247,6 +247,30 @@
             border: 1px solid #ccc;
             border-radius: 4px;
         }
+        .radius-controls {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f0f8ff;
+            border-radius: 8px;
+            border: 1px solid #87ceeb;
+            text-align: center;
+        }
+        .radius-controls label {
+            margin: 0 10px;
+            font-weight: bold;
+            color: #1e90ff;
+        }
+        .radius-controls input[type="range"] {
+            width: 150px;
+            margin: 0 10px;
+        }
+        .radius-value {
+            font-weight: bold;
+            color: #1e90ff;
+            min-width: 40px;
+            text-align: center;
+            margin-right: 20px;
+        }
         .info-panel {
             position: absolute;
             top: 20px;
@@ -406,6 +430,18 @@
             </select>
             <button onclick="updateRadiusFunction()">グラフ更新</button>
             
+            <div class="radius-controls">
+                <label for="node-radius-multiplier">ノード半径:</label>
+                <input type="range" id="node-radius-multiplier" min="0.5" max="3.0" value="1.0" step="0.1">
+                <span id="node-radius-value" class="radius-value">1.0x</span>
+                
+                <label for="heatmap-radius-multiplier">ヒートマップ半径:</label>
+                <input type="range" id="heatmap-radius-multiplier" min="0.5" max="5.0" value="1.0" step="0.1">
+                <span id="heatmap-radius-value" class="radius-value">1.0x</span>
+                
+                <button onclick="resetRadiusMultipliers()" class="reset-button">デフォルトに戻す</button>
+            </div>
+            
             <label for="min-price">最低価格:</label>
             <input type="range" id="min-price" min="0" max="5000" value="0" step="100">
             <span id="min-price-value">0G</span>
@@ -464,6 +500,8 @@
         let isPaused = false;
         let heatmapGroup = null;
         let heatmapLayers = {};
+        let nodeRadiusMultiplier = 1.0;
+        let heatmapRadiusMultiplier = 1.0;
         
         // ヒートマップ設定をグローバルに移動
         let heatmapEnabled = true;  // デフォルトでONに変更
@@ -1172,13 +1210,13 @@
         }
         
         function getNodeRadius(d) {
-            return getPriceBasedRadius(d.price || 0);
+            return getPriceBasedRadius(d.price || 0) * nodeRadiusMultiplier;
         }
         
         // ヒートマップ用の半径計算（ノード半径の4倍）
         function getHeatmapRadius(price) {
             const nodeRadius = getPriceBasedRadius(price || 0);
-            return nodeRadius * 4.0; // ノード半径の4倍
+            return nodeRadius * 4.0 * heatmapRadiusMultiplier; // ノード半径の4倍 × 倍率
         }
         
         function getNodeColor(d) {
@@ -1613,7 +1651,68 @@
         }
         
         // ページ読み込み時にデータを読み込み
-        document.addEventListener('DOMContentLoaded', loadGraphData);
+        // 半径調整スライダーの初期化
+        function initializeRadiusControls() {
+            const nodeRadiusSlider = document.getElementById('node-radius-multiplier');
+            const heatmapRadiusSlider = document.getElementById('heatmap-radius-multiplier');
+            const nodeRadiusValue = document.getElementById('node-radius-value');
+            const heatmapRadiusValue = document.getElementById('heatmap-radius-value');
+            
+            // ノード半径スライダーのイベントリスナー
+            nodeRadiusSlider.addEventListener('input', function() {
+                nodeRadiusMultiplier = parseFloat(this.value);
+                nodeRadiusValue.textContent = nodeRadiusMultiplier.toFixed(1) + 'x';
+                updateNodeRadii();
+            });
+            
+            // ヒートマップ半径スライダーのイベントリスナー
+            heatmapRadiusSlider.addEventListener('input', function() {
+                heatmapRadiusMultiplier = parseFloat(this.value);
+                heatmapRadiusValue.textContent = heatmapRadiusMultiplier.toFixed(1) + 'x';
+                updateHeatmapRadii();
+            });
+        }
+        
+        // ノード半径のみ更新
+        function updateNodeRadii() {
+            if (nodes) {
+                nodes.selectAll('circle').attr('r', d => getNodeRadius(d));
+                nodes.selectAll('.hover-area').attr('r', d => getNodeRadius(d) * 1.5);
+                
+                // force collideも更新
+                if (simulation) {
+                    simulation.force('collide').radius(d => getNodeRadius(d) * 1.05);
+                    simulation.alpha(0.3).restart();
+                }
+            }
+        }
+        
+        // ヒートマップ半径のみ更新
+        function updateHeatmapRadii() {
+            if (heatmapGroup && heatmapEnabled) {
+                heatmapGroup.selectAll('.heatmap-circle')
+                    .attr('r', d => getHeatmapRadius(d.price));
+            }
+        }
+        
+        // デフォルト値に戻す
+        function resetRadiusMultipliers() {
+            nodeRadiusMultiplier = 1.0;
+            heatmapRadiusMultiplier = 1.0;
+            
+            document.getElementById('node-radius-multiplier').value = 1.0;
+            document.getElementById('heatmap-radius-multiplier').value = 1.0;
+            document.getElementById('node-radius-value').textContent = '1.0x';
+            document.getElementById('heatmap-radius-value').textContent = '1.0x';
+            
+            updateNodeRadii();
+            updateHeatmapRadii();
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeRadiusControls();
+            loadGraphData();
+        });
     </script>
 </body>
 </html>
