@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='animations.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='header-nav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='performance-accessibility.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='browser-compatibility.css') }}">
     <script>
     function copyTextAndShowInlineMessage() {
         var text = "連続正解回数: {{ previous_consecutive_correct_answers }}回\n#LoLItemQuiz\n#クイズA\n\nhttps://lol-item-quiz.com/";
@@ -51,7 +53,7 @@
         </div>
     </header>
     
-    <div class="container">
+    <div class="container" id="main-content" role="main">
         
         <!-- アイテム画像カード -->
         <div class="item-display-card">

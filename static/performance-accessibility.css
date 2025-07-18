@@ -1,0 +1,355 @@
+/* =============================================================================
+   Performance and Accessibility Optimizations
+   ============================================================================= */
+
+/* Performance Optimizations */
+
+/* GPU Acceleration for Better Performance */
+.quiz-card,
+.tool-card,
+.answer-option,
+.math-key,
+.site-header {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Optimize repaints for animations */
+.container,
+.index-container {
+  contain: layout style;
+}
+
+/* Font Loading Performance */
+@font-display: swap;
+
+/* Reduce Layout Thrashing */
+.quiz-card-grid,
+.tool-card-grid,
+.answer-options-grid {
+  contain: layout;
+}
+
+/* =============================================================================
+   Accessibility Enhancements
+   ============================================================================= */
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  :root {
+    --color-correct: #4a7c59;      /* Darker green for better contrast */
+    --color-present: #b8a042;      /* Darker yellow for better contrast */
+    --color-absent: #5a5d60;       /* Darker gray for better contrast */
+    --border-default: #000000;     /* Black borders for high contrast */
+    --text-primary: #000000;       /* Pure black text */
+    --text-secondary: #333333;     /* Darker secondary text */
+  }
+  
+  .quiz-card,
+  .tool-card,
+  .answer-option {
+    border: 2px solid var(--border-default);
+  }
+  
+  .btn {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Enhanced Focus Indicators for Keyboard Navigation */
+.quiz-card:focus,
+.tool-card:focus,
+.answer-option:focus,
+.btn:focus,
+.nav-link:focus,
+.math-key:focus {
+  outline: 3px solid #005fcc;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 5px #005fcc;
+}
+
+/* Skip to Content Link */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--color-correct);
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 1000;
+  transition: top 0.3s ease;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* Screen Reader Only Content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Enhanced Button States for Screen Readers */
+.answer-option[aria-pressed="true"] {
+  background-color: var(--color-present);
+  color: var(--text-on-color);
+}
+
+.answer-option.correct[aria-pressed="true"] {
+  background-color: var(--color-correct);
+}
+
+.answer-option.absent[aria-pressed="true"] {
+  background-color: var(--color-absent);
+}
+
+/* Improved Color Contrast Ratios */
+.text-secondary {
+  color: #666666; /* WCAG AA compliant contrast ratio */
+}
+
+.back-link {
+  color: #0066cc; /* High contrast link color */
+  text-decoration: underline;
+}
+
+.back-link:hover,
+.back-link:focus {
+  color: #004499;
+  text-decoration: none;
+}
+
+/* Touch Target Optimization */
+@media (pointer: coarse) {
+  .quiz-card,
+  .tool-card,
+  .answer-option,
+  .btn,
+  .math-key,
+  .nav-link {
+    min-height: 44px; /* WCAG minimum touch target */
+    min-width: 44px;
+  }
+  
+  .answer-option {
+    padding: var(--space-md);
+  }
+  
+  .nav-link {
+    padding: var(--space-sm) var(--space-md);
+  }
+}
+
+/* Enhanced Error States */
+.form-error {
+  color: #d63031;
+  font-size: var(--font-size-sm);
+  margin-top: var(--space-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.form-error::before {
+  content: "⚠️";
+  flex-shrink: 0;
+}
+
+/* Loading States with Accessibility */
+.loading {
+  position: relative;
+}
+
+.loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid var(--color-correct);
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: loading-spin 1s linear infinite;
+}
+
+@keyframes loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Keyboard Navigation Enhancement */
+.keyboard-navigation .quiz-card:focus,
+.keyboard-navigation .tool-card:focus,
+.keyboard-navigation .answer-option:focus {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 3px #005fcc;
+}
+
+/* Alternative Text for Icons */
+.indicator-icon,
+.timer-icon {
+  /* Ensure icons have alternative text through aria-label */
+  speak: none;
+}
+
+/* Print Styles for Accessibility */
+@media print {
+  .site-header,
+  .nav-link,
+  .btn,
+  .timer-display {
+    display: none;
+  }
+  
+  .quiz-card,
+  .tool-card,
+  .answer-option {
+    border: 1px solid #000;
+    background: white !important;
+    color: black !important;
+    box-shadow: none;
+  }
+  
+  .container,
+  .index-container {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+/* Dark Mode Support with Proper Contrast */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #1a1a1b;
+    --bg-secondary: #272729;
+    --bg-tile: #343536;
+    --bg-container: #1a1a1b;
+    
+    --text-primary: #d7dadc;
+    --text-secondary: #818384;
+    --text-muted: #6f7071;
+    
+    --border-default: #474849;
+    --border-focus: #d7dadc;
+    --border-hover: #818384;
+    
+    /* Ensure Wordle colors maintain contrast in dark mode */
+    --color-correct: #538d4e;
+    --color-present: #b59f3b;
+    --color-absent: #3a3a3c;
+  }
+  
+  .quiz-card,
+  .tool-card,
+  .answer-option {
+    background-color: var(--bg-tile);
+    color: var(--text-primary);
+  }
+  
+  .site-header {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Language Direction Support */
+[dir="rtl"] .back-link::before {
+  content: "→";
+}
+
+[dir="rtl"] .breadcrumb-separator {
+  transform: scaleX(-1);
+}
+
+/* Voice Control Optimization */
+.voice-command-target {
+  position: relative;
+}
+
+.voice-command-target::after {
+  content: attr(data-voice-command);
+  position: absolute;
+  top: -20px;
+  left: 0;
+  font-size: 10px;
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.voice-command-mode .voice-command-target::after {
+  opacity: 1;
+}
+
+/* Memory and Performance Optimizations */
+.quiz-card img,
+.tool-card img,
+.item-image-large {
+  content-visibility: auto;
+  contain-intrinsic-size: 200px 200px;
+}
+
+/* Intersection Observer lazy loading support */
+.lazy-load {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.lazy-load.loaded {
+  opacity: 1;
+}
+
+/* CSS Grid Performance Enhancement */
+.quiz-card-grid,
+.tool-card-grid {
+  contain: layout style paint;
+}
+
+/* Animation Performance */
+@media (prefers-reduced-motion: no-preference) {
+  .quiz-card,
+  .tool-card,
+  .answer-option {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+/* Error Boundary Styling */
+.error-boundary {
+  border: 2px solid #d63031;
+  border-radius: var(--border-radius);
+  padding: var(--space-lg);
+  background-color: #fff5f5;
+  color: #2d3748;
+  text-align: center;
+}
+
+.error-boundary h2 {
+  color: #d63031;
+  margin-bottom: var(--space-md);
+}
+
+/* Focus Management for Single Page Applications */
+.focus-trap {
+  outline: none;
+}
+
+/* Optimize for component rendering */
+.quiz-form,
+.result-section,
+.math-game-container {
+  contain: layout style;
+}

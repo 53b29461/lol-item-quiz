@@ -7,8 +7,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='animations.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='header-nav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='performance-accessibility.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='browser-compatibility.css') }}">
 </head>
 <body>
+    <!-- Skip to content link for accessibility -->
+    <a href="#main-content" class="skip-link">メインコンテンツへスキップ</a>
     <!-- 統一ヘッダー -->
     <header class="site-header">
         <div class="header-content">
@@ -28,7 +32,7 @@
         </div>
     </header>
 
-    <div class="index-container">
+    <div class="index-container" id="main-content" role="main">
         
         <!-- メインクイズカード -->
         <div class="quiz-card-grid">
