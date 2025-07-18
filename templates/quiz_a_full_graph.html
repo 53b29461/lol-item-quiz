@@ -1676,8 +1676,17 @@
         // ノード半径のみ更新
         function updateNodeRadii() {
             if (nodes) {
+                // 外枠円を更新
                 nodes.selectAll('circle').attr('r', d => getNodeRadius(d));
                 nodes.selectAll('.hover-area').attr('r', d => getNodeRadius(d) * 1.5);
+                
+                // 画像サイズ・位置・クリップパスを更新
+                nodes.selectAll('image')
+                    .attr('width', d => getNodeRadius(d) * 2)
+                    .attr('height', d => getNodeRadius(d) * 2)
+                    .attr('x', d => -getNodeRadius(d))
+                    .attr('y', d => -getNodeRadius(d))
+                    .style('clip-path', d => `circle(${getNodeRadius(d) - 2}px)`);
                 
                 // force collideも更新
                 if (simulation) {
