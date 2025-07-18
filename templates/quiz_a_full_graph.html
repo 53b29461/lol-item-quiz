@@ -452,6 +452,42 @@
         let links = null;
         let filteredData = null;
         let isPaused = false;
+        let heatmapGroup = null;
+        
+        // ヒートマップ設定をグローバルに移動
+        let heatmapEnabled = false;
+        let heatmapRadius = 30;
+        let heatmapOpacity = 0.25;
+        
+        // アイテムタイプ別の色設定
+        const heatmapColors = {
+            ap: '#DA70D6',     // 明るい紫（orchid）
+            ad: '#FF4500',     // 赤色（orangered）
+            tank: '#32CD32',   // 明るい緑（limegreen）
+            other: '#FFD700'   // その他は金色
+        };
+        
+        // アイテムタイプ判定機能をグローバルに移動
+        function getItemType(node) {
+            const stats = node.stats || {};
+            
+            // APアイテム: FlatMagicDamageMod があるもの
+            if (stats.FlatMagicDamageMod) {
+                return 'ap';
+            }
+            // ADアイテム: FlatPhysicalDamageMod があるもの
+            else if (stats.FlatPhysicalDamageMod) {
+                return 'ad';
+            }
+            // タンクアイテム: FlatArmorMod または FlatSpellBlockMod があるもの
+            else if (stats.FlatArmorMod || stats.FlatSpellBlockMod) {
+                return 'tank';
+            }
+            // その他
+            else {
+                return 'other';
+            }
+        }
         
         // Kamada-Kawaiアルゴリズムの実装
         function calculateKamadaKawaiLayout(nodes, edges, width, height) {
@@ -634,40 +670,7 @@
             
             console.log(`ノード数（重複除去後）: ${filteredData.nodes.length}`);
             
-            // アイテムタイプ判定機能
-            function getItemType(node) {
-                const stats = node.stats || {};
-                
-                // APアイテム: FlatMagicDamageMod があるもの
-                if (stats.FlatMagicDamageMod) {
-                    return 'ap';
-                }
-                // ADアイテム: FlatPhysicalDamageMod があるもの
-                else if (stats.FlatPhysicalDamageMod) {
-                    return 'ad';
-                }
-                // タンクアイテム: FlatArmorMod または FlatSpellBlockMod があるもの
-                else if (stats.FlatArmorMod || stats.FlatSpellBlockMod) {
-                    return 'tank';
-                }
-                // その他
-                else {
-                    return 'other';
-                }
-            }
             
-            // ヒートマップ設定
-            let heatmapEnabled = false;
-            let heatmapRadius = 30;
-            let heatmapOpacity = 0.25;
-            
-            // アイテムタイプ別の色設定
-            const heatmapColors = {
-                ap: '#DA70D6',     // 明るい紫（orchid）
-                ad: '#FF4500',     // 赤色（orangered）
-                tank: '#32CD32',   // 明るい緑（limegreen）
-                other: '#FFD700'   // その他は金色
-            };
             
             // 辺の長さ均等化システム
             let IDEAL_EDGE_LENGTH = 120;  // 理想的な辺の長さ（1.5倍）
@@ -703,9 +706,6 @@
             setTimeout(() => {
                 if (simulation) simulation.stop();
             }, 15000);
-            
-            // ヒートマップの初期化
-            updateHeatmap();
             
             // エッジを描画
             const linkGroup = g.append('g').attr('class', 'links');
@@ -757,7 +757,7 @@
             createHeatmapGradients();
             
             // ヒートマップレイヤーを作成（ノードより下に配置）
-            const heatmapGroup = g.append('g').attr('class', 'heatmap-layer');
+            heatmapGroup = g.append('g').attr('class', 'heatmap-layer');
             
             // ヒートマップ円を作成・更新する関数
             function updateHeatmap() {
@@ -992,6 +992,9 @@
                         .attr('cy', d => d.y);
                 }
             });
+            
+            // ヒートマップの初期化（すべての要素が作成された後）
+            updateHeatmap();
         }
         
         function getNodeRadius(d) {
