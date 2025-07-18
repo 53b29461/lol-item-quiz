@@ -1726,29 +1726,22 @@
             }
         }
         
-        // 辺の色を動的に更新（ヒートマップ状態に応じて視認性を向上）
+        // 辺の色を動的に更新（シンプルに黒で統一）
         function updateEdgeColors() {
             if (!links) return;
             
-            let edgeColor = edgeColors.default;
+            let edgeColor = '#000000';  // 黒で統一
             let edgeWidth = 2;
             
             if (heatmapEnabled) {
-                // ヒートマップが有効な場合、主要な色を判定
-                const activeTypes = Object.keys(heatmapColors);
-                if (activeTypes.length > 0) {
-                    // 最初のアクティブなタイプの補色を使用
-                    const dominantType = activeTypes[0];
-                    edgeColor = edgeColors[dominantType] || edgeColors.default;
-                    edgeWidth = 3; // ヒートマップ有効時は太く
-                }
+                edgeWidth = 3; // ヒートマップ有効時は太く
             }
             
             // 辺の色とスタイルを更新
             links.attr('stroke', edgeColor)
                  .attr('stroke-width', edgeWidth)
                  .attr('stroke-opacity', 0.9) // 高い透明度で視認性確保
-                 .style('filter', 'drop-shadow(0 0 2px rgba(0,0,0,0.5))'); // 影効果
+                 .style('filter', 'drop-shadow(0 0 2px rgba(255,255,255,0.5))'); // 白い影効果
                  
             console.log('辺の色を更新:', edgeColor, 'width:', edgeWidth);
         }
