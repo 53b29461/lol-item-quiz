@@ -249,9 +249,41 @@ def next_question_b():
 def etc():
     return render_template('etc.html', patch_version=patch_version)
 
-@app.route('/math-game')
+@app.route('/math_game')
 def math_game():
     return render_template('math_game.html', patch_version=patch_version)
+
+@app.route('/leaderboard')
+def leaderboard():
+    return render_template('leaderboard.html', patch_version=patch_version)
+
+@app.route('/stats')
+def stats():
+    return render_template('stats.html', patch_version=patch_version)
+
+@app.route('/about')
+def about():
+    return render_template('about.html', patch_version=patch_version)
+
+@app.route('/progress')
+def progress():
+    return render_template('progress.html', patch_version=patch_version)
+
+@app.route('/custom')
+def custom():
+    return render_template('custom.html', patch_version=patch_version)
+
+@app.route('/changelog')
+def changelog():
+    return render_template('changelog.html', patch_version=patch_version)
+
+@app.route('/feedback')
+def feedback():
+    return render_template('feedback.html', patch_version=patch_version)
+
+@app.route('/contact')
+def contact():
+    return render_template('contact.html', patch_version=patch_version)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))  # 環境変数PORTからポート番号を取得
