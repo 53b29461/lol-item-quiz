@@ -226,38 +226,38 @@
 
             <div class="step-card">
                 <div class="step-number">5</div>
-                <div class="step-title">ひっかけ選択肢の生成</div>
+                <div class="step-title">拡張ファミリーの取得</div>
                 <div class="step-description">
-                    学習効果を高めるため、正解の素材アイテムに加えて、巧妙なひっかけアイテムを選択肢に含めます。
-                    これにより、ユーザーは正確な知識を身につけることができます。
+                    選択されたアイテムの「拡張ファミリー」を取得します。これは、そのアイテムと何らかの関係性を持つアイテムの集合です。
+                    具体的には以下の関係を持つアイテムが含まれます：
+                    <ul>
+                        <li><strong>直接的な親子関係</strong>: 素材アイテムと完成品アイテム</li>
+                        <li><strong>兄弟関係</strong>: 同じ素材から作られるアイテム</li>
+                        <li><strong>親戚関係</strong>: 共通の素材を持つアイテム</li>
+                        <li><strong>2次的な関係</strong>: 関連アイテムの関連アイテム</li>
+                    </ul>
                 </div>
                 <div class="example-box">
-                    <div class="example-title">ひっかけパターンの例</div>
+                    <div class="example-title">インフィニティエッジの拡張ファミリー例</div>
                     <div style="margin: 10px 0;">
-                        <strong>📍 類似名称ひっかけ</strong><br>
+                        <strong>📍 正解の素材アイテム</strong><br>
                         <div class="item-list">
-                            <span class="item-tag correct-answer">ロングソード</span>
-                            <span class="item-tag">（正解）</span>
-                            <span class="item-tag">ショートソード</span>
-                            <span class="item-tag">（ひっかけ）</span>
-                        </div>
-                    </div>
-                    <div style="margin: 10px 0;">
-                        <strong>📍 同カテゴリひっかけ</strong><br>
-                        <div class="item-list">
+                            <span class="item-tag correct-answer">B.F.ソード</span>
                             <span class="item-tag correct-answer">クリティカルクローク</span>
-                            <span class="item-tag">（正解）</span>
-                            <span class="item-tag">ベルトリ</span>
-                            <span class="item-tag">（同じAD系だがひっかけ）</span>
+                            <span class="item-tag correct-answer">ピックアックス</span>
+                            <span class="item-tag correct-answer">ロングソード</span>
+                            <span class="item-tag correct-answer">ダガー</span>
                         </div>
                     </div>
                     <div style="margin: 10px 0;">
-                        <strong>📍 価格帯ひっかけ</strong><br>
+                        <strong>📍 拡張ファミリー（ひっかけ候補）</strong><br>
                         <div class="item-list">
-                            <span class="item-tag correct-answer">ピックアックス</span>
-                            <span class="item-tag">（正解・875G）</span>
-                            <span class="item-tag">ダガー</span>
-                            <span class="item-tag">（似た価格帯だがひっかけ・300G）</span>
+                            <span class="item-tag">ストームレイザー</span>
+                            <span class="item-tag">（B.F.ソード使用）</span>
+                            <span class="item-tag">ラピッドファイアキャノン</span>
+                            <span class="item-tag">（ダガー使用）</span>
+                            <span class="item-tag">ベルトリ</span>
+                            <span class="item-tag">（ロングソード使用）</span>
                         </div>
                     </div>
                 </div>
@@ -265,15 +265,26 @@
 
             <div class="step-card">
                 <div class="step-number">6</div>
-                <div class="step-title">選択肢の最終調整</div>
+                <div class="step-title">選択肢の生成</div>
                 <div class="step-description">
-                    正解の素材アイテムとひっかけアイテムを組み合わせて、バランスの取れた選択肢を生成します。
-                    適切な難易度と学習効果を提供するため、以下の要素を考慮します：
+                    拡張ファミリーから正解の素材アイテムを除外し、残ったアイテムの中から最大10個をランダムに選択します。
+                    これにより、以下のような効果的なひっかけ選択肢が生成されます：
                     <ul>
-                        <li><strong>難易度バランス</strong>: 明らかに違うアイテムと微妙に紛らわしいアイテムを混在</li>
-                        <li><strong>学習効果</strong>: 間違えやすいポイントを含めて知識を深める</li>
-                        <li><strong>公平性</strong>: 運ゲーにならないよう論理的に解けるレベル</li>
+                        <li><strong>関連性のあるひっかけ</strong>: 完全に無関係ではなく、何らかの関係性を持つアイテム</li>
+                        <li><strong>学習効果</strong>: アイテム間の関係性を深く理解する必要がある</li>
+                        <li><strong>適切な難易度</strong>: 知識があれば解けるが、曖昧な理解では間違える</li>
                     </ul>
+                </div>
+                <div class="example-box">
+                    <div class="example-title">なぜこの方法が効果的なのか</div>
+                    <div style="margin: 10px 0;">
+                        <strong>❌ 悪い例</strong>: 完全に無関係なアイテム（例：ポーション類）<br>
+                        <strong>✅ 良い例</strong>: 関連性があるが正解ではないアイテム（例：同じ素材を使う別のアイテム）
+                    </div>
+                    <div style="margin: 10px 0;">
+                        これにより、プレイヤーは「なんとなく関係がありそう」なアイテムに惑わされず、
+                        正確な素材関係を理解する必要があります。
+                    </div>
                 </div>
             </div>
 
@@ -298,9 +309,9 @@
                 <div class="flow-arrow">↓</div>
                 <div>アイテムツリー構築</div>
                 <div class="flow-arrow">↓</div>
-                <div>ひっかけ選択肢生成</div>
+                <div>拡張ファミリー取得</div>
                 <div class="flow-arrow">↓</div>
-                <div>選択肢最終調整</div>
+                <div>選択肢生成</div>
                 <div class="flow-arrow">↓</div>
                 <div>正解判定</div>
             </div>
