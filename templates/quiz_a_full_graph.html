@@ -240,6 +240,13 @@
             width: 200px;
             margin: 0 10px;
         }
+        .filter-controls select {
+            margin: 0 10px;
+            padding: 4px 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
         .info-panel {
             position: absolute;
             top: 20px;
@@ -388,6 +395,14 @@
         </div>
         
         <div class="filter-controls">
+            <label for="radius-function">半径関数:</label>
+            <select id="radius-function" onchange="updateRadiusFunction()">
+                <option value="logarithmic">対数関数</option>
+                <option value="exponential">指数関数</option>
+                <option value="linear">線形関数</option>
+                <option value="sqrt">ルート関数</option>
+            </select>
+            
             <label for="min-price">最低価格:</label>
             <input type="range" id="min-price" min="0" max="5000" value="0" step="100">
             <span id="min-price-value">0G</span>
@@ -1014,7 +1029,10 @@
             updateHeatmap();
         }
         
-        // 価格ベースの半径計算関数（対数関数）
+        // 現在の半径関数タイプ
+        let currentRadiusFunction = 'logarithmic';
+        
+        // 価格ベースの半径計算関数（関数タイプに応じて切り替え）
         function getPriceBasedRadius(price, minRadius = 8, maxRadius = 35) {
             const minPrice = 0;
             const maxPrice = 3500;
@@ -1022,20 +1040,57 @@
             // 価格が0の場合は最小半径
             if (price <= 0) return minRadius;
             
-            // 対数関数スケーリング（log）
             const ratio = Math.min(price / maxPrice, 1);
-            const logRatio = Math.log(1 + ratio * 9) / Math.log(10); // log10(1+9*ratio)で0-1範囲に正規化
-            return minRadius + (maxRadius - minRadius) * logRatio;
+            let scaledRatio;
+            
+            switch(currentRadiusFunction) {
+                case 'logarithmic':
+                    // 対数関数スケーリング
+                    scaledRatio = Math.log(1 + ratio * 9) / Math.log(10);
+                    break;
+                case 'exponential':
+                    // 指数関数スケーリング（x^2）
+                    scaledRatio = Math.pow(ratio, 2);
+                    break;
+                case 'linear':
+                    // 線形スケーリング
+                    scaledRatio = ratio;
+                    break;
+                case 'sqrt':
+                    // ルート関数スケーリング
+                    scaledRatio = Math.sqrt(ratio);
+                    break;
+                default:
+                    scaledRatio = ratio;
+            }
+            
+            return minRadius + (maxRadius - minRadius) * scaledRatio;
+        }
+        
+        // 半径関数変更時の処理
+        function updateRadiusFunction() {
+            currentRadiusFunction = document.getElementById('radius-function').value;
+            
+            // ノードの半径を更新
+            if (typeof nodes !== 'undefined' && nodes) {
+                svg.selectAll('.node circle')
+                    .transition()
+                    .duration(500)
+                    .attr('r', d => getNodeRadius(d));
+                    
+                // ヒートマップも更新
+                updateHeatmap();
+            }
         }
         
         function getNodeRadius(d) {
             return getPriceBasedRadius(d.price || 0);
         }
         
-        // ヒートマップ用の半径計算（ノード半径の1.5～2倍）
+        // ヒートマップ用の半径計算（ノード半径の4倍）
         function getHeatmapRadius(price) {
             const nodeRadius = getPriceBasedRadius(price || 0);
-            return nodeRadius * 1.8; // ノード半径の1.8倍
+            return nodeRadius * 4.0; // ノード半径の4倍
         }
         
         function getNodeColor(d) {
