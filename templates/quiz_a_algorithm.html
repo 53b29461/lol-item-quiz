@@ -226,15 +226,59 @@
 
             <div class="step-card">
                 <div class="step-number">5</div>
-                <div class="step-title">選択肢の生成</div>
+                <div class="step-title">ひっかけ選択肢の生成</div>
                 <div class="step-description">
-                    アイテムツリーに含まれるアイテムと、含まれない他のアイテムを組み合わせて、
-                    選択肢を生成します。正解の素材アイテムが必ず含まれるようになっています。
+                    学習効果を高めるため、正解の素材アイテムに加えて、巧妙なひっかけアイテムを選択肢に含めます。
+                    これにより、ユーザーは正確な知識を身につけることができます。
+                </div>
+                <div class="example-box">
+                    <div class="example-title">ひっかけパターンの例</div>
+                    <div style="margin: 10px 0;">
+                        <strong>📍 類似名称ひっかけ</strong><br>
+                        <div class="item-list">
+                            <span class="item-tag correct-answer">ロングソード</span>
+                            <span class="item-tag">（正解）</span>
+                            <span class="item-tag">ショートソード</span>
+                            <span class="item-tag">（ひっかけ）</span>
+                        </div>
+                    </div>
+                    <div style="margin: 10px 0;">
+                        <strong>📍 同カテゴリひっかけ</strong><br>
+                        <div class="item-list">
+                            <span class="item-tag correct-answer">クリティカルクローク</span>
+                            <span class="item-tag">（正解）</span>
+                            <span class="item-tag">ベルトリ</span>
+                            <span class="item-tag">（同じAD系だがひっかけ）</span>
+                        </div>
+                    </div>
+                    <div style="margin: 10px 0;">
+                        <strong>📍 価格帯ひっかけ</strong><br>
+                        <div class="item-list">
+                            <span class="item-tag correct-answer">ピックアックス</span>
+                            <span class="item-tag">（正解・875G）</span>
+                            <span class="item-tag">ダガー</span>
+                            <span class="item-tag">（似た価格帯だがひっかけ・300G）</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="step-card">
                 <div class="step-number">6</div>
+                <div class="step-title">選択肢の最終調整</div>
+                <div class="step-description">
+                    正解の素材アイテムとひっかけアイテムを組み合わせて、バランスの取れた選択肢を生成します。
+                    適切な難易度と学習効果を提供するため、以下の要素を考慮します：
+                    <ul>
+                        <li><strong>難易度バランス</strong>: 明らかに違うアイテムと微妙に紛らわしいアイテムを混在</li>
+                        <li><strong>学習効果</strong>: 間違えやすいポイントを含めて知識を深める</li>
+                        <li><strong>公平性</strong>: 運ゲーにならないよう論理的に解けるレベル</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">7</div>
                 <div class="step-title">正解判定</div>
                 <div class="step-description">
                     ユーザーが選択したアイテムが、構築されたアイテムツリーに含まれる素材アイテムと
@@ -254,7 +298,9 @@
                 <div class="flow-arrow">↓</div>
                 <div>アイテムツリー構築</div>
                 <div class="flow-arrow">↓</div>
-                <div>選択肢生成</div>
+                <div>ひっかけ選択肢生成</div>
+                <div class="flow-arrow">↓</div>
+                <div>選択肢最終調整</div>
                 <div class="flow-arrow">↓</div>
                 <div>正解判定</div>
             </div>
@@ -291,6 +337,22 @@
                 <div class="feature-description">
                     高速なアルゴリズムにより、
                     即座に問題が生成されます。
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <div class="feature-title">教育的効果</div>
+                <div class="feature-description">
+                    巧妙なひっかけ選択肢により、
+                    深い理解と正確な知識が身につきます。
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚖️</div>
+                <div class="feature-title">難易度バランス</div>
+                <div class="feature-description">
+                    適切な難易度調整により、
+                    挑戦的だが公平な問題を提供します。
                 </div>
             </div>
         </div>
