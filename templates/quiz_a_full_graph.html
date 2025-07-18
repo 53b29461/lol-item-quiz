@@ -303,6 +303,75 @@
             color: #ff8800;
         }
         
+        /* 情報チップ専用エリア（グラフUIの外） */
+        .item-info-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid #0596aa;
+        }
+        .item-info-section h3 {
+            margin: 0 0 15px 0;
+            color: #0596aa;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .info-panel-external {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            min-height: 200px;
+        }
+        .panel-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0596aa;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .panel-content {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .panel-content .item-price {
+            color: #ffc107;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .panel-content .item-description {
+            margin-bottom: 15px;
+            line-height: 1.4;
+            color: #555;
+        }
+        .panel-content .item-stats {
+            margin-top: 10px;
+        }
+        .panel-content .stat-line {
+            margin: 3px 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+        .panel-content .connection-info {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+        .panel-content .connection-info h4 {
+            margin: 0 0 5px 0;
+            color: #666;
+            font-size: 14px;
+        }
+        .panel-content .depth-1 {
+            color: #ff4444;
+        }
+        .panel-content .depth-2 {
+            color: #ff8800;
+        }
+        
         /* 辺の長さ均等化のための視覚効果 */
         .uniform-edge-layout .node {
             opacity: 0.9;
@@ -420,16 +489,19 @@
         
         <div class="loading" id="loading">グラフデータを読み込み中...</div>
         
-        <!-- 情報パネルをd3-full-graphの外に移動 -->
-        <div id="info-panel" class="info-panel">
-            <h3 id="panel-title">アイテムを選択してください</h3>
-            <div id="panel-content">
-                <p>アイテムにマウスを乗せると詳細情報が表示されます</p>
-                <p><strong>辺の長さ均等化モード</strong>: 全ての辺が同じ長さになるように配置されます</p>
-            </div>
+        <div id="d3-full-graph" class="d3-full-graph uniform-edge-layout" style="display: none; position: relative;">
         </div>
         
-        <div id="d3-full-graph" class="d3-full-graph uniform-edge-layout" style="display: none; position: relative;">
+        <!-- 情報チップ専用エリア（グラフUIの完全に外に配置） -->
+        <div class="item-info-section">
+            <h3>📊 アイテム詳細情報</h3>
+            <div id="info-panel" class="info-panel-external">
+                <div id="panel-title" class="panel-title">アイテムを選択してください</div>
+                <div id="panel-content" class="panel-content">
+                    <p>グラフ上のアイテムにマウスを乗せると詳細情報が表示されます</p>
+                    <p><strong>辺の長さ均等化モード</strong>では、全ての辺が同じ長さになるように配置されます</p>
+                </div>
+            </div>
         </div>
         
         <div style="margin-top: 30px;">
@@ -1572,23 +1644,19 @@
                 ${connectionHtml}
             `);
             
-            // パネルを表示
-            console.log('About to display panel...');
-            window.infoPanel.style('display', 'block');
-            console.log('InfoPanel display style set to block');
-            
-            // 表示が正しく適用されているか確認
-            const actualElement = document.getElementById('info-panel');
-            if (actualElement) {
-                console.log('Actual element display after setting:', getComputedStyle(actualElement).display);
-                console.log('Actual element visible:', actualElement.offsetHeight > 0);
-            }
+            // パネルを表示（外部専用エリアは常に表示されているので、内容更新のみ）
+            console.log('InfoPanel content updated for external display');
         }
         
         function hideInfoPanel() {
-            if (window.infoPanel && !window.infoPanel.empty()) {
-                window.infoPanel.style('display', 'none');
-                console.log('InfoPanel hidden');
+            // 外部専用エリアなので、デフォルト状態に戻すのみ
+            if (window.panelTitle && window.panelContent) {
+                window.panelTitle.text('アイテムを選択してください');
+                window.panelContent.html(`
+                    <p>グラフ上のアイテムにマウスを乗せると詳細情報が表示されます</p>
+                    <p><strong>辺の長さ均等化モード</strong>では、全ての辺が同じ長さになるように配置されます</p>
+                `);
+                console.log('InfoPanel reset to default state');
             }
         }
         
