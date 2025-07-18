@@ -1014,7 +1014,7 @@
             updateHeatmap();
         }
         
-        // 価格ベースの半径計算関数
+        // 価格ベースの半径計算関数（指数関数）
         function getPriceBasedRadius(price, minRadius = 8, maxRadius = 35) {
             const minPrice = 0;
             const maxPrice = 3500;
@@ -1022,9 +1022,10 @@
             // 価格が0の場合は最小半径
             if (price <= 0) return minRadius;
             
-            // 線形スケーリング
+            // 指数関数スケーリング（x^2）
             const ratio = Math.min(price / maxPrice, 1);
-            return minRadius + (maxRadius - minRadius) * ratio;
+            const exponentialRatio = Math.pow(ratio, 2);
+            return minRadius + (maxRadius - minRadius) * exponentialRatio;
         }
         
         function getNodeRadius(d) {
