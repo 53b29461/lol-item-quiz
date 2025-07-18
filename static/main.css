@@ -854,6 +854,621 @@ a:hover {
   font-weight: var(--font-weight-bold);
 }
 
+/* ==========================================================================
+   Math Game Specific Wordle-Style Components
+   ========================================================================== */
+
+/* Math Game Header */
+.math-game-header {
+  text-align: center;
+  margin-bottom: var(--space-xl);
+  padding: var(--space-lg);
+  background-color: var(--bg-tile);
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-lg);
+}
+
+.game-status-bar {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-xl);
+  margin-top: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  background-color: var(--bg-secondary);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+}
+
+.status-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.status-value {
+  font-size: var(--font-size-base);
+  color: var(--color-correct);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Math Game Area */
+.math-game-area {
+  padding: var(--space-xl) 0;
+}
+
+.math-screen {
+  text-align: center;
+  padding: var(--space-lg);
+}
+
+.math-screen.active {
+  display: block;
+}
+
+/* Welcome Screen */
+.math-welcome-card {
+  background-color: var(--bg-tile);
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2xl);
+  max-width: 500px;
+  margin: 0 auto;
+  box-shadow: var(--shadow-md);
+}
+
+.game-description {
+  font-size: var(--font-size-lg);
+  color: var(--text-primary);
+  margin-bottom: var(--space-md);
+  line-height: 1.5;
+}
+
+.game-challenge {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-xl);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Difficulty Selection */
+.difficulty-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-lg);
+  margin: var(--space-xl) 0;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.difficulty-card {
+  background-color: var(--bg-tile);
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
+}
+
+.difficulty-card:hover {
+  border-color: var(--color-correct);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.difficulty-card.normal {
+  border-left: 4px solid var(--color-correct);
+}
+
+.difficulty-card.hard {
+  border-left: 4px solid var(--color-present);
+}
+
+.difficulty-card h3 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-md);
+}
+
+.difficulty-features {
+  margin: var(--space-md) 0;
+  text-align: left;
+}
+
+.difficulty-features p {
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  margin-bottom: var(--space-xs);
+  font-family: monospace;
+}
+
+.difficulty-description {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-lg);
+  font-style: italic;
+}
+
+/* Math Problem Display */
+.math-problem-card {
+  background-color: var(--bg-tile);
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2xl);
+  margin-bottom: var(--space-xl);
+  box-shadow: var(--shadow-md);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.math-expression {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-lg);
+  font-family: 'Courier New', monospace;
+  letter-spacing: 2px;
+}
+
+.math-answer-display {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-correct);
+  margin-bottom: var(--space-md);
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.math-instruction {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-lg);
+  line-height: 1.5;
+}
+
+/* Math Feedback */
+.math-feedback {
+  margin: var(--space-lg) 0;
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.math-feedback.correct {
+  background-color: var(--color-correct);
+  color: var(--text-on-color);
+  border: 2px solid var(--color-correct);
+}
+
+.math-feedback.incorrect {
+  background-color: var(--color-absent);
+  color: var(--text-on-color);
+  border: 2px solid var(--color-absent);
+}
+
+/* Wordle-Style Math Keyboard */
+.math-keyboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  margin: var(--space-xl) 0;
+}
+
+.keyboard-row {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: center;
+}
+
+.math-key {
+  width: 60px;
+  height: 60px;
+  border: 2px solid var(--border-default);
+  background-color: var(--bg-tile);
+  color: var(--text-primary);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.math-key:hover {
+  border-color: var(--color-correct);
+  background-color: var(--bg-secondary);
+  transform: scale(1.05);
+}
+
+.math-key:active {
+  transform: scale(0.95);
+  background-color: var(--color-correct);
+  color: var(--text-on-color);
+}
+
+.math-key.pressed {
+  background-color: var(--color-present);
+  border-color: var(--color-present);
+  color: var(--text-on-color);
+  animation: key-press 0.15s ease-in-out;
+}
+
+/* Math Results Display */
+.math-result-card {
+  background-color: var(--bg-tile);
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2xl);
+  max-width: 600px;
+  margin: 0 auto;
+  box-shadow: var(--shadow-md);
+}
+
+.math-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--space-lg);
+  margin: var(--space-xl) 0;
+}
+
+.math-result-item {
+  text-align: center;
+  padding: var(--space-lg);
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+}
+
+.result-number {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-correct);
+  line-height: 1;
+  margin-bottom: var(--space-xs);
+}
+
+.result-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.math-result-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  margin-top: var(--space-xl);
+}
+
+/* Math Game Animations */
+@keyframes key-press {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+@keyframes math-reveal {
+  0% { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Math Game Mobile Responsiveness */
+@media (max-width: 480px) {
+  .difficulty-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+  
+  .game-status-bar {
+    gap: var(--space-md);
+  }
+  
+  .math-expression {
+    font-size: var(--font-size-2xl);
+  }
+  
+  .math-answer-display {
+    font-size: var(--font-size-xl);
+  }
+  
+  .math-key {
+    width: 50px;
+    height: 50px;
+    font-size: var(--font-size-lg);
+  }
+  
+  .keyboard-row {
+    gap: var(--space-xs);
+  }
+  
+  .math-results-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+  }
+  
+  .math-result-actions {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  
+  .math-result-actions .btn {
+    width: 100%;
+    max-width: 250px;
+  }
+}
+
+/* Tablet adjustments for Math Game */
+@media (min-width: 481px) and (max-width: 768px) {
+  .math-results-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .difficulty-grid {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+  }
+}
+
+/* ==========================================================================
+   Additional Components for etc.html and Enhanced Features
+   ========================================================================== */
+
+/* Game Features Text */
+.game-features {
+  font-size: var(--font-size-sm) !important;
+  color: var(--text-secondary) !important;
+  line-height: 1.6 !important;
+  margin: var(--space-md) 0 var(--space-lg) 0 !important;
+  text-align: left !important;
+  background-color: var(--bg-secondary);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--color-correct);
+}
+
+/* Placeholder Cards for Future Features */
+.quiz-card.placeholder {
+  border: 2px dashed var(--border-default);
+  background-color: var(--bg-secondary);
+  opacity: 0.8;
+}
+
+.quiz-card.placeholder:hover {
+  border-color: var(--border-focus);
+  transform: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.quiz-card.placeholder h3 {
+  color: var(--text-secondary);
+}
+
+.quiz-card.placeholder p {
+  color: var(--text-muted);
+}
+
+/* Enhanced Button States */
+.btn:disabled,
+.btn[disabled] {
+  background-color: var(--color-absent);
+  color: var(--text-on-color);
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none !important;
+}
+
+.btn:disabled:hover,
+.btn[disabled]:hover {
+  background-color: var(--color-absent);
+  transform: none;
+}
+
+/* Algorithm and Documentation Pages Specific Styles */
+.algorithm-content {
+  background-color: var(--bg-tile);
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  margin: var(--space-xl) 0;
+  line-height: 1.6;
+}
+
+.algorithm-content h2 {
+  color: var(--color-correct);
+  border-bottom: 2px solid var(--border-default);
+  padding-bottom: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.algorithm-content h3 {
+  color: var(--text-primary);
+  margin-top: var(--space-lg);
+  margin-bottom: var(--space-md);
+}
+
+.algorithm-content pre {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  padding: var(--space-md);
+  overflow-x: auto;
+  font-family: 'Courier New', monospace;
+  margin: var(--space-md) 0;
+}
+
+.algorithm-content code {
+  background-color: var(--bg-secondary);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  font-family: 'Courier New', monospace;
+  color: var(--color-correct);
+}
+
+/* Navigation Breadcrumbs */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.breadcrumb a {
+  color: var(--color-correct);
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb-separator {
+  color: var(--text-muted);
+}
+
+/* Info Boxes and Callouts */
+.info-box {
+  background-color: var(--bg-secondary);
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  margin: var(--space-lg) 0;
+  position: relative;
+}
+
+.info-box.tip {
+  border-left: 4px solid var(--color-correct);
+  background: linear-gradient(135deg, var(--bg-tile) 0%, rgba(106, 170, 100, 0.05) 100%);
+}
+
+.info-box.warning {
+  border-left: 4px solid var(--color-present);
+  background: linear-gradient(135deg, var(--bg-tile) 0%, rgba(201, 180, 88, 0.05) 100%);
+}
+
+.info-box.error {
+  border-left: 4px solid var(--color-absent);
+  background: linear-gradient(135deg, var(--bg-tile) 0%, rgba(120, 124, 126, 0.05) 100%);
+}
+
+.info-box h4 {
+  margin-top: 0;
+  margin-bottom: var(--space-sm);
+  color: var(--text-primary);
+}
+
+/* Progress Indicators */
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: var(--bg-secondary);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: var(--space-md) 0;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: var(--color-correct);
+  transition: width var(--transition-slow);
+  border-radius: 4px;
+}
+
+/* Loading States */
+.loading {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--text-secondary);
+}
+
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border-default);
+  border-top: 2px solid var(--color-correct);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Enhanced Mobile Support for Additional Pages */
+@media (max-width: 480px) {
+  .game-features {
+    font-size: var(--font-size-xs) !important;
+    padding: var(--space-xs) var(--space-sm);
+  }
+  
+  .algorithm-content {
+    padding: var(--space-md);
+  }
+  
+  .algorithm-content pre {
+    font-size: var(--font-size-xs);
+    padding: var(--space-sm);
+  }
+  
+  .breadcrumb {
+    flex-wrap: wrap;
+  }
+  
+  .info-box {
+    padding: var(--space-md);
+  }
+}
+
+/* Print Styles for Documentation */
+@media print {
+  .back-link,
+  .btn,
+  .quiz-card button,
+  .tool-card button {
+    display: none !important;
+  }
+  
+  .quiz-card,
+  .tool-card,
+  .algorithm-content {
+    break-inside: avoid;
+  }
+  
+  .section-divider {
+    margin: var(--space-lg) 0;
+  }
+}
+
 /* Mobile Responsiveness for Quiz */
 @media (max-width: 480px) {
   .answer-options-grid {

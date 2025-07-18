@@ -1,23 +1,65 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-    <title>etc</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>その他のクイズ - LoL Item Quiz</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='animations.css') }}">
 </head>
 <body>
+    <a href="/" class="back-link">← TOP</a>
+    
     <div class="index-container">
+        <h1>その他のクイズ</h1>
+        <p class="text-secondary mb-lg">追加のゲームとチャレンジ</p>
         
-        <div class="game-section">
-            <h2>etc</h2>
-            <a href="/math-game" class="index-link">number</a>
+        <!-- ゲームカードセクション -->
+        <div class="quiz-card-grid">
+            <div class="quiz-card">
+                <h3>🔢 数学ゲーム</h3>
+                <p>計算結果の桁を当てる暗算チャレンジ</p>
+                <p class="game-features">
+                    • 10問連続チャレンジ<br>
+                    • ノーマル・ハード難易度<br>
+                    • タイマー付きスコア計測
+                </p>
+                <a href="/math-game" class="btn btn-primary">チャレンジ開始</a>
+            </div>
+            
+            <div class="quiz-card placeholder">
+                <h3>🎯 更なるチャレンジ</h3>
+                <p>今後追加予定のクイズやミニゲーム</p>
+                <p class="game-features">
+                    • アイテムビルドクイズ<br>
+                    • タイムアタックモード<br>
+                    • 上級者向けチャレンジ
+                </p>
+                <button class="btn btn-secondary" disabled>準備中</button>
+            </div>
         </div>
         
-        <div class="navigation">
-            <a href="/" class="index-link">メインページに戻る</a>
+        <!-- 統計・情報セクション -->
+        <div class="section-divider"></div>
+        
+        <h2>ゲーム情報</h2>
+        <div class="tool-card-grid">
+            <div class="tool-card">
+                <h4>📊 プレイ統計</h4>
+                <p>あなたのゲーム成績とランキング</p>
+                <button class="btn btn-secondary" disabled>準備中</button>
+            </div>
+            
+            <div class="tool-card">
+                <h4>🏆 実績システム</h4>
+                <p>獲得できる称号とバッジ</p>
+                <button class="btn btn-secondary" disabled>準備中</button>
+            </div>
         </div>
     </div>
+    
+    <footer>
+        <p>&copy; 2024 LoL Item Quiz. All rights reserved.</p>
+    </footer>
 </body>
-<footer>
-    <p>&copy; 2024 LoL Item Quiz. All rights reserved.</p>
-</footer>
 </html>
