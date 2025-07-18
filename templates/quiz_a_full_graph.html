@@ -423,7 +423,7 @@
         
         <div class="filter-controls">
             <label for="radius-function">半径関数:</label>
-            <select id="radius-function">
+            <select id="radius-function" onchange="updateRadiusFunction()">
                 <option value="logarithmic">対数関数</option>
                 <option value="exponential">指数関数</option>
                 <option value="linear">線形関数</option>
@@ -1308,7 +1308,9 @@
             }
             
             // グラフが表示されている場合は更新
-            if (radiusChart) {
+            const chartContainer = document.getElementById('radius-chart-container');
+            if (radiusChart && chartContainer && chartContainer.style.display !== 'none') {
+                console.log('関数グラフを更新中...');
                 updateRadiusChart();
             }
         }
@@ -1486,13 +1488,17 @@
         
         // 半径関数グラフの更新
         function updateRadiusChart() {
+            console.log('updateRadiusChart() called');
             if (!radiusChart) {
+                console.log('radiusChart not found, creating new chart');
                 createRadiusChart();
                 return;
             }
             
+            console.log('Destroying existing chart and creating new one');
             // グラフを再作成（選択された関数のみ表示するため）
             radiusChart.destroy();
+            radiusChart = null;
             createRadiusChart();
         }
         
