@@ -374,25 +374,25 @@
         </div>
         
         <div class="heatmap-control">
-            <button id="heatmap-toggle" class="heatmap-toggle" onclick="toggleHeatmap()">ヒートマップ ON/OFF</button>
+            <button id="heatmap-toggle" class="heatmap-toggle active" onclick="toggleHeatmap()">ヒートマップ ON</button>
             <label for="heatmap-radius-slider">半径:</label>
             <input type="range" 
                    id="heatmap-radius-slider" 
                    class="heatmap-slider"
                    min="20" 
                    max="100" 
-                   value="30" 
+                   value="60" 
                    step="5">
-            <span id="heatmap-radius-value" class="heatmap-value">30px</span>
+            <span id="heatmap-radius-value" class="heatmap-value">60px</span>
             <label for="heatmap-opacity-slider">透明度:</label>
             <input type="range" 
                    id="heatmap-opacity-slider" 
                    class="heatmap-slider"
                    min="10" 
-                   max="50" 
-                   value="25" 
+                   max="60" 
+                   value="40" 
                    step="5">
-            <span id="heatmap-opacity-value" class="heatmap-value">25%</span>
+            <span id="heatmap-opacity-value" class="heatmap-value">40%</span>
         </div>
         
         <div class="filter-controls">
@@ -453,11 +453,12 @@
         let filteredData = null;
         let isPaused = false;
         let heatmapGroup = null;
+        let heatmapLayers = {};
         
         // ヒートマップ設定をグローバルに移動
-        let heatmapEnabled = false;
-        let heatmapRadius = 30;
-        let heatmapOpacity = 0.25;
+        let heatmapEnabled = true;  // デフォルトでONに変更
+        let heatmapRadius = 60;     // より大きな半径に変更
+        let heatmapOpacity = 0.4;   // より濃い透明度に変更
         
         // アイテムタイプ別の色設定
         const heatmapColors = {
@@ -756,31 +757,53 @@
             
             createHeatmapGradients();
             
-            // ヒートマップレイヤーを作成（ノードより下に配置）
+            // ヒートマップレイヤーをアイテムタイプ別に作成（ノードより下に配置）
             heatmapGroup = g.append('g').attr('class', 'heatmap-layer');
+            
+            // アイテムタイプ別のサブグループを作成
+            heatmapLayers = {};
+            Object.keys(heatmapColors).forEach(type => {
+                heatmapLayers[type] = heatmapGroup.append('g')
+                    .attr('class', `heatmap-${type}`)
+                    .style('mix-blend-mode', 'multiply'); // 同じ色同士は濃くなる
+            });
+            
+            // 全体のヒートマップグループに異なる色同士の効果を適用
+            heatmapGroup.style('mix-blend-mode', 'screen'); // 異なる色同士は白っぽくなる
             
             // ヒートマップ円を作成・更新する関数
             function updateHeatmap() {
                 if (!heatmapEnabled) {
-                    heatmapGroup.selectAll('.heatmap-circle').remove();
+                    Object.values(heatmapLayers).forEach(layer => {
+                        layer.selectAll('.heatmap-circle').remove();
+                    });
                     return;
                 }
                 
-                const heatmapCircles = heatmapGroup.selectAll('.heatmap-circle')
-                    .data(filteredData.nodes, d => d.id);
+                // アイテムタイプ別にデータを分ける
+                const nodesByType = {};
+                Object.keys(heatmapColors).forEach(type => {
+                    nodesByType[type] = filteredData.nodes.filter(d => getItemType(d) === type);
+                });
                 
-                heatmapCircles.exit().remove();
-                
-                const heatmapEnter = heatmapCircles.enter()
-                    .append('circle')
-                    .attr('class', 'heatmap-circle')
-                    .style('mix-blend-mode', 'screen'); // 重なりが明るくなる効果
-                
-                heatmapCircles.merge(heatmapEnter)
-                    .attr('r', heatmapRadius)
-                    .attr('fill', d => `url(#heatmap-gradient-${getItemType(d)})`)
-                    .attr('cx', d => d.x || 0)
-                    .attr('cy', d => d.y || 0);
+                // 各タイプ別にヒートマップ円を描画
+                Object.keys(nodesByType).forEach(type => {
+                    const layer = heatmapLayers[type];
+                    const heatmapCircles = layer.selectAll('.heatmap-circle')
+                        .data(nodesByType[type], d => d.id);
+                    
+                    heatmapCircles.exit().remove();
+                    
+                    const heatmapEnter = heatmapCircles.enter()
+                        .append('circle')
+                        .attr('class', 'heatmap-circle');
+                    
+                    heatmapCircles.merge(heatmapEnter)
+                        .attr('r', heatmapRadius)
+                        .attr('fill', `url(#heatmap-gradient-${type})`)
+                        .attr('cx', d => d.x || 0)
+                        .attr('cy', d => d.y || 0);
+                });
             }
             
             // ノードグループを作成
@@ -987,9 +1010,11 @@
                 
                 // ヒートマップの位置も更新
                 if (heatmapEnabled) {
-                    heatmapGroup.selectAll('.heatmap-circle')
-                        .attr('cx', d => d.x)
-                        .attr('cy', d => d.y);
+                    Object.values(heatmapLayers).forEach(layer => {
+                        layer.selectAll('.heatmap-circle')
+                            .attr('cx', d => d.x)
+                            .attr('cy', d => d.y);
+                    });
                 }
             });
             
