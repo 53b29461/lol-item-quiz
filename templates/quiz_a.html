@@ -1,16 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-    <title>League of Legends Anki - Patch {{ patch_version }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>クイズA - LoL Item Quiz (Patch {{ patch_version }})</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
     <script>
     function copyTextAndShowInlineMessage() {
-        var text = "連続正解回数: {{ previous_consecutive_correct_answers }}回\n#lolanki\n#lolanki_a\n\nhttps://www.lolanki.com/";
+        var text = "連続正解回数: {{ previous_consecutive_correct_answers }}回\n#LoLItemQuiz\n#クイズA\n\nhttps://lol-item-quiz.com/";
         navigator.clipboard.writeText(text).then(function() {
             var message = document.getElementById("inline-message");
             message.textContent = "Copied!";
             message.style.display = "block";
-            setTimeout(function() { message.style.display = "none"; }, 5000);
+            setTimeout(function() { message.style.display = "none"; }, 3000);
         }, function(err) {
             console.error('Async: Could not copy text: ', err);
         });
@@ -18,40 +20,58 @@
     </script>
 </head>
 <body>
-    <a href="/" class="back-link">TOP</a>
+    <a href="/" class="back-link">← TOP</a>
+    
     <div class="container">
-        <h1>{{ patch_version }}</h1>
-        <img src="{{ item['image_url'] }}" alt="{{ item['name'] }}" class="item-image">
-
-        <p> <strong>{{ item['name'] }}</strong> の合成先アイテムをすべて選択しなさい：</p>
+        <h1>クイズA</h1>
+        <p class="text-secondary mb-md">Patch {{ patch_version }}</p>
+        
+        <!-- アイテム画像カード -->
+        <div class="item-display-card">
+            <img src="{{ item['image_url'] }}" alt="{{ item['name'] }}" class="item-image-large">
+            <h2 class="item-name">{{ item['name'] }}</h2>
+            <p class="quiz-question">この素材アイテムから作成できるアイテムをすべて選択してください</p>
+        </div>
 
         <form method="post" class="quiz-form">
-            {% for item in answer_marks %}
-            <div class="form-group">
-                <input type="checkbox" id="{{ item.name }}" name="answer" value="{{ item.name }}" {% if item.checked %}checked{% endif %}>
-                <label for="{{ item.name }}">
-                    {% if submitted %}
-                    <!-- 正解か不正解かに応じてマークを表示 -->
-                    {% if item.is_correct %}
-                    <span style="color: green;">○</span>
-                    {% else %}
-                    <span style="color: red;">×</span>
-                    {% endif %}
-                    {% endif %}
-                    {{ item.name }}
-                </label><br>
+            <div class="answer-options-grid">
+                {% for item in answer_marks %}
+                <div class="answer-option {% if submitted %}{% if item.is_correct %}correct{% else %}{% if item.checked %}absent{% endif %}{% endif %}{% endif %}">
+                    <input type="checkbox" id="{{ item.name }}" name="answer" value="{{ item.name }}" {% if item.checked %}checked{% endif %} {% if submitted %}disabled{% endif %}>
+                    <label for="{{ item.name }}" class="answer-label">
+                        {% if submitted %}
+                            {% if item.is_correct %}
+                                <span class="result-indicator correct-indicator">✓</span>
+                            {% else %}
+                                {% if item.checked %}
+                                    <span class="result-indicator absent-indicator">✗</span>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                        <span class="option-text">{{ item.name }}</span>
+                    </label>
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-            <input type="submit" value="回答" {% if submitted %}disabled{% endif %}>
+            
+            {% if not submitted %}
+            <div class="submit-section">
+                <input type="submit" value="回答する" class="btn btn-primary btn-large">
+            </div>
+            {% endif %}
         </form>
 
         {% if result %}
-        <div>
-            <p>{{ result }}</p>
-            <button id="nextQuestionButton" onclick="location.href='/next_question_a'">次の問題を表示する</button>
+        <div class="result-section">
+            <div class="result-message {% if 'Correct!' in result %}result-correct{% else %}result-incorrect{% endif %}">
+                {{ result }}
+            </div>
+            <button id="nextQuestionButton" onclick="location.href='/next_question_a'" class="btn btn-primary btn-large">
+                次の問題へ →
+            </button>
         </div>
         <script>
-            // Enterキーが押されたときに「次の問題を表示する」ボタンをクリックする
+            // Enterキーが押されたときに「次の問題へ」ボタンをクリックする
             document.addEventListener('keydown', function(event) {
                 if (event.key === 'Enter') {
                     document.getElementById('nextQuestionButton').click();
@@ -60,38 +80,55 @@
         </script>
         {% endif %}
 
-
         {% if submitted == False %}
-
         <!-- タイマー表示 -->
-        <div id="timer">30</div>
+        <div class="timer-section">
+            <div class="timer-label">残り時間</div>
+            <div id="timer" class="timer-display">30</div>
+        </div>
 
         <script>
             // タイマーの開始
             var timeLeft = 30; // 制限時間（秒）
             var timerId = setInterval(function() {
                 timeLeft--;
-                document.getElementById('timer').textContent = timeLeft;
+                var timerElement = document.getElementById('timer');
+                timerElement.textContent = timeLeft;
+                
+                // 残り時間が少なくなったら警告色に変更
+                if (timeLeft <= 10) {
+                    timerElement.classList.add('timer-warning');
+                }
+                if (timeLeft <= 5) {
+                    timerElement.classList.add('timer-danger');
+                }
+                
                 if (timeLeft <= 0) {
                     clearInterval(timerId);
                     document.querySelector('.quiz-form').submit(); // フォームの自動送信
                 }
             }, 1000);
         </script>
-
         {% endif %}
         
-        
-        <div>
-            <p>連続正解回数：{{ consecutive_correct_answers }}</p>
+        <!-- 統計セクション -->
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-number">{{ consecutive_correct_answers }}</div>
+                <div class="stat-label">連続正解回数</div>
+            </div>
         </div>
 
         {% if is_correct == False %}
-        <div>
-            <p>前問までの連続正解回数：{{ previous_consecutive_correct_answers }}</p>
+        <div class="share-section">
+            <div class="share-stats">
+                <p class="share-text">前問までの連続正解回数：<strong>{{ previous_consecutive_correct_answers }}回</strong></p>
+            </div>
             <div class="share-container">
-                <button onclick="copyTextAndShowInlineMessage()">Share</button>
-                <p id="inline-message" style="display: none;">Copied!</p>
+                <button onclick="copyTextAndShowInlineMessage()" class="btn btn-secondary">
+                    📋 結果をシェア
+                </button>
+                <div id="inline-message" class="share-message">Copied!</div>
             </div>
         </div>
         {% endif %}

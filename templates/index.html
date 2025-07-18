@@ -1,21 +1,58 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-    <title>League of Legends Anki - Patch {{ patch_version }}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoL Item Quiz - Patch {{ patch_version }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
 </head>
 <body>
     <div class="index-container">
-        <h1>LoLAnki - Patch {{ patch_version }}</h1>
-        <a href="/quiz_a" class="index-link">AAAAAAAAAAAAAAAA</a><br>
-        <a href="/quiz_b" class="index-link">B</a><br>
-        <a href="/etc" class="index-link">etc</a><br>
-        <hr style="margin: 20px 0; border: 1px solid #ddd;">
-        <a href="/quiz_a_algorithm" class="index-link" style="font-size: 14px;">クイズA 出題アルゴリズム解説</a><br>
-        <a href="/quiz_a_full_graph" class="index-link" style="font-size: 14px; background: #28a745;">出題範囲全アイテム関係性グラフ</a>
+        <h1>LoL Item Quiz</h1>
+        <p class="text-secondary mb-lg">Patch {{ patch_version }}</p>
+        
+        <!-- メインクイズカード -->
+        <div class="quiz-card-grid">
+            <div class="quiz-card">
+                <h3>クイズA</h3>
+                <p>基本アイテム習得クイズ</p>
+                <a href="/quiz_a" class="btn btn-primary">開始</a>
+            </div>
+            
+            <div class="quiz-card">
+                <h3>クイズB</h3>
+                <p>上級アイテム習得クイズ</p>
+                <a href="/quiz_b" class="btn btn-primary">開始</a>
+            </div>
+            
+            <div class="quiz-card">
+                <h3>その他のクイズ</h3>
+                <p>追加問題とチャレンジ</p>
+                <a href="/etc" class="btn btn-primary">開始</a>
+            </div>
+        </div>
+        
+        <!-- 学習ツールセクション -->
+        <div class="section-divider"></div>
+        
+        <h2>学習ツール</h2>
+        <div class="tool-card-grid">
+            <div class="tool-card">
+                <h4>アルゴリズム解説</h4>
+                <p>クイズAの出題仕組みを理解</p>
+                <a href="/quiz_a_algorithm" class="btn btn-secondary">詳細を見る</a>
+            </div>
+            
+            <div class="tool-card featured">
+                <h4>関係性グラフ</h4>
+                <p>全アイテムの相関関係を視覚化</p>
+                <a href="/quiz_a_full_graph" class="btn btn-primary">グラフを見る</a>
+            </div>
+        </div>
     </div>
+    
+    <footer>
+        <p>&copy; 2024 LoL Item Quiz. All rights reserved.</p>
+    </footer>
 </body>
-<footer>
-    <p>&copy; 2024 LoL Item Quiz. All rights reserved.</p>
-</footer>
 </html>

@@ -217,6 +217,692 @@ a:hover {
 .font-normal { font-weight: var(--font-weight-normal); }
 
 /* ==========================================================================
+   Wordle-Style Card Components
+   ========================================================================== */
+
+/* Quiz Card Grid System */
+.quiz-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-lg);
+  margin: var(--space-xl) 0;
+}
+
+.tool-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-md);
+  margin: var(--space-lg) 0;
+}
+
+/* Wordle-Style Quiz Cards */
+.quiz-card {
+  background-color: var(--bg-tile);
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-xl);
+  text-align: center;
+  transition: all var(--transition-base);
+  position: relative;
+  box-shadow: var(--shadow-sm);
+}
+
+.quiz-card:hover {
+  border-color: var(--color-correct);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.quiz-card h3 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.quiz-card p {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-lg);
+  line-height: 1.5;
+}
+
+/* Tool Cards - Smaller variant */
+.tool-card {
+  background-color: var(--bg-tile);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  text-align: center;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
+}
+
+.tool-card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.tool-card.featured {
+  border-color: var(--color-correct);
+  background: linear-gradient(135deg, var(--bg-tile) 0%, rgba(106, 170, 100, 0.05) 100%);
+}
+
+.tool-card.featured:hover {
+  border-color: var(--color-correct);
+  background: linear-gradient(135deg, var(--bg-tile) 0%, rgba(106, 170, 100, 0.1) 100%);
+}
+
+.tool-card h4 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.tool-card p {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-md);
+  line-height: 1.4;
+}
+
+/* Section Divider */
+.section-divider {
+  width: 100%;
+  height: 1px;
+  background-color: var(--border-default);
+  margin: var(--space-2xl) 0 var(--space-xl) 0;
+  position: relative;
+}
+
+.section-divider::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 3px;
+  background-color: var(--color-correct);
+  border-radius: 2px;
+}
+
+/* Enhanced Index Container */
+.index-container h2 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  text-align: center;
+  margin-bottom: var(--space-lg);
+}
+
+/* Tile-style Interactive Elements (Wordle-inspired) */
+.tile {
+  width: var(--tile-size);
+  height: var(--tile-size);
+  border: 2px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  background-color: var(--bg-tile);
+  transition: all var(--transition-base);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.tile:hover {
+  border-color: var(--border-focus);
+  transform: scale(1.05);
+}
+
+/* Tile States - Wordle Colors */
+.tile.correct {
+  background-color: var(--color-correct);
+  border-color: var(--color-correct);
+  color: var(--text-on-color);
+  animation: flip-correct var(--duration-flip) ease-in-out;
+}
+
+.tile.present {
+  background-color: var(--color-present);
+  border-color: var(--color-present);
+  color: var(--text-on-color);
+  animation: flip-present var(--duration-flip) ease-in-out;
+}
+
+.tile.absent {
+  background-color: var(--color-absent);
+  border-color: var(--color-absent);
+  color: var(--text-on-color);
+  animation: flip-absent var(--duration-flip) ease-in-out;
+}
+
+/* Tile Flip Animations */
+@keyframes flip-correct {
+  0% { transform: rotateY(0); }
+  50% { transform: rotateY(90deg); background-color: var(--bg-tile); }
+  100% { transform: rotateY(0); background-color: var(--color-correct); }
+}
+
+@keyframes flip-present {
+  0% { transform: rotateY(0); }
+  50% { transform: rotateY(90deg); background-color: var(--bg-tile); }
+  100% { transform: rotateY(0); background-color: var(--color-present); }
+}
+
+@keyframes flip-absent {
+  0% { transform: rotateY(0); }
+  50% { transform: rotateY(90deg); background-color: var(--bg-tile); }
+  100% { transform: rotateY(0); background-color: var(--color-absent); }
+}
+
+/* Mobile Responsiveness for Cards */
+@media (max-width: 480px) {
+  .quiz-card-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+    margin: var(--space-lg) 0;
+  }
+  
+  .tool-card-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-sm);
+  }
+  
+  .quiz-card {
+    padding: var(--space-lg);
+  }
+  
+  .tool-card {
+    padding: var(--space-md);
+  }
+  
+  .tile {
+    width: var(--tile-size-sm);
+    height: var(--tile-size-sm);
+    font-size: var(--font-size-base);
+  }
+}
+
+/* ==========================================================================
+   Quiz-Specific Wordle-Style Components
+   ========================================================================== */
+
+/* Item Display Card */
+.item-display-card {
+  background-color: var(--bg-tile);
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  text-align: center;
+  margin-bottom: var(--space-xl);
+  box-shadow: var(--shadow-md);
+}
+
+.item-image-large {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto var(--space-md);
+  border-radius: var(--radius-md);
+  border: 3px solid var(--border-default);
+  display: block;
+  transition: all var(--transition-base);
+}
+
+.item-image-large:hover {
+  transform: scale(1.05);
+  border-color: var(--color-correct);
+}
+
+.item-name {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.quiz-question {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  margin-bottom: 0;
+  line-height: 1.5;
+}
+
+/* Answer Options Grid - Wordle-style */
+.answer-options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-sm);
+  margin: var(--space-xl) 0;
+}
+
+.answer-option {
+  background-color: var(--bg-tile);
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+  overflow: hidden;
+  position: relative;
+}
+
+.answer-option:hover {
+  border-color: var(--border-focus);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Wordle-style answer states */
+.answer-option.correct {
+  background-color: var(--color-correct);
+  border-color: var(--color-correct);
+  animation: tile-reveal var(--duration-slow) ease-in-out;
+}
+
+.answer-option.absent {
+  background-color: var(--color-absent);
+  border-color: var(--color-absent);
+  animation: tile-reveal var(--duration-slow) ease-in-out;
+}
+
+.answer-option input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.answer-label {
+  display: flex;
+  align-items: center;
+  padding: var(--space-md) var(--space-lg);
+  cursor: pointer;
+  width: 100%;
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  transition: color var(--transition-base);
+}
+
+.answer-option.correct .answer-label,
+.answer-option.absent .answer-label {
+  color: var(--text-on-color);
+}
+
+.result-indicator {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  margin-right: var(--space-sm);
+  min-width: 24px;
+}
+
+.correct-indicator {
+  color: var(--text-on-color);
+}
+
+.absent-indicator {
+  color: var(--text-on-color);
+}
+
+.option-text {
+  flex: 1;
+}
+
+/* Submit Section */
+.submit-section {
+  text-align: center;
+  margin: var(--space-xl) 0;
+}
+
+/* Large Button Variant */
+.btn-large {
+  padding: var(--space-md) var(--space-2xl);
+  font-size: var(--font-size-lg);
+  min-width: 200px;
+}
+
+/* Result Section */
+.result-section {
+  text-align: center;
+  margin: var(--space-xl) 0;
+  padding: var(--space-xl);
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border-default);
+}
+
+.result-message {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-lg);
+  padding: var(--space-lg);
+  border-radius: var(--radius-md);
+}
+
+.result-correct {
+  background-color: var(--color-correct);
+  color: var(--text-on-color);
+  border: 2px solid var(--color-correct);
+}
+
+.result-incorrect {
+  background-color: var(--color-absent);
+  color: var(--text-on-color);
+  border: 2px solid var(--color-absent);
+}
+
+/* Timer Section */
+.timer-section {
+  text-align: center;
+  margin: var(--space-xl) 0;
+  padding: var(--space-lg);
+  background-color: var(--bg-tile);
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-lg);
+}
+
+.timer-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.timer-display {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  transition: color var(--transition-base);
+}
+
+.timer-warning {
+  color: var(--color-present);
+}
+
+.timer-danger {
+  color: var(--color-absent);
+  animation: pulse 1s infinite;
+}
+
+/* Stats Section */
+.stats-section {
+  margin: var(--space-xl) 0;
+  text-align: center;
+}
+
+.stat-card {
+  background-color: var(--bg-tile);
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  display: inline-block;
+  min-width: 150px;
+}
+
+.stat-number {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-correct);
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-top: var(--space-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Share Section */
+.share-section {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  margin: var(--space-xl) 0;
+  text-align: center;
+}
+
+.share-stats {
+  margin-bottom: var(--space-md);
+}
+
+.share-text {
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.share-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.share-message {
+  background-color: var(--color-correct);
+  color: var(--text-on-color);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  display: none;
+  animation: fadeInOut 3s ease-in-out;
+}
+
+/* Animations */
+@keyframes tile-reveal {
+  0% { 
+    transform: rotateY(0deg);
+    background-color: var(--bg-tile);
+  }
+  50% { 
+    transform: rotateY(90deg);
+  }
+  100% { 
+    transform: rotateY(0deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+@keyframes fadeInOut {
+  0%, 100% { 
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  20%, 80% { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Price Quiz Specific Components (Quiz B) */
+.price-quiz-form {
+  margin: var(--space-xl) 0;
+}
+
+.price-input-section {
+  text-align: center;
+  margin: var(--space-xl) 0;
+}
+
+.price-input-wrapper {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--bg-tile);
+  border: 3px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md) var(--space-lg);
+  margin-bottom: var(--space-lg);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+  max-width: 300px;
+}
+
+.price-input-wrapper:focus-within {
+  border-color: var(--color-correct);
+  box-shadow: 0 0 0 3px rgba(106, 170, 100, 0.2);
+}
+
+.price-input {
+  border: none;
+  background: transparent;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+  width: 150px;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.price-input::placeholder {
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-normal);
+}
+
+/* Remove number input arrows */
+.price-input::-webkit-outer-spin-button,
+.price-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.price-input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.price-unit {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-present);
+  margin-left: var(--space-sm);
+  min-width: 20px;
+}
+
+/* Fast Timer Variant for Quiz B */
+.timer-fast {
+  border-color: var(--color-present);
+}
+
+.timer-fast .timer-display {
+  color: var(--color-present);
+  font-size: var(--font-size-2xl);
+}
+
+.timer-fast .timer-label {
+  color: var(--color-present);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Price Result Display */
+.price-result-comparison {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin: var(--space-lg) 0;
+  padding: var(--space-lg);
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.price-comparison-item {
+  text-align: center;
+  flex: 1;
+  min-width: 120px;
+}
+
+.price-comparison-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.price-comparison-value {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+}
+
+.price-comparison-value.correct {
+  color: var(--color-correct);
+}
+
+.price-comparison-value.incorrect {
+  color: var(--color-absent);
+}
+
+.price-vs-separator {
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Mobile Responsiveness for Quiz */
+@media (max-width: 480px) {
+  .answer-options-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-xs);
+  }
+  
+  .item-display-card {
+    padding: var(--space-lg);
+  }
+  
+  .item-image-large {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .answer-label {
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--font-size-sm);
+  }
+  
+  .btn-large {
+    padding: var(--space-sm) var(--space-lg);
+    font-size: var(--font-size-base);
+    min-width: 150px;
+  }
+  
+  .timer-display {
+    font-size: var(--font-size-2xl);
+  }
+  
+  .stat-number {
+    font-size: var(--font-size-2xl);
+  }
+  
+  .share-container {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+}
+
+/* Tablet Adjustments */
+@media (min-width: 481px) and (max-width: 768px) {
+  .answer-options-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
+/* ==========================================================================
    Component Base Styles (for gradual migration from styles.css)
    ========================================================================== */
 

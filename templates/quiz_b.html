@@ -1,16 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-    <title>League of Legends Anki - Patch {{ patch_version }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>クイズB - LoL Item Quiz (Patch {{ patch_version }})</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
     <script>
     function copyTextAndShowInlineMessage() {
-        var text = "連続正解回数: {{ previous_consecutive_correct_answers }}回\n#lolanki\n#lolanki_b\n\nhttps://www.lolanki.com/";
+        var text = "連続正解回数: {{ previous_consecutive_correct_answers }}回\n#LoLItemQuiz\n#クイズB\n\nhttps://lol-item-quiz.com/";
         navigator.clipboard.writeText(text).then(function() {
             var message = document.getElementById("inline-message");
             message.textContent = "Copied!";
             message.style.display = "block";
-            setTimeout(function() { message.style.display = "none"; }, 5000);
+            setTimeout(function() { message.style.display = "none"; }, 3000);
         }, function(err) {
             console.error('Async: Could not copy text: ', err);
         });
@@ -18,24 +20,42 @@
     </script>
 </head>
 <body>
-    <a href="/" class="back-link">TOP</a>
+    <a href="/" class="back-link">← TOP</a>
 
     <div class="container">
-        <h1>{{ patch_version }}</h1>
-        <p> <strong>{{ item['name'] }}</strong> の価格を答えよ：</p>
-        <img src="https://ddragon.leagueoflegends.com/cdn/{{ patch_version }}/img/item/{{ item['image']['full'] }}" alt="{{ item['name'] }}" class="item-image">
-        <form method="post" autocomplete="off">
-            <input type="number" name="price" placeholder="半角数字を入力" {% if submitted == False %}autofocus{% endif %}>
-            <input type="submit" value="回答">
+        <h1>クイズB</h1>
+        <p class="text-secondary mb-md">Patch {{ patch_version }}</p>
+        
+        <!-- アイテム画像カード -->
+        <div class="item-display-card">
+            <img src="https://ddragon.leagueoflegends.com/cdn/{{ patch_version }}/img/item/{{ item['image']['full'] }}" alt="{{ item['name'] }}" class="item-image-large">
+            <h2 class="item-name">{{ item['name'] }}</h2>
+            <p class="quiz-question">このアイテムの価格はいくらでしょうか？</p>
+        </div>
+
+        <form method="post" autocomplete="off" class="price-quiz-form">
+            <div class="price-input-section">
+                <div class="price-input-wrapper">
+                    <input type="number" name="price" placeholder="価格を入力" class="price-input" {% if submitted == False %}autofocus{% endif %} {% if submitted %}disabled{% endif %}>
+                    <span class="price-unit">G</span>
+                </div>
+                {% if not submitted %}
+                <input type="submit" value="回答する" class="btn btn-primary btn-large">
+                {% endif %}
+            </div>
         </form>
 
         {% if result %}
-        <div>
-            <p>{{ result }}</p>
-            <button id="nextQuestionButton" onclick="location.href='/next_question_b'">次の問題を表示する</button>
+        <div class="result-section">
+            <div class="result-message {% if 'Correct!' in result %}result-correct{% else %}result-incorrect{% endif %}">
+                {{ result }}
+            </div>
+            <button id="nextQuestionButton" onclick="location.href='/next_question_b'" class="btn btn-primary btn-large">
+                次の問題へ →
+            </button>
         </div>
         <script>
-            // Enterキーが押されたときに「次の問題を表示する」ボタンをクリックする
+            // Enterキーが押されたときに「次の問題へ」ボタンをクリックする
             document.addEventListener('keydown', function(event) {
                 if (event.key === 'Enter') {
                     document.getElementById('nextQuestionButton').click();
@@ -43,42 +63,60 @@
             });
         </script>
         {% endif %}
-        
 
         {% if submitted == False %}
-
         <!-- タイマー表示 -->
-        <div id="timer">8</div>
+        <div class="timer-section timer-fast">
+            <div class="timer-label">残り時間</div>
+            <div id="timer" class="timer-display">8</div>
+        </div>
 
         <script>
             // タイマーの開始
             var timeLeft = 8; // 制限時間（秒）
             var timerId = setInterval(function() {
                 timeLeft--;
-                document.getElementById('timer').textContent = timeLeft;
+                var timerElement = document.getElementById('timer');
+                timerElement.textContent = timeLeft;
+                
+                // 残り時間が少なくなったら警告色に変更
+                if (timeLeft <= 5) {
+                    timerElement.classList.add('timer-warning');
+                }
+                if (timeLeft <= 3) {
+                    timerElement.classList.add('timer-danger');
+                }
+                
                 if (timeLeft <= 0) {
                     clearInterval(timerId);
                     document.querySelector('input[type="submit"]').click(); // 回答ボタンを自動クリック
                 }
             }, 1000);
         </script>
-
         {% endif %}
         
-        
-        <div>
-            <p>連続正解回数：{{ consecutive_correct_answers }}</p>
+        <!-- 統計セクション -->
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-number">{{ consecutive_correct_answers }}</div>
+                <div class="stat-label">連続正解回数</div>
+            </div>
         </div>
 
         {% if is_correct == False %}
-        <div>
-            <p>前問までの連続正解回数：{{ previous_consecutive_correct_answers }}</p>
+        <div class="share-section">
+            <div class="share-stats">
+                <p class="share-text">前問までの連続正解回数：<strong>{{ previous_consecutive_correct_answers }}回</strong></p>
+            </div>
             <div class="share-container">
-                <button onclick="copyTextAndShowInlineMessage()">Share</button>
-                <p id="inline-message" style="display: none;">Copied!</p>
+                <button onclick="copyTextAndShowInlineMessage()" class="btn btn-secondary">
+                    📋 結果をシェア
+                </button>
+                <div id="inline-message" class="share-message">Copied!</div>
             </div>
         </div>
         {% endif %}
     </div>
+
 </body>
 </html>
