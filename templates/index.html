@@ -3,79 +3,274 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LoL Item Quiz - Patch {{ patch_version }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='animations.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='header-nav.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='performance-accessibility.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='browser-compatibility.css') }}">
+    <title>LoL Item Quiz - Master Your Build Knowledge | Patch 14.14</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='gaming-ui.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Skip to content link for accessibility -->
-    <a href="#main-content" class="skip-link">メインコンテンツへスキップ</a>
-    <!-- 統一ヘッダー -->
-    <header class="site-header">
-        <div class="header-content">
-            <a href="/" class="site-logo">
-                <div>
-                    <h1 class="site-title">LoL Item Quiz</h1>
-                    <p class="site-subtitle">Patch {{ patch_version }}</p>
-                </div>
-            </a>
-            
-            <nav class="site-nav">
-                <div class="page-indicator">
-                    <span class="indicator-icon">🏠</span>
-                    <span>メインメニュー</span>
-                </div>
-            </nav>
-        </div>
-    </header>
-
-    <div class="index-container" id="main-content" role="main">
-        
-        <!-- メインクイズカード -->
-        <div class="quiz-card-grid">
-            <div class="quiz-card">
-                <h3>クイズA</h3>
-                <p>基本アイテム習得クイズ</p>
-                <a href="/quiz_a" class="btn btn-primary">開始</a>
-            </div>
-            
-            <div class="quiz-card">
-                <h3>クイズB</h3>
-                <p>上級アイテム習得クイズ</p>
-                <a href="/quiz_b" class="btn btn-primary">開始</a>
-            </div>
-            
-            <div class="quiz-card">
-                <h3>その他のクイズ</h3>
-                <p>追加問題とチャレンジ</p>
-                <a href="/etc" class="btn btn-primary">開始</a>
-            </div>
-        </div>
-        
-        <!-- 学習ツールセクション -->
-        <div class="section-divider"></div>
-        
-        <h2>学習ツール</h2>
-        <div class="tool-card-grid">
-            <div class="tool-card">
-                <h4>アルゴリズム解説</h4>
-                <p>クイズAの出題仕組みを理解</p>
-                <a href="/quiz_a_algorithm" class="btn btn-secondary">詳細を見る</a>
-            </div>
-            
-            <div class="tool-card featured">
-                <h4>関係性グラフ</h4>
-                <p>全アイテムの相関関係を視覚化</p>
-                <a href="/quiz_a_full_graph" class="btn btn-primary">グラフを見る</a>
-            </div>
-        </div>
-    </div>
+    <!-- Background Effects -->
+    <div class="bg-overlay"></div>
+    <div class="particles" id="particles"></div>
     
-    <footer>
-        <p>&copy; 2024 LoL Item Quiz. All rights reserved.</p>
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="logo">
+                <h1>LoL Item Quiz</h1>
+                <span class="patch-badge">Patch 14.14</span>
+            </div>
+            <div class="nav-links">
+                <a href="/leaderboard" class="nav-link">
+                    <span class="icon">🏆</span>
+                    Leaderboard
+                </a>
+                <a href="/stats" class="nav-link">
+                    <span class="icon">📊</span>
+                    Stats
+                </a>
+                <a href="/about" class="nav-link">
+                    <span class="icon">ℹ️</span>
+                    About
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="glow-text">Master Your</span>
+                <span class="highlight-text">Item Knowledge</span>
+            </h1>
+            <p class="hero-subtitle">
+                Challenge yourself with League of Legends item quizzes.<br>
+                From basic components to legendary builds.
+            </p>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-number">150+</span>
+                    <span class="stat-label">Items</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">3</span>
+                    <span class="stat-label">Game Modes</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">∞</span>
+                    <span class="stat-label">Combinations</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="item-showcase">
+                <div class="rotating-items">
+                    <!-- Dynamic item images will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Game Modes Section -->
+    <section class="game-modes">
+        <div class="container">
+            <h2 class="section-title">Choose Your Challenge</h2>
+            <div class="modes-grid">
+                
+                <!-- Quiz A - Component Master -->
+                <div class="mode-card featured" data-mode="quiz-a">
+                    <div class="card-header">
+                        <div class="mode-icon">⚔️</div>
+                        <span class="difficulty-badge bronze">Bronze</span>
+                    </div>
+                    <h3>Component Master</h3>
+                    <p>Identify which completed items can be built from basic components. Perfect for learning item synergies.</p>
+                    <div class="mode-stats">
+                        <div class="stat">
+                            <span class="label">Difficulty</span>
+                            <span class="value">Beginner</span>
+                        </div>
+                        <div class="stat">
+                            <span class="label">Items</span>
+                            <span class="value">80+</span>
+                        </div>
+                    </div>
+                    <a href="/quiz_a" class="mode-button">
+                        <span>Start Challenge</span>
+                        <div class="button-effect"></div>
+                    </a>
+                </div>
+
+                <!-- Quiz B - Price Master -->
+                <div class="mode-card" data-mode="quiz-b">
+                    <div class="card-header">
+                        <div class="mode-icon">💰</div>
+                        <span class="difficulty-badge gold">Gold</span>
+                    </div>
+                    <h3>Price Master</h3>
+                    <p>Test your knowledge of item costs. Essential for gold efficiency and build optimization.</p>
+                    <div class="mode-stats">
+                        <div class="stat">
+                            <span class="label">Difficulty</span>
+                            <span class="value">Advanced</span>
+                        </div>
+                        <div class="stat">
+                            <span class="label">Time Limit</span>
+                            <span class="value">8s</span>
+                        </div>
+                    </div>
+                    <a href="/quiz_b" class="mode-button">
+                        <span>Start Challenge</span>
+                        <div class="button-effect"></div>
+                    </a>
+                </div>
+
+                <!-- Math Game -->
+                <div class="mode-card" data-mode="math-game">
+                    <div class="card-header">
+                        <div class="mode-icon">🧮</div>
+                        <span class="difficulty-badge platinum">Platinum</span>
+                    </div>
+                    <h3>Number Wizard</h3>
+                    <p>Mathematical challenge with item-themed puzzles. Sharpen your calculation skills.</p>
+                    <div class="mode-stats">
+                        <div class="stat">
+                            <span class="label">Type</span>
+                            <span class="value">Mental Math</span>
+                        </div>
+                        <div class="stat">
+                            <span class="label">Levels</span>
+                            <span class="value">∞</span>
+                        </div>
+                    </div>
+                    <a href="/math_game" class="mode-button">
+                        <span>Start Challenge</span>
+                        <div class="button-effect"></div>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Tools Section -->
+    <section class="tools-section">
+        <div class="container">
+            <h2 class="section-title">Learning Tools</h2>
+            <div class="tools-grid">
+                
+                <div class="tool-card">
+                    <div class="tool-icon">🔍</div>
+                    <h3>Algorithm Explorer</h3>
+                    <p>Understand the mechanics behind quiz generation and item relationships.</p>
+                    <a href="/quiz_a_algorithm" class="tool-link">Explore →</a>
+                </div>
+
+                <div class="tool-card featured">
+                    <div class="tool-icon">🕸️</div>
+                    <h3>Relationship Graph</h3>
+                    <p>Interactive visualization of all item connections and build paths.</p>
+                    <a href="/quiz_a_full_graph" class="tool-link">View Graph →</a>
+                </div>
+
+                <div class="tool-card">
+                    <div class="tool-icon">📈</div>
+                    <h3>Progress Tracker</h3>
+                    <p>Monitor your improvement across all game modes and difficulty levels.</p>
+                    <a href="/progress" class="tool-link">Track Progress →</a>
+                </div>
+
+                <div class="tool-card">
+                    <div class="tool-icon">🎯</div>
+                    <h3>Custom Challenges</h3>
+                    <p>Create personalized quizzes focusing on specific item categories.</p>
+                    <a href="/custom" class="tool-link">Create →</a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>LoL Item Quiz</h3>
+                    <p>Master your League of Legends item knowledge through interactive challenges.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link">Discord</a>
+                        <a href="#" class="social-link">GitHub</a>
+                        <a href="#" class="social-link">Twitter</a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Game Modes</h4>
+                    <ul>
+                        <li><a href="/quiz_a">Component Master</a></li>
+                        <li><a href="/quiz_b">Price Master</a></li>
+                        <li><a href="/math_game">Number Wizard</a></li>
+                        <li><a href="/etc">More Challenges</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="/quiz_a_algorithm">Algorithm Guide</a></li>
+                        <li><a href="/quiz_a_full_graph">Item Graph</a></li>
+                        <li><a href="/leaderboard">Leaderboard</a></li>
+                        <li><a href="/stats">Statistics</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>About</h4>
+                    <ul>
+                        <li><a href="/about">About Project</a></li>
+                        <li><a href="/changelog">Changelog</a></li>
+                        <li><a href="/feedback">Feedback</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 LoL Item Quiz. League of Legends is a trademark of Riot Games, Inc.</p>
+                <p>This project is not affiliated with Riot Games. All game assets belong to their respective owners.</p>
+            </div>
+        </div>
     </footer>
+
+    <!-- Particle Animation Script -->
+    <script>
+        // Simple particle system for background effect
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 20) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Initialize particles on load
+        document.addEventListener('DOMContentLoaded', createParticles);
+        
+        // Mode card hover effects
+        document.querySelectorAll('.mode-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+    </script>
 </body>
 </html>
