@@ -420,14 +420,16 @@
         
         <div class="loading" id="loading">グラフデータを読み込み中...</div>
         
-        <div id="d3-full-graph" class="d3-full-graph uniform-edge-layout" style="display: none; position: relative;">
-            <div id="info-panel" class="info-panel">
-                <h3 id="panel-title">アイテムを選択してください</h3>
-                <div id="panel-content">
-                    <p>アイテムにマウスを乗せると詳細情報が表示されます</p>
-                    <p><strong>辺の長さ均等化モード</strong>: 全ての辺が同じ長さになるように配置されます</p>
-                </div>
+        <!-- 情報パネルをd3-full-graphの外に移動 -->
+        <div id="info-panel" class="info-panel">
+            <h3 id="panel-title">アイテムを選択してください</h3>
+            <div id="panel-content">
+                <p>アイテムにマウスを乗せると詳細情報が表示されます</p>
+                <p><strong>辺の長さ均等化モード</strong>: 全ての辺が同じ長さになるように配置されます</p>
             </div>
+        </div>
+        
+        <div id="d3-full-graph" class="d3-full-graph uniform-edge-layout" style="display: none; position: relative;">
         </div>
         
         <div style="margin-top: 30px;">
