@@ -863,6 +863,11 @@
             window.panelTitle = d3.select('#panel-title');
             window.panelContent = d3.select('#panel-content');
             
+            // デバッグ: パネル要素の存在確認
+            console.log('infoPanel element found:', !window.infoPanel.empty());
+            console.log('panelTitle element found:', !window.panelTitle.empty());
+            console.log('panelContent element found:', !window.panelContent.empty());
+            
             // 深さ別エッジハイライト機能
             function highlightConnectedEdges(hoveredNode) {
                 // BFS で深さ1、2の接続を探索
@@ -999,6 +1004,7 @@
             }
             
             nodes.on('mouseover', function(event, d) {
+                console.log('Node mouseover event fired for:', d.label);
                 highlightConnectedEdges(d);
                 showInfoPanel(d);
             })
@@ -1240,6 +1246,7 @@
             
             // ホバーイベントを再設定
             nodes.on('mouseover', function(event, d) {
+                console.log('Node mouseover event fired for:', d.label);
                 highlightConnectedEdges(d);
                 showInfoPanel(d);
             })
@@ -1421,10 +1428,19 @@
         
         function showInfoPanel(d) {
             console.log('showInfoPanel called for:', d.label);
+            console.log('window.infoPanel exists:', !!window.infoPanel);
+            console.log('infoPanel is empty:', window.infoPanel ? window.infoPanel.empty() : 'undefined');
             
             // パネル要素が存在するか確認
             if (!window.infoPanel || window.infoPanel.empty()) {
-                console.error('infoPanel not found');
+                console.error('infoPanel not found or empty');
+                // 直接DOMで要素を探してみる
+                const directElement = document.getElementById('info-panel');
+                console.log('Direct DOM element found:', !!directElement);
+                if (directElement) {
+                    console.log('Direct element display style:', directElement.style.display);
+                    console.log('Direct element computed style:', getComputedStyle(directElement).display);
+                }
                 return;
             }
             
@@ -1489,8 +1505,16 @@
             `);
             
             // パネルを表示
+            console.log('About to display panel...');
             window.infoPanel.style('display', 'block');
-            console.log('InfoPanel displayed');
+            console.log('InfoPanel display style set to block');
+            
+            // 表示が正しく適用されているか確認
+            const actualElement = document.getElementById('info-panel');
+            if (actualElement) {
+                console.log('Actual element display after setting:', getComputedStyle(actualElement).display);
+                console.log('Actual element visible:', actualElement.offsetHeight > 0);
+            }
         }
         
         function hideInfoPanel() {
