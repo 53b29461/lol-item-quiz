@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>クイズA - LoL Item Quiz (Patch {{ patch_version }})</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='animations.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='header-nav.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='performance-accessibility.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='browser-compatibility.css') }}">
+    <title>Component Master - LoL Item Quiz | Patch 14.14</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='gaming-ui.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='quiz-gaming.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
     function copyTextAndShowInlineMessage() {
-        var text = "連続正解回数: {{ previous_consecutive_correct_answers }}回\n#LoLItemQuiz\n#クイズA\n\nhttps://lol-item-quiz.com/";
+        var text = "連続正解回数: {{ previous_consecutive_correct_answers }}回\n#LoLItemQuiz\n#ComponentMaster\n\nhttps://lol-item-quiz.com/";
         navigator.clipboard.writeText(text).then(function() {
             var message = document.getElementById("inline-message");
-            message.textContent = "Copied!";
+            message.textContent = "Results Copied!";
             message.style.display = "block";
             setTimeout(function() { message.style.display = "none"; }, 3000);
         }, function(err) {
@@ -23,84 +23,138 @@
     }
     </script>
 </head>
-<body>
-    <!-- 統一ヘッダー -->
-    <header class="site-header quiz-header">
-        <div class="header-content">
-            <a href="/" class="site-logo">
-                <div>
-                    <h1 class="site-title">LoL Item Quiz</h1>
-                    <p class="site-subtitle">Patch {{ patch_version }}</p>
-                </div>
+<body class="quiz-body">
+    <!-- Background Effects -->
+    <div class="bg-overlay"></div>
+    <div class="particles" id="particles"></div>
+    
+    <!-- Navigation -->
+    <nav class="quiz-nav">
+        <div class="nav-container">
+            <a href="/" class="nav-home">
+                <span class="home-icon">⬅</span>
+                <span>Back to Menu</span>
             </a>
             
-            <nav class="site-nav">
-                <a href="/" class="nav-link">
-                    <span>🏠</span>
-                    <span>TOP</span>
-                </a>
-                <div class="page-indicator">
-                    <span class="indicator-icon">📝</span>
-                    <span>クイズA</span>
-                </div>
-                {% if timer %}
-                <div class="header-timer" id="header-timer">
-                    <span class="timer-icon">⏱️</span>
-                    <span id="header-timer-display">{{ timer }}s</span>
-                </div>
-                {% endif %}
-            </nav>
-        </div>
-    </header>
-    
-    <div class="container" id="main-content" role="main">
-        
-        <!-- アイテム画像カード -->
-        <div class="item-display-card">
-            <img src="{{ item['image_url'] }}" alt="{{ item['name'] }}" class="item-image-large">
-            <h2 class="item-name">{{ item['name'] }}</h2>
-            <p class="quiz-question">この素材アイテムから作成できるアイテムをすべて選択してください</p>
-        </div>
-
-        <form method="post" class="quiz-form">
-            <div class="answer-options-grid">
-                {% for item in answer_marks %}
-                <div class="answer-option {% if submitted %}{% if item.is_correct %}correct{% else %}{% if item.checked %}absent{% endif %}{% endif %}{% endif %}">
-                    <input type="checkbox" id="{{ item.name }}" name="answer" value="{{ item.name }}" {% if item.checked %}checked{% endif %} {% if submitted %}disabled{% endif %}>
-                    <label for="{{ item.name }}" class="answer-label">
-                        {% if submitted %}
-                            {% if item.is_correct %}
-                                <span class="result-indicator correct-indicator">✓</span>
-                            {% else %}
-                                {% if item.checked %}
-                                    <span class="result-indicator absent-indicator">✗</span>
-                                {% endif %}
-                            {% endif %}
-                        {% endif %}
-                        <span class="option-text">{{ item.name }}</span>
-                    </label>
-                </div>
-                {% endfor %}
+            <div class="quiz-title">
+                <h1>Component Master</h1>
+                <span class="difficulty-badge bronze">Bronze Challenge</span>
             </div>
             
-            {% if not submitted %}
-            <div class="submit-section">
-                <input type="submit" value="回答する" class="btn btn-primary btn-large">
+            <div class="quiz-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Streak</span>
+                    <span class="stat-value">{{ consecutive_correct_answers }}</span>
+                </div>
+                {% if not submitted %}
+                <div class="stat-item timer-stat">
+                    <span class="stat-label">Time</span>
+                    <span class="stat-value" id="timer">30</span>
+                </div>
+                {% endif %}
             </div>
-            {% endif %}
-        </form>
-
-        {% if result %}
-        <div class="result-section">
-            <div class="result-message {% if 'Correct!' in result %}result-correct{% else %}result-incorrect{% endif %}">
-                {{ result }}
-            </div>
-            <button id="nextQuestionButton" onclick="location.href='/next_question_a'" class="btn btn-primary btn-large">
-                次の問題へ →
-            </button>
         </div>
+    </nav>
+
+    <!-- Main Game Area -->
+    <main class="quiz-main">
+        <div class="quiz-container">
+            
+            <!-- Left Panel - Item Display -->
+            <section class="item-panel">
+                <div class="item-showcase">
+                    <div class="item-card">
+                        <img src="{{ item['image_url'] }}" alt="{{ item['name'] }}" class="item-image">
+                        <div class="item-glow"></div>
+                    </div>
+                    <h2 class="item-name">{{ item['name'] }}</h2>
+                    <p class="challenge-text">
+                        <span class="highlight">Select all items</span> that can be built<br>
+                        from this component
+                    </p>
+                </div>
+            </section>
+
+            <!-- Right Panel - Answer Options -->
+            <section class="answers-panel">
+                <form method="post" class="quiz-form">
+                    <div class="answers-grid">
+                        {% for item in answer_marks %}
+                        <div class="answer-option {% if submitted %}{% if item.is_correct %}correct{% else %}{% if item.checked %}incorrect{% endif %}{% endif %}{% endif %}" 
+                             data-item="{{ item.name }}">
+                            <input type="checkbox" 
+                                   id="{{ item.name }}" 
+                                   name="answer" 
+                                   value="{{ item.name }}" 
+                                   {% if item.checked %}checked{% endif %} 
+                                   {% if submitted %}disabled{% endif %}>
+                            <label for="{{ item.name }}" class="answer-label">
+                                <div class="option-card">
+                                    <div class="option-content">
+                                        {% if submitted %}
+                                            {% if item.is_correct %}
+                                                <div class="result-indicator correct-indicator">
+                                                    <span class="icon">✓</span>
+                                                </div>
+                                            {% else %}
+                                                {% if item.checked %}
+                                                    <div class="result-indicator incorrect-indicator">
+                                                        <span class="icon">✗</span>
+                                                    </div>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endif %}
+                                        <span class="option-text">{{ item.name }}</span>
+                                        <div class="option-glow"></div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    {% if not submitted %}
+                    <div class="submit-section">
+                        <button type="submit" class="submit-button">
+                            <span class="button-text">Submit Answer</span>
+                            <div class="button-effect"></div>
+                        </button>
+                    </div>
+                    {% endif %}
+                </form>
+            </section>
+
+        </div>
+
+        <!-- Result Section -->
+        {% if result %}
+        <section class="result-section {% if 'Correct!' in result %}success{% else %}failure{% endif %}">
+            <div class="result-content">
+                <div class="result-icon">
+                    {% if 'Correct!' in result %}
+                        <span class="success-icon">🎯</span>
+                    {% else %}
+                        <span class="failure-icon">💥</span>
+                    {% endif %}
+                </div>
+                <div class="result-message">
+                    {% if 'Correct!' in result %}
+                        <h3>Perfect!</h3>
+                        <p>You mastered this component!</p>
+                    {% else %}
+                        <h3>Good Try!</h3>
+                        <p>Study the correct answers and try again</p>
+                    {% endif %}
+                </div>
+                <button id="nextQuestionButton" onclick="location.href='/next_question_a'" class="next-button">
+                    <span>Next Challenge</span>
+                    <span class="arrow">→</span>
+                </button>
+            </div>
+        </section>
+        
         <script>
-            // Enterキーが押されたときに「次の問題へ」ボタンをクリックする
+            // Enter key for next question
             document.addEventListener('keydown', function(event) {
                 if (event.key === 'Enter') {
                     document.getElementById('nextQuestionButton').click();
@@ -109,60 +163,99 @@
         </script>
         {% endif %}
 
-        {% if submitted == False %}
-        <!-- タイマー表示 -->
-        <div class="timer-section">
-            <div class="timer-label">残り時間</div>
-            <div id="timer" class="timer-display">30</div>
-        </div>
-
-        <script>
-            // タイマーの開始
-            var timeLeft = 30; // 制限時間（秒）
-            var timerId = setInterval(function() {
-                timeLeft--;
-                var timerElement = document.getElementById('timer');
-                timerElement.textContent = timeLeft;
-                
-                // 残り時間が少なくなったら警告色に変更
-                if (timeLeft <= 10) {
-                    timerElement.classList.add('timer-warning');
-                }
-                if (timeLeft <= 5) {
-                    timerElement.classList.add('timer-danger');
-                }
-                
-                if (timeLeft <= 0) {
-                    clearInterval(timerId);
-                    document.querySelector('.quiz-form').submit(); // フォームの自動送信
-                }
-            }, 1000);
-        </script>
-        {% endif %}
-        
-        <!-- 統計セクション -->
-        <div class="stats-section">
-            <div class="stat-card">
-                <div class="stat-number">{{ consecutive_correct_answers }}</div>
-                <div class="stat-label">連続正解回数</div>
-            </div>
-        </div>
-
+        <!-- Share Section for Incorrect Answers -->
         {% if is_correct == False %}
-        <div class="share-section">
-            <div class="share-stats">
-                <p class="share-text">前問までの連続正解回数：<strong>{{ previous_consecutive_correct_answers }}回</strong></p>
-            </div>
-            <div class="share-container">
-                <button onclick="copyTextAndShowInlineMessage()" class="btn btn-secondary">
-                    📋 結果をシェア
+        <section class="share-section">
+            <div class="share-content">
+                <div class="streak-display">
+                    <span class="streak-label">Your Streak:</span>
+                    <span class="streak-number">{{ previous_consecutive_correct_answers }}</span>
+                </div>
+                <button onclick="copyTextAndShowInlineMessage()" class="share-button">
+                    <span class="share-icon">📋</span>
+                    <span>Share Results</span>
                 </button>
-                <div id="inline-message" class="share-message">Copied!</div>
+                <div id="inline-message" class="share-message">Results Copied!</div>
             </div>
-        </div>
+        </section>
         {% endif %}
 
-    </div>
+    </main>
+
+    <!-- Timer Script -->
+    {% if submitted == False %}
+    <script>
+        // Timer functionality
+        var timeLeft = 30;
+        var timerId = setInterval(function() {
+            timeLeft--;
+            var timerElement = document.getElementById('timer');
+            timerElement.textContent = timeLeft;
+            
+            // Add warning classes
+            if (timeLeft <= 10) {
+                timerElement.parentElement.classList.add('timer-warning');
+            }
+            if (timeLeft <= 5) {
+                timerElement.parentElement.classList.add('timer-danger');
+            }
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerId);
+                document.querySelector('.quiz-form').submit();
+            }
+        }, 1000);
+    </script>
+    {% endif %}
+
+    <!-- Enhanced Interactions -->
+    <script>
+        // Particle system
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 20) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            
+            // Enhanced option interactions
+            document.querySelectorAll('.answer-option').forEach(option => {
+                option.addEventListener('mouseenter', function() {
+                    this.querySelector('.option-glow').style.opacity = '0.6';
+                });
+                
+                option.addEventListener('mouseleave', function() {
+                    this.querySelector('.option-glow').style.opacity = '0';
+                });
+                
+                // Checkbox change effect
+                const checkbox = option.querySelector('input[type="checkbox"]');
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        option.classList.add('selected');
+                    } else {
+                        option.classList.remove('selected');
+                    }
+                });
+                
+                // Initialize selected state
+                if (checkbox.checked) {
+                    option.classList.add('selected');
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>
