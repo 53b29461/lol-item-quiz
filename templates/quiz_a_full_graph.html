@@ -1506,15 +1506,12 @@
             heatmapOpacity = parseInt(e.target.value) / 100; // パーセントを小数に変換
             heatmapOpacityValue.textContent = e.target.value + '%';
             
-            // グラデーションを再作成
-            if (typeof createHeatmapGradients === 'function') {
-                // 既存のグラデーションを削除
-                svg.selectAll('radialGradient[id^="heatmap-gradient-"]').remove();
-                createHeatmapGradients();
+            // 直接グラデーションの透明度を更新（スコープ問題を回避）
+            if (svg) {
+                svg.selectAll('radialGradient[id^="heatmap-gradient-"] stop[offset="0%"]')
+                   .attr('stop-opacity', heatmapOpacity);
                 
-                if (heatmapEnabled && typeof updateHeatmap === 'function') {
-                    updateHeatmap();
-                }
+                console.log('ヒートマップ透明度を更新:', heatmapOpacity);
             }
         });
         
