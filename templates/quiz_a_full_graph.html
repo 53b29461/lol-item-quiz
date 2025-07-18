@@ -1344,60 +1344,41 @@
             
             // 実例アイテム（価格で選択）
             const exampleItems = [
-                { name: 'ドランブレード', price: 450, color: '#FF6B6B' },
-                { name: 'ベルトリ', price: 1300, color: '#4ECDC4' },
-                { name: 'インフィニティエッジ', price: 3400, color: '#45B7D1' }
+                { name: 'ドランブレード', price: 450, symbol: 'D', bgColor: '#ff6b6b' },
+                { name: 'ベルトリ', price: 1300, symbol: 'V', bgColor: '#4ecdc4' },
+                { name: 'インフィニティエッジ', price: 3400, symbol: 'IE', bgColor: '#45b7d1' }
             ];
             
+            const currentFunc = document.getElementById('radius-function').value;
             const datasets = [];
             
-            // 各関数のデータセットを作成
-            const functions = [
-                { name: '対数関数', key: 'logarithmic', color: '#FF6B6B' },
-                { name: '指数関数', key: 'exponential', color: '#4ECDC4' },
-                { name: '線形関数', key: 'linear', color: '#45B7D1' },
-                { name: 'ルート関数', key: 'sqrt', color: '#96CEB4' }
-            ];
+            // 選択された関数のみ表示
+            const functionMap = {
+                'logarithmic': { name: '対数関数', color: '#FF6B6B' },
+                'exponential': { name: '指数関数', color: '#4ECDC4' },
+                'linear': { name: '線形関数', color: '#45B7D1' },
+                'sqrt': { name: 'ルート関数', color: '#96CEB4' }
+            };
             
-            functions.forEach(func => {
-                const data = pricePoints.map(price => {
-                    return {
-                        x: price,
-                        y: calculateRadius(price, func.key)
-                    };
-                });
-                
-                datasets.push({
-                    label: func.name,
-                    data: data,
-                    borderColor: func.color,
-                    backgroundColor: func.color + '20',
-                    fill: false,
-                    tension: 0.1,
-                    pointRadius: 0,
-                    pointHoverRadius: 4
-                });
+            const selectedFunc = functionMap[currentFunc];
+            
+            const data = pricePoints.map(price => {
+                return {
+                    x: price,
+                    y: calculateRadius(price, currentFunc)
+                };
             });
             
-            // 実例アイテムのポイント
-            exampleItems.forEach(item => {
-                const data = functions.map(func => ({
-                    x: item.price,
-                    y: calculateRadius(item.price, func.key)
-                }));
-                
-                datasets.push({
-                    label: item.name + ' (' + item.price + 'G)',
-                    data: data,
-                    borderColor: item.color,
-                    backgroundColor: item.color,
-                    pointRadius: 8,
-                    pointHoverRadius: 10,
-                    showLine: false,
-                    pointStyle: 'circle',
-                    pointBorderWidth: 2,
-                    pointBorderColor: '#fff'
-                });
+            datasets.push({
+                label: selectedFunc.name,
+                data: data,
+                borderColor: selectedFunc.color,
+                backgroundColor: selectedFunc.color + '20',
+                fill: false,
+                tension: 0.1,
+                pointRadius: 0,
+                pointHoverRadius: 4,
+                borderWidth: 3
             });
             
             radiusChart = new Chart(ctx, {
@@ -1424,47 +1405,95 @@
                                 display: true,
                                 text: 'ノード半径（px）'
                             },
-                            min: 0
+                            min: 0,
+                            max: 60
                         }
                     },
                     plugins: {
                         legend: {
-                            display: true,
-                            position: 'top'
+                            display: false  // 凡例を非表示
                         },
                         tooltip: {
                             mode: 'nearest',
                             intersect: false,
                             callbacks: {
                                 label: function(context) {
-                                    return context.dataset.label + ': ' + 
+                                    return selectedFunc.name + ': ' + 
                                            context.parsed.x + 'G → ' + 
                                            context.parsed.y.toFixed(1) + 'px';
                                 }
                             }
+                        }
+                    },
+                    animation: {
+                        onComplete: function() {
+                            // アニメーション完了後にアイテム画像を描画
+                            drawItemImages(ctx, exampleItems, currentFunc);
                         }
                     }
                 }
             });
         }
         
+        // アイテム画像を描画する関数
+        function drawItemImages(ctx, items, functionType) {
+            items.forEach(item => {
+                const radius = calculateRadius(item.price, functionType);
+                
+                // グラフの座標系に変換
+                const chartArea = radiusChart.chartArea;
+                const xScale = radiusChart.scales.x;
+                const yScale = radiusChart.scales.y;
+                
+                const x = xScale.getPixelForValue(item.price);
+                const y = yScale.getPixelForValue(radius);
+                
+                // 画像サイズ（半径に応じて調整）
+                const imageSize = Math.max(24, radius * 1.2);
+                
+                // 背景円を描画
+                ctx.save();
+                ctx.fillStyle = item.bgColor;
+                ctx.beginPath();
+                ctx.arc(x, y, imageSize / 2, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // 枠線を描画
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(x, y, imageSize / 2, 0, 2 * Math.PI);
+                ctx.stroke();
+                
+                // アイテム名の最初の文字または特徴的な文字を表示
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold ' + Math.floor(imageSize * 0.4) + 'px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(item.symbol, x, y);
+                
+                ctx.restore();
+                
+                // アイテム名と価格を表示
+                ctx.fillStyle = '#333';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'alphabetic';
+                ctx.fillText(item.name, x, y + imageSize / 2 + 15);
+                ctx.fillText(item.price + 'G', x, y + imageSize / 2 + 28);
+            });
+        }
+        
         // 半径関数グラフの更新
         function updateRadiusChart() {
-            if (!radiusChart) return;
+            if (!radiusChart) {
+                createRadiusChart();
+                return;
+            }
             
-            const currentFunc = document.getElementById('radius-function').value;
-            
-            // 現在選択されている関数を強調
-            radiusChart.data.datasets.forEach((dataset, index) => {
-                if (index < 4) { // 関数のデータセット
-                    const functions = ['logarithmic', 'exponential', 'linear', 'sqrt'];
-                    const isSelected = functions[index] === currentFunc;
-                    dataset.borderWidth = isSelected ? 4 : 2;
-                    dataset.pointRadius = isSelected ? 2 : 0;
-                }
-            });
-            
-            radiusChart.update();
+            // グラフを再作成（選択された関数のみ表示するため）
+            radiusChart.destroy();
+            createRadiusChart();
         }
         
         // 半径計算関数（チャート用）
