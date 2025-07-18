@@ -1282,12 +1282,20 @@
         
         // プルダウン変更時の処理（シンプル版）
         function handleRadiusFunctionChange() {
-            console.log('プルダウンが変更されました');
+            console.log('=== プルダウンが変更されました ===');
+            console.log('radiusChart exists:', !!radiusChart);
+            
+            // まずアラートでテスト
+            alert('プルダウンが変更されました。現在の値: ' + document.getElementById('radius-function').value);
+            
             updateRadiusFunction();
             // 関数グラフが存在する場合は即座に更新
             if (radiusChart) {
                 console.log('プルダウン変更による関数グラフの即座更新');
+                alert('関数グラフを更新します');
                 updateRadiusChart();
+            } else {
+                alert('関数グラフが存在しません');
             }
         }
         
