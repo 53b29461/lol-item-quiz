@@ -74,6 +74,57 @@
         .reset-button:hover {
             background: #5a6268 !important;
         }
+        .heatmap-control {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0;
+            padding: 15px;
+            background: #fff3e0;
+            border-radius: 8px;
+            border: 1px solid #ffcc80;
+        }
+        .heatmap-control label {
+            font-weight: bold;
+            color: #e65100;
+        }
+        .heatmap-toggle {
+            background: #ff9800 !important;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .heatmap-toggle:hover {
+            background: #f57c00 !important;
+        }
+        .heatmap-toggle.active {
+            background: #4caf50 !important;
+        }
+        .heatmap-slider {
+            width: 120px;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+        }
+        .heatmap-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ff9800;
+            cursor: pointer;
+        }
+        .heatmap-value {
+            font-weight: bold;
+            color: #ff9800;
+            min-width: 40px;
+            text-align: center;
+        }
         .d3-full-graph {
             width: 100%;
             height: 800px;
@@ -322,6 +373,28 @@
             <button class="reset-button" onclick="resetEdgeLength()">リセット</button>
         </div>
         
+        <div class="heatmap-control">
+            <button id="heatmap-toggle" class="heatmap-toggle" onclick="toggleHeatmap()">ヒートマップ ON/OFF</button>
+            <label for="heatmap-radius-slider">半径:</label>
+            <input type="range" 
+                   id="heatmap-radius-slider" 
+                   class="heatmap-slider"
+                   min="20" 
+                   max="100" 
+                   value="30" 
+                   step="5">
+            <span id="heatmap-radius-value" class="heatmap-value">30px</span>
+            <label for="heatmap-opacity-slider">透明度:</label>
+            <input type="range" 
+                   id="heatmap-opacity-slider" 
+                   class="heatmap-slider"
+                   min="10" 
+                   max="50" 
+                   value="25" 
+                   step="5">
+            <span id="heatmap-opacity-value" class="heatmap-value">25%</span>
+        </div>
+        
         <div class="filter-controls">
             <label for="min-price">最低価格:</label>
             <input type="range" id="min-price" min="0" max="5000" value="0" step="100">
@@ -561,6 +634,41 @@
             
             console.log(`ノード数（重複除去後）: ${filteredData.nodes.length}`);
             
+            // アイテムタイプ判定機能
+            function getItemType(node) {
+                const stats = node.stats || {};
+                
+                // APアイテム: FlatMagicDamageMod があるもの
+                if (stats.FlatMagicDamageMod) {
+                    return 'ap';
+                }
+                // ADアイテム: FlatPhysicalDamageMod があるもの
+                else if (stats.FlatPhysicalDamageMod) {
+                    return 'ad';
+                }
+                // タンクアイテム: FlatArmorMod または FlatSpellBlockMod があるもの
+                else if (stats.FlatArmorMod || stats.FlatSpellBlockMod) {
+                    return 'tank';
+                }
+                // その他
+                else {
+                    return 'other';
+                }
+            }
+            
+            // ヒートマップ設定
+            let heatmapEnabled = false;
+            let heatmapRadius = 30;
+            let heatmapOpacity = 0.25;
+            
+            // アイテムタイプ別の色設定
+            const heatmapColors = {
+                ap: '#DA70D6',     // 明るい紫（orchid）
+                ad: '#FF4500',     // 赤色（orangered）
+                tank: '#32CD32',   // 明るい緑（limegreen）
+                other: '#FFD700'   // その他は金色
+            };
+            
             // 辺の長さ均等化システム
             let IDEAL_EDGE_LENGTH = 120;  // 理想的な辺の長さ（1.5倍）
             const centerX = width / 2;
@@ -596,6 +704,9 @@
                 if (simulation) simulation.stop();
             }, 15000);
             
+            // ヒートマップの初期化
+            updateHeatmap();
+            
             // エッジを描画
             const linkGroup = g.append('g').attr('class', 'links');
             links = linkGroup.selectAll('line')
@@ -605,8 +716,11 @@
                 .attr('stroke-width', 1)
                 .attr('marker-end', 'url(#arrowhead)');
             
-            // 矢印マーカーを定義
-            svg.append('defs').append('marker')
+            // 矢印マーカーとヒートマップグラデーションを定義
+            const defs = svg.append('defs');
+            
+            // 矢印マーカー
+            defs.append('marker')
                 .attr('id', 'arrowhead')
                 .attr('viewBox', '0 -5 10 10')
                 .attr('refX', 8)
@@ -617,6 +731,57 @@
                 .append('path')
                 .attr('d', 'M0,-5L10,0L0,5')
                 .attr('fill', '#ccc');
+            
+            // ヒートマップ用radialGradientを作成
+            function createHeatmapGradients() {
+                Object.keys(heatmapColors).forEach(type => {
+                    const gradient = defs.append('radialGradient')
+                        .attr('id', `heatmap-gradient-${type}`)
+                        .attr('cx', '50%')
+                        .attr('cy', '50%')
+                        .attr('r', '50%');
+                    
+                    // 中心は指定色、外側は透明
+                    gradient.append('stop')
+                        .attr('offset', '0%')
+                        .attr('stop-color', heatmapColors[type])
+                        .attr('stop-opacity', heatmapOpacity);
+                    
+                    gradient.append('stop')
+                        .attr('offset', '100%')
+                        .attr('stop-color', heatmapColors[type])
+                        .attr('stop-opacity', 0);
+                });
+            }
+            
+            createHeatmapGradients();
+            
+            // ヒートマップレイヤーを作成（ノードより下に配置）
+            const heatmapGroup = g.append('g').attr('class', 'heatmap-layer');
+            
+            // ヒートマップ円を作成・更新する関数
+            function updateHeatmap() {
+                if (!heatmapEnabled) {
+                    heatmapGroup.selectAll('.heatmap-circle').remove();
+                    return;
+                }
+                
+                const heatmapCircles = heatmapGroup.selectAll('.heatmap-circle')
+                    .data(filteredData.nodes, d => d.id);
+                
+                heatmapCircles.exit().remove();
+                
+                const heatmapEnter = heatmapCircles.enter()
+                    .append('circle')
+                    .attr('class', 'heatmap-circle')
+                    .style('mix-blend-mode', 'screen'); // 重なりが明るくなる効果
+                
+                heatmapCircles.merge(heatmapEnter)
+                    .attr('r', heatmapRadius)
+                    .attr('fill', d => `url(#heatmap-gradient-${getItemType(d)})`)
+                    .attr('cx', d => d.x || 0)
+                    .attr('cy', d => d.y || 0);
+            }
             
             // ノードグループを作成
             const nodeGroup = g.append('g').attr('class', 'nodes');
@@ -819,6 +984,13 @@
                 
                 nodes
                     .attr('transform', d => `translate(${d.x},${d.y})`);
+                
+                // ヒートマップの位置も更新
+                if (heatmapEnabled) {
+                    heatmapGroup.selectAll('.heatmap-circle')
+                        .attr('cx', d => d.x)
+                        .attr('cy', d => d.y);
+                }
             });
         }
         
@@ -970,6 +1142,11 @@
                 hideInfoPanel();
             });
             
+            // ヒートマップを更新
+            if (typeof updateHeatmap === 'function') {
+                updateHeatmap();
+            }
+            
             // シミュレーションを再開
             simulation.alpha(1).restart();
         }
@@ -1003,6 +1180,11 @@
                 d.x = centerX + r * Math.cos(angle);
                 d.y = centerY + r * Math.sin(angle);
             });
+            
+            // ヒートマップを更新
+            if (typeof updateHeatmap === 'function') {
+                updateHeatmap();
+            }
             
             // シミュレーションを再開
             simulation.alpha(1).restart();
@@ -1084,6 +1266,51 @@
                 simulation.alpha(0.5).restart();
             }
         }
+        
+        // ヒートマップコントロール機能
+        const heatmapToggle = document.getElementById('heatmap-toggle');
+        const heatmapRadiusSlider = document.getElementById('heatmap-radius-slider');
+        const heatmapRadiusValue = document.getElementById('heatmap-radius-value');
+        const heatmapOpacitySlider = document.getElementById('heatmap-opacity-slider');
+        const heatmapOpacityValue = document.getElementById('heatmap-opacity-value');
+        
+        // ヒートマップトグル機能
+        function toggleHeatmap() {
+            heatmapEnabled = !heatmapEnabled;
+            heatmapToggle.classList.toggle('active', heatmapEnabled);
+            heatmapToggle.textContent = heatmapEnabled ? 'ヒートマップ ON' : 'ヒートマップ OFF';
+            
+            if (typeof updateHeatmap === 'function') {
+                updateHeatmap();
+            }
+        }
+        
+        // 半径スライダーのイベントリスナー
+        heatmapRadiusSlider.addEventListener('input', function(e) {
+            heatmapRadius = parseInt(e.target.value);
+            heatmapRadiusValue.textContent = heatmapRadius + 'px';
+            
+            if (heatmapEnabled && typeof updateHeatmap === 'function') {
+                updateHeatmap();
+            }
+        });
+        
+        // 透明度スライダーのイベントリスナー
+        heatmapOpacitySlider.addEventListener('input', function(e) {
+            heatmapOpacity = parseInt(e.target.value) / 100; // パーセントを小数に変換
+            heatmapOpacityValue.textContent = e.target.value + '%';
+            
+            // グラデーションを再作成
+            if (typeof createHeatmapGradients === 'function') {
+                // 既存のグラデーションを削除
+                svg.selectAll('radialGradient[id^="heatmap-gradient-"]').remove();
+                createHeatmapGradients();
+                
+                if (heatmapEnabled && typeof updateHeatmap === 'function') {
+                    updateHeatmap();
+                }
+            }
+        });
         
         function pauseSimulation() {
             if (!simulation) return;
