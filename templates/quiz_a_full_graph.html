@@ -574,20 +574,20 @@
                 d.y = centerY + r * Math.sin(angle);
             });
             
-            // 辺の長さ均等化に特化したシミュレーション
+            // 辺の長さ均等化とコリジョンのバランスを取ったシミュレーション
             simulation = d3.forceSimulation(filteredData.nodes)
                 .force('link', d3.forceLink(filteredData.edges)
                     .id(d => d.id)
-                    .distance(IDEAL_EDGE_LENGTH)  // 理想的な辺の長さに固定
-                    .strength(1.5))  // 強い引力で辺の長さを均等化
+                    .distance(IDEAL_EDGE_LENGTH)  // 理想的な辺の長さ
+                    .strength(0.8))  // 柔軟性を持たせて±10%程度の誤差を許容
                 .force('charge', d3.forceManyBody()
-                    .strength(-200)  // 軽い斥力（重なりを許容）
+                    .strength(-300)  // 適度な斥力
                     .distanceMax(IDEAL_EDGE_LENGTH * 2))  // 影響範囲を制限
                 .force('center', d3.forceCenter(width / 2, height / 2).strength(0.1))
                 .force('collision', d3.forceCollide()
-                    .radius(d => getNodeRadius(d) * 0.5)  // 重なりを許容
-                    .strength(0.3)  // 弱い衝突回避
-                    .iterations(1))
+                    .radius(d => getNodeRadius(d) * 1.05)  // 実際のサイズより少し大きめ
+                    .strength(0.9)  // 強い衝突回避
+                    .iterations(3))  // 精度向上のため反復回数増加
                 .alphaDecay(0.005)  // ゆっくり収束で安定化
                 .velocityDecay(0.2);  // 低い速度減衰で自然な動き
             
@@ -1049,10 +1049,15 @@
             if (simulation) {
                 simulation.force('link')
                     .distance(IDEAL_EDGE_LENGTH)
-                    .strength(1.5);
+                    .strength(0.8);  // 柔軟性を保持
                 
                 simulation.force('charge')
+                    .strength(-300)
                     .distanceMax(IDEAL_EDGE_LENGTH * 2);
+                
+                simulation.force('collision')
+                    .radius(d => getNodeRadius(d) * 1.05)
+                    .strength(0.9);
                 
                 simulation.alpha(0.5).restart();
             }
@@ -1066,10 +1071,15 @@
             if (simulation) {
                 simulation.force('link')
                     .distance(IDEAL_EDGE_LENGTH)
-                    .strength(1.5);
+                    .strength(0.8);  // 柔軟性を保持
                 
                 simulation.force('charge')
+                    .strength(-300)
                     .distanceMax(IDEAL_EDGE_LENGTH * 2);
+                
+                simulation.force('collision')
+                    .radius(d => getNodeRadius(d) * 1.05)
+                    .strength(0.9);
                 
                 simulation.alpha(0.5).restart();
             }
