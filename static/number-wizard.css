@@ -1,0 +1,658 @@
+/* =============================================================================
+   Number Wizard - Platinum/Silver Theme Gaming UI
+   ============================================================================= */
+
+/* Math Wizard Body Theme */
+.math-wizard-body {
+    background-image: 
+        radial-gradient(circle at 20% 50%, rgba(148, 163, 184, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(203, 213, 225, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(100, 116, 139, 0.08) 0%, transparent 50%);
+}
+
+/* Math Particles */
+.math-particle {
+    background: linear-gradient(45deg, #e2e8f0, #cbd5e1);
+    box-shadow: 0 0 8px rgba(148, 163, 184, 0.6);
+}
+
+/* Navigation Math Theme */
+.math-nav {
+    border-bottom: 2px solid rgba(148, 163, 184, 0.5);
+}
+
+.math-nav .difficulty-badge.platinum {
+    background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+    color: #1e293b;
+    animation: platinumShine 3s ease-in-out infinite alternate;
+}
+
+@keyframes platinumShine {
+    0% { box-shadow: 0 0 10px rgba(148, 163, 184, 0.5); }
+    100% { box-shadow: 0 0 25px rgba(203, 213, 225, 0.8); }
+}
+
+/* Math Main Layout */
+.math-main {
+    position: relative;
+}
+
+.math-screen {
+    display: none;
+    min-height: calc(100vh - 100px);
+    padding: var(--space-lg);
+}
+
+.math-screen.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Welcome Screen */
+.welcome-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 70vh;
+}
+
+.welcome-content {
+    text-align: center;
+    max-width: 600px;
+    padding: var(--space-2xl);
+    background: var(--gradient-card);
+    border: 2px solid rgba(148, 163, 184, 0.3);
+    border-radius: 24px;
+    box-shadow: var(--shadow-strong), 0 0 40px rgba(148, 163, 184, 0.2);
+}
+
+.wizard-icon {
+    font-size: 4rem;
+    margin-bottom: var(--space-lg);
+    filter: drop-shadow(0 0 20px rgba(148, 163, 184, 0.6));
+    animation: wizardFloat 3s ease-in-out infinite alternate;
+}
+
+.wizard-icon.large {
+    font-size: 5rem;
+}
+
+@keyframes wizardFloat {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(-10px) rotate(5deg); }
+}
+
+.welcome-title {
+    font-family: var(--font-heading);
+    font-size: 3rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #64748b, #94a3b8, #cbd5e1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: var(--space-md);
+    text-shadow: 0 0 30px rgba(148, 163, 184, 0.5);
+}
+
+.welcome-subtitle {
+    font-size: 1.3rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-xl);
+    line-height: 1.6;
+}
+
+.game-features {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    background: rgba(148, 163, 184, 0.1);
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.feature-icon {
+    font-size: 1.5rem;
+    filter: drop-shadow(0 0 10px rgba(148, 163, 184, 0.6));
+}
+
+.feature-text {
+    flex: 1;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* Wizard Buttons */
+.wizard-button {
+    background: linear-gradient(135deg, #64748b, #94a3b8);
+    color: white;
+    border: none;
+    padding: var(--space-md) var(--space-xl);
+    border-radius: 16px;
+    font-family: var(--font-body);
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 6px 20px rgba(148, 163, 184, 0.3);
+}
+
+.wizard-button:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(148, 163, 184, 0.4);
+}
+
+.button-icon {
+    font-size: 1.4rem;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+}
+
+/* Difficulty Selection */
+.difficulty-container {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.difficulty-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: var(--space-xl);
+    margin: var(--space-xl) 0;
+}
+
+.difficulty-card {
+    background: var(--gradient-card);
+    border: 2px solid rgba(148, 163, 184, 0.2);
+    border-radius: 20px;
+    padding: var(--space-xl);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: all var(--transition-smooth);
+}
+
+.difficulty-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(148, 163, 184, 0.5);
+    box-shadow: 0 12px 40px rgba(148, 163, 184, 0.3);
+}
+
+.difficulty-card.hard-mode {
+    border-color: rgba(203, 213, 225, 0.4);
+}
+
+.difficulty-card.hard-mode:hover {
+    border-color: rgba(203, 213, 225, 0.7);
+    box-shadow: 0 12px 40px rgba(203, 213, 225, 0.4);
+}
+
+.difficulty-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+}
+
+.difficulty-icon {
+    font-size: 2.5rem;
+    filter: drop-shadow(0 0 15px rgba(148, 163, 184, 0.6));
+}
+
+.difficulty-card h3 {
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-lg);
+}
+
+.difficulty-features {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+    padding: var(--space-md);
+    background: rgba(148, 163, 184, 0.05);
+    border-radius: 12px;
+}
+
+.feature-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    font-family: var(--font-heading);
+}
+
+.operator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: var(--accent-blue);
+    color: white;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.desc {
+    flex: 1;
+    color: var(--text-secondary);
+    font-weight: 500;
+    text-align: left;
+}
+
+.mode-button {
+    background: linear-gradient(135deg, #64748b, #94a3b8);
+    color: white;
+    border: none;
+    padding: var(--space-sm) var(--space-lg);
+    border-radius: 12px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all var(--transition-smooth);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.mode-button.hard {
+    background: linear-gradient(135deg, #cbd5e1, #e2e8f0);
+    color: #1e293b;
+}
+
+.mode-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(148, 163, 184, 0.4);
+}
+
+.back-button {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    border: 2px solid rgba(148, 163, 184, 0.3);
+    padding: var(--space-sm) var(--space-lg);
+    border-radius: 12px;
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.back-button:hover {
+    border-color: rgba(148, 163, 184, 0.6);
+    color: var(--text-primary);
+}
+
+/* Game Screen Layout */
+.game-container {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: var(--space-xl);
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    height: calc(100vh - 200px);
+}
+
+/* Problem Panel */
+.problem-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-lg);
+}
+
+.problem-showcase {
+    width: 100%;
+    max-width: 500px;
+}
+
+.problem-card {
+    background: var(--gradient-card);
+    border: 2px solid rgba(148, 163, 184, 0.3);
+    border-radius: 20px;
+    padding: var(--space-xl);
+    text-align: center;
+    box-shadow: 0 8px 30px rgba(148, 163, 184, 0.2);
+    margin-bottom: var(--space-lg);
+}
+
+.expression-display {
+    margin-bottom: var(--space-lg);
+}
+
+.math-expression {
+    font-family: var(--font-heading);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-shadow: 0 0 20px rgba(148, 163, 184, 0.5);
+    margin-bottom: var(--space-md);
+}
+
+.answer-preview {
+    margin-bottom: var(--space-lg);
+}
+
+.answer-label {
+    display: block;
+    font-size: 1rem;
+    color: var(--text-muted);
+    margin-bottom: var(--space-xs);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.answer-digits {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent-blue);
+    min-height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.instruction-text {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.problem-hints {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.hint-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm);
+    background: rgba(148, 163, 184, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.hint-icon {
+    font-size: 1.2rem;
+    filter: drop-shadow(0 0 8px rgba(148, 163, 184, 0.6));
+}
+
+.hint-text {
+    flex: 1;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* Keyboard Panel */
+.keyboard-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: var(--space-lg);
+}
+
+.keyboard-container {
+    max-width: 350px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.keyboard-title {
+    text-align: center;
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-lg);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.math-keyboard {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+
+.keyboard-row {
+    display: flex;
+    gap: var(--space-md);
+    justify-content: center;
+}
+
+.number-tile {
+    width: 80px;
+    height: 80px;
+    background: var(--gradient-card);
+    border: 2px solid rgba(148, 163, 184, 0.3);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.number-tile:hover {
+    border-color: rgba(148, 163, 184, 0.6);
+    background: linear-gradient(135deg, rgba(148, 163, 184, 0.2), rgba(203, 213, 225, 0.1));
+    box-shadow: 0 4px 15px rgba(148, 163, 184, 0.3);
+    transform: translateY(-2px) scale(1.05);
+}
+
+.number-tile:active {
+    transform: translateY(0) scale(0.95);
+}
+
+.number-tile.wide {
+    width: 180px;
+}
+
+/* Math Feedback */
+.math-feedback {
+    text-align: center;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    padding: var(--space-md);
+    transition: all var(--transition-smooth);
+}
+
+/* Result Screen */
+.result-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 70vh;
+}
+
+.result-content {
+    text-align: center;
+    max-width: 800px;
+    padding: var(--space-2xl);
+    background: var(--gradient-card);
+    border: 2px solid rgba(148, 163, 184, 0.3);
+    border-radius: 24px;
+    box-shadow: var(--shadow-strong), 0 0 50px rgba(148, 163, 184, 0.3);
+}
+
+.result-header {
+    margin-bottom: var(--space-xl);
+}
+
+.result-title {
+    font-family: var(--font-heading);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-md);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
+}
+
+.stat-card {
+    background: rgba(148, 163, 184, 0.1);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 16px;
+    padding: var(--space-lg);
+    text-align: center;
+}
+
+.stat-icon {
+    font-size: 2rem;
+    margin-bottom: var(--space-sm);
+    filter: drop-shadow(0 0 10px rgba(148, 163, 184, 0.6));
+}
+
+.stat-number {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-xs);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.result-actions {
+    display: flex;
+    gap: var(--space-lg);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.action-button {
+    background: linear-gradient(135deg, #64748b, #94a3b8);
+    color: white;
+    border: none;
+    padding: var(--space-md) var(--space-lg);
+    border-radius: 12px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    transition: all var(--transition-smooth);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.action-button.secondary {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 2px solid rgba(148, 163, 184, 0.3);
+}
+
+.action-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(148, 163, 184, 0.4);
+}
+
+.action-icon {
+    font-size: 1.2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .game-container {
+        grid-template-columns: 1fr;
+        gap: var(--space-lg);
+        height: auto;
+    }
+    
+    .problem-panel {
+        order: 1;
+    }
+    
+    .keyboard-panel {
+        order: 2;
+    }
+}
+
+@media (max-width: 768px) {
+    .welcome-title {
+        font-size: 2rem;
+    }
+    
+    .math-expression {
+        font-size: 2rem;
+    }
+    
+    .number-tile {
+        width: 60px;
+        height: 60px;
+        font-size: 1.4rem;
+    }
+    
+    .number-tile.wide {
+        width: 140px;
+    }
+    
+    .difficulty-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .result-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .action-button {
+        width: 100%;
+        justify-content: center;
+    }
+}

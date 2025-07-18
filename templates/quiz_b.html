@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>クイズB - LoL Item Quiz (Patch {{ patch_version }})</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='animations.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='header-nav.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='performance-accessibility.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='browser-compatibility.css') }}">
+    <title>Price Master - LoL Item Quiz | Patch 14.14</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='gaming-ui.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='quiz-gaming.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='price-master.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
     function copyTextAndShowInlineMessage() {
-        var text = "連続正解回数: {{ previous_consecutive_correct_answers }}回\n#LoLItemQuiz\n#クイズB\n\nhttps://lol-item-quiz.com/";
+        var text = "連続正解回数: {{ previous_consecutive_correct_answers }}回\n#LoLItemQuiz\n#PriceMaster\n\nhttps://lol-item-quiz.com/";
         navigator.clipboard.writeText(text).then(function() {
             var message = document.getElementById("inline-message");
-            message.textContent = "Copied!";
+            message.textContent = "Results Copied!";
             message.style.display = "block";
             setTimeout(function() { message.style.display = "none"; }, 3000);
         }, function(err) {
@@ -23,127 +24,262 @@
     }
     </script>
 </head>
-<body>
-    <!-- 統一ヘッダー -->
-    <header class="site-header quiz-header">
-        <div class="header-content">
-            <a href="/" class="site-logo">
-                <div>
-                    <h1 class="site-title">LoL Item Quiz</h1>
-                    <p class="site-subtitle">Patch {{ patch_version }}</p>
-                </div>
+<body class="quiz-body price-master-body">
+    <!-- Background Effects -->
+    <div class="bg-overlay"></div>
+    <div class="particles" id="particles"></div>
+    
+    <!-- Navigation -->
+    <nav class="quiz-nav price-nav">
+        <div class="nav-container">
+            <a href="/" class="nav-home">
+                <span class="home-icon">⬅</span>
+                <span>Back to Menu</span>
             </a>
             
-            <nav class="site-nav">
-                <a href="/" class="nav-link">
-                    <span>🏠</span>
-                    <span>TOP</span>
-                </a>
-                <div class="page-indicator">
-                    <span class="indicator-icon">💰</span>
-                    <span>クイズB</span>
-                </div>
-                <div class="header-timer">
-                    <span class="timer-icon">⏱️</span>
-                    <span>8s</span>
-                </div>
-            </nav>
-        </div>
-    </header>
-
-    <div class="container" id="main-content" role="main">
-        
-        <!-- アイテム画像カード -->
-        <div class="item-display-card">
-            <img src="https://ddragon.leagueoflegends.com/cdn/{{ patch_version }}/img/item/{{ item['image']['full'] }}" alt="{{ item['name'] }}" class="item-image-large">
-            <h2 class="item-name">{{ item['name'] }}</h2>
-            <p class="quiz-question">このアイテムの価格はいくらでしょうか？</p>
-        </div>
-
-        <form method="post" autocomplete="off" class="price-quiz-form">
-            <div class="price-input-section">
-                <div class="price-input-wrapper">
-                    <input type="number" name="price" placeholder="価格を入力" class="price-input" {% if submitted == False %}autofocus{% endif %} {% if submitted %}disabled{% endif %}>
-                    <span class="price-unit">G</span>
+            <div class="quiz-title">
+                <h1>Price Master</h1>
+                <span class="difficulty-badge gold">Gold Challenge</span>
+            </div>
+            
+            <div class="quiz-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Streak</span>
+                    <span class="stat-value">{{ consecutive_correct_answers }}</span>
                 </div>
                 {% if not submitted %}
-                <input type="submit" value="回答する" class="btn btn-primary btn-large">
+                <div class="stat-item timer-stat speed-timer">
+                    <span class="stat-label">Time</span>
+                    <span class="stat-value" id="timer">8</span>
+                </div>
                 {% endif %}
             </div>
-        </form>
-
-        {% if result %}
-        <div class="result-section">
-            <div class="result-message {% if 'Correct!' in result %}result-correct{% else %}result-incorrect{% endif %}">
-                {{ result }}
-            </div>
-            <button id="nextQuestionButton" onclick="location.href='/next_question_b'" class="btn btn-primary btn-large">
-                次の問題へ →
-            </button>
         </div>
+    </nav>
+
+    <!-- Main Game Area -->
+    <main class="quiz-main">
+        <div class="quiz-container">
+            
+            <!-- Left Panel - Item Display -->
+            <section class="item-panel">
+                <div class="item-showcase">
+                    <div class="item-card gold-glow">
+                        <img src="https://ddragon.leagueoflegends.com/cdn/{{ patch_version }}/img/item/{{ item['image']['full'] }}" 
+                             alt="{{ item['name'] }}" 
+                             class="item-image">
+                        <div class="item-glow gold-glow-effect"></div>
+                    </div>
+                    <h2 class="item-name">{{ item['name'] }}</h2>
+                    <p class="challenge-text">
+                        <span class="highlight gold-text">Enter the exact price</span><br>
+                        of this legendary item
+                    </p>
+                    
+                    <!-- Price Hint System -->
+                    <div class="price-hints">
+                        <div class="hint-item">
+                            <span class="hint-icon">💎</span>
+                            <span class="hint-text">Think about item tier</span>
+                        </div>
+                        <div class="hint-item">
+                            <span class="hint-icon">⚡</span>
+                            <span class="hint-text">8 seconds to decide</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel - Price Input -->
+            <section class="answers-panel price-panel">
+                <form method="post" autocomplete="off" class="price-form">
+                    
+                    <!-- Price Input Section -->
+                    <div class="price-input-zone">
+                        <div class="input-label">
+                            <span class="label-text">Item Price</span>
+                            <span class="label-unit">(Gold)</span>
+                        </div>
+                        
+                        <div class="price-input-container">
+                            <div class="input-wrapper">
+                                <input type="number" 
+                                       name="price" 
+                                       placeholder="0000" 
+                                       class="price-input"
+                                       {% if submitted == False %}autofocus{% endif %} 
+                                       {% if submitted %}disabled{% endif %}>
+                                <span class="currency-symbol">G</span>
+                                <div class="input-glow"></div>
+                            </div>
+                        </div>
+                        
+                        {% if not submitted %}
+                        <button type="submit" class="submit-button price-submit">
+                            <span class="button-text">Lock In Price</span>
+                            <span class="submit-icon">💰</span>
+                            <div class="button-effect"></div>
+                        </button>
+                        {% endif %}
+                    </div>
+
+                    <!-- Quick Price Buttons -->
+                    {% if not submitted %}
+                    <div class="quick-price-section">
+                        <div class="section-title">Quick Select</div>
+                        <div class="quick-buttons">
+                            <button type="button" class="quick-btn" data-price="400">400G</button>
+                            <button type="button" class="quick-btn" data-price="800">800G</button>
+                            <button type="button" class="quick-btn" data-price="1200">1200G</button>
+                            <button type="button" class="quick-btn" data-price="1600">1600G</button>
+                            <button type="button" class="quick-btn" data-price="2000">2000G</button>
+                            <button type="button" class="quick-btn" data-price="2500">2500G</button>
+                            <button type="button" class="quick-btn" data-price="3000">3000G</button>
+                            <button type="button" class="quick-btn" data-price="3500">3500G</button>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                </form>
+            </section>
+
+        </div>
+
+        <!-- Result Section -->
+        {% if result %}
+        <section class="result-section {% if 'Correct!' in result %}success{% else %}failure{% endif %} price-result">
+            <div class="result-content">
+                <div class="result-icon">
+                    {% if 'Correct!' in result %}
+                        <span class="success-icon">💎</span>
+                    {% else %}
+                        <span class="failure-icon">💸</span>
+                    {% endif %}
+                </div>
+                <div class="result-message">
+                    {% if 'Correct!' in result %}
+                        <h3>Price Perfect!</h3>
+                        <p>You know your gold values!</p>
+                    {% else %}
+                        <h3>Price Missed!</h3>
+                        <p>Study item costs and try again</p>
+                    {% endif %}
+                </div>
+                <button id="nextQuestionButton" onclick="location.href='/next_question_b'" class="next-button">
+                    <span>Next Challenge</span>
+                    <span class="arrow">→</span>
+                </button>
+            </div>
+        </section>
+        
         <script>
-            // Enterキーが押されたときに「次の問題へ」ボタンをクリックする
+            // Enter key for next question
             document.addEventListener('keydown', function(event) {
-                if (event.key === 'Enter') {
+                if (event.key === 'Enter' && document.getElementById('nextQuestionButton')) {
                     document.getElementById('nextQuestionButton').click();
                 }
             });
         </script>
         {% endif %}
 
-        {% if submitted == False %}
-        <!-- タイマー表示 -->
-        <div class="timer-section timer-fast">
-            <div class="timer-label">残り時間</div>
-            <div id="timer" class="timer-display">8</div>
-        </div>
-
-        <script>
-            // タイマーの開始
-            var timeLeft = 8; // 制限時間（秒）
-            var timerId = setInterval(function() {
-                timeLeft--;
-                var timerElement = document.getElementById('timer');
-                timerElement.textContent = timeLeft;
-                
-                // 残り時間が少なくなったら警告色に変更
-                if (timeLeft <= 5) {
-                    timerElement.classList.add('timer-warning');
-                }
-                if (timeLeft <= 3) {
-                    timerElement.classList.add('timer-danger');
-                }
-                
-                if (timeLeft <= 0) {
-                    clearInterval(timerId);
-                    document.querySelector('input[type="submit"]').click(); // 回答ボタンを自動クリック
-                }
-            }, 1000);
-        </script>
-        {% endif %}
-        
-        <!-- 統計セクション -->
-        <div class="stats-section">
-            <div class="stat-card">
-                <div class="stat-number">{{ consecutive_correct_answers }}</div>
-                <div class="stat-label">連続正解回数</div>
-            </div>
-        </div>
-
+        <!-- Share Section for Incorrect Answers -->
         {% if is_correct == False %}
-        <div class="share-section">
-            <div class="share-stats">
-                <p class="share-text">前問までの連続正解回数：<strong>{{ previous_consecutive_correct_answers }}回</strong></p>
-            </div>
-            <div class="share-container">
-                <button onclick="copyTextAndShowInlineMessage()" class="btn btn-secondary">
-                    📋 結果をシェア
+        <section class="share-section">
+            <div class="share-content">
+                <div class="streak-display">
+                    <span class="streak-label">Your Streak:</span>
+                    <span class="streak-number">{{ previous_consecutive_correct_answers }}</span>
+                </div>
+                <button onclick="copyTextAndShowInlineMessage()" class="share-button">
+                    <span class="share-icon">📋</span>
+                    <span>Share Results</span>
                 </button>
-                <div id="inline-message" class="share-message">Copied!</div>
+                <div id="inline-message" class="share-message">Results Copied!</div>
             </div>
-        </div>
+        </section>
         {% endif %}
-    </div>
+
+    </main>
+
+    <!-- Speed Timer Script -->
+    {% if submitted == False %}
+    <script>
+        // Fast timer functionality
+        var timeLeft = 8;
+        var timerId = setInterval(function() {
+            timeLeft--;
+            var timerElement = document.getElementById('timer');
+            timerElement.textContent = timeLeft;
+            
+            // Add warning classes for fast timer
+            if (timeLeft <= 5) {
+                timerElement.parentElement.classList.add('timer-warning');
+            }
+            if (timeLeft <= 3) {
+                timerElement.parentElement.classList.add('timer-danger');
+            }
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerId);
+                document.querySelector('.price-form').submit();
+            }
+        }, 1000);
+    </script>
+    {% endif %}
+
+    <!-- Enhanced Interactions -->
+    <script>
+        // Particle system
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle gold-particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 20) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            
+            // Quick price buttons
+            document.querySelectorAll('.quick-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const price = this.dataset.price;
+                    document.querySelector('.price-input').value = price;
+                    
+                    // Visual feedback
+                    this.classList.add('selected');
+                    setTimeout(() => this.classList.remove('selected'), 200);
+                });
+            });
+            
+            // Price input enhancements
+            const priceInput = document.querySelector('.price-input');
+            if (priceInput) {
+                priceInput.addEventListener('focus', function() {
+                    this.parentElement.classList.add('focused');
+                });
+                
+                priceInput.addEventListener('blur', function() {
+                    this.parentElement.classList.remove('focused');
+                });
+                
+                // Auto-submit on Enter
+                priceInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        document.querySelector('.price-form').submit();
+                    }
+                });
+            }
+        });
+    </script>
 
 </body>
 </html>

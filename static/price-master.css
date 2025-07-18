@@ -1,0 +1,428 @@
+/* =============================================================================
+   Price Master - Gold Theme Gaming UI
+   ============================================================================= */
+
+/* Price Master Body Theme */
+.price-master-body {
+    background-image: 
+        radial-gradient(circle at 20% 50%, rgba(245, 158, 11, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(251, 191, 36, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(217, 119, 6, 0.08) 0%, transparent 50%);
+}
+
+/* Gold Particles */
+.gold-particle {
+    background: var(--accent-gold);
+    box-shadow: 0 0 6px rgba(245, 158, 11, 0.8);
+}
+
+/* Navigation Gold Theme */
+.price-nav {
+    border-bottom: 2px solid var(--accent-gold);
+}
+
+.price-nav .difficulty-badge.gold {
+    animation: goldShine 2s ease-in-out infinite alternate;
+}
+
+@keyframes goldShine {
+    0% { box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
+    100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.8); }
+}
+
+/* Gold Glow Effects */
+.gold-glow {
+    border-color: rgba(245, 158, 11, 0.4);
+    box-shadow: 0 0 30px rgba(245, 158, 11, 0.3);
+}
+
+.gold-glow-effect {
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.3) 0%, transparent 70%);
+    animation: goldGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes goldGlow {
+    0% { opacity: 0.4; transform: scale(1); }
+    100% { opacity: 0.8; transform: scale(1.08); }
+}
+
+.gold-text {
+    color: var(--accent-gold);
+    text-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+}
+
+/* Price Hints */
+.price-hints {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    margin-top: var(--space-lg);
+    padding: var(--space-md);
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.hint-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.hint-icon {
+    font-size: 1.2rem;
+    filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.6));
+}
+
+.hint-text {
+    flex: 1;
+}
+
+/* Price Panel */
+.price-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: var(--space-xl);
+}
+
+.price-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+    max-width: 500px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Price Input Zone */
+.price-input-zone {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.input-label {
+    text-align: center;
+    margin-bottom: var(--space-md);
+}
+
+.label-text {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-xs);
+}
+
+.label-unit {
+    font-size: 1rem;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.price-input-container {
+    display: flex;
+    justify-content: center;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--bg-card);
+    border: 3px solid rgba(245, 158, 11, 0.3);
+    border-radius: 16px;
+    padding: var(--space-md) var(--space-lg);
+    transition: all var(--transition-smooth);
+    overflow: hidden;
+    min-width: 250px;
+}
+
+.input-wrapper:hover {
+    border-color: rgba(245, 158, 11, 0.6);
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.3);
+}
+
+.input-wrapper.focused {
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 30px rgba(245, 158, 11, 0.4);
+    transform: scale(1.02);
+}
+
+.price-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-primary);
+    font-family: var(--font-heading);
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-align: center;
+    z-index: 2;
+    position: relative;
+}
+
+.price-input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.6;
+}
+
+.currency-symbol {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent-gold);
+    margin-left: var(--space-sm);
+    text-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+    z-index: 2;
+    position: relative;
+}
+
+.input-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, rgba(245, 158, 11, 0.1), rgba(251, 191, 36, 0.1));
+    opacity: 0;
+    transition: opacity var(--transition-smooth);
+    z-index: 1;
+}
+
+.input-wrapper:hover .input-glow,
+.input-wrapper.focused .input-glow {
+    opacity: 1;
+}
+
+/* Submit Button */
+.price-submit {
+    background: var(--gradient-gold);
+    color: var(--bg-primary);
+    border: none;
+    padding: var(--space-md) var(--space-xl);
+    border-radius: 16px;
+    font-family: var(--font-body);
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all var(--transition-smooth);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+}
+
+.price-submit:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 30px rgba(245, 158, 11, 0.5);
+}
+
+.price-submit:active {
+    transform: translateY(-1px) scale(0.98);
+}
+
+.submit-icon {
+    font-size: 1.4rem;
+    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.3));
+}
+
+/* Quick Price Section */
+.quick-price-section {
+    padding: var(--space-lg);
+    background: rgba(245, 158, 11, 0.05);
+    border: 1px solid rgba(245, 158, 11, 0.1);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+}
+
+.section-title {
+    text-align: center;
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-md);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.quick-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-sm);
+}
+
+.quick-btn {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 2px solid rgba(245, 158, 11, 0.2);
+    border-radius: 8px;
+    padding: var(--space-sm);
+    font-family: var(--font-heading);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    position: relative;
+    overflow: hidden;
+}
+
+.quick-btn:hover {
+    border-color: var(--accent-gold);
+    background: rgba(245, 158, 11, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+}
+
+.quick-btn.selected {
+    background: var(--accent-gold);
+    color: var(--bg-primary);
+    border-color: var(--accent-gold);
+    transform: scale(0.95);
+}
+
+/* Speed Timer Enhancements */
+.speed-timer {
+    border: 2px solid rgba(245, 158, 11, 0.3);
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.speed-timer.timer-warning {
+    border-color: var(--accent-red);
+    background: rgba(239, 68, 68, 0.1);
+    animation: speedWarning 0.8s ease-in-out infinite;
+}
+
+.speed-timer.timer-danger {
+    border-color: var(--accent-red);
+    background: rgba(239, 68, 68, 0.2);
+    animation: speedDanger 0.4s ease-in-out infinite;
+}
+
+@keyframes speedWarning {
+    0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+    }
+    50% { 
+        transform: scale(1.05);
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+    }
+}
+
+@keyframes speedDanger {
+    0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+    }
+    50% { 
+        transform: scale(1.1);
+        box-shadow: 0 0 30px rgba(239, 68, 68, 0.8);
+    }
+}
+
+/* Price Result Section */
+.price-result {
+    border-color: var(--accent-gold);
+    box-shadow: var(--shadow-strong), 0 0 40px rgba(245, 158, 11, 0.4);
+}
+
+.price-result .success-icon,
+.price-result .failure-icon {
+    font-size: 5rem;
+    margin-bottom: var(--space-md);
+}
+
+.price-result .success-icon {
+    filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.8));
+}
+
+.price-result .failure-icon {
+    filter: drop-shadow(0 0 20px rgba(239, 68, 68, 0.6));
+}
+
+/* Responsive Design for Price Master */
+@media (max-width: 1200px) {
+    .price-panel {
+        padding: var(--space-lg);
+    }
+    
+    .price-input {
+        font-size: 2rem;
+    }
+    
+    .currency-symbol {
+        font-size: 1.6rem;
+    }
+    
+    .quick-buttons {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .price-form {
+        gap: var(--space-lg);
+    }
+    
+    .input-wrapper {
+        min-width: 200px;
+        padding: var(--space-sm) var(--space-md);
+    }
+    
+    .price-input {
+        font-size: 1.8rem;
+    }
+    
+    .currency-symbol {
+        font-size: 1.4rem;
+    }
+    
+    .quick-buttons {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .price-hints {
+        padding: var(--space-sm);
+    }
+}
+
+@media (max-width: 480px) {
+    .price-panel {
+        padding: var(--space-md);
+    }
+    
+    .label-text {
+        font-size: 1.2rem;
+    }
+    
+    .price-input {
+        font-size: 1.5rem;
+    }
+    
+    .currency-symbol {
+        font-size: 1.2rem;
+    }
+    
+    .quick-buttons {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-xs);
+    }
+    
+    .quick-btn {
+        padding: var(--space-xs);
+        font-size: 0.8rem;
+    }
+}

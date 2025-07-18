@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics - LoL Item Quiz | Patch {{ patch_version }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='gaming-ui.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="bg-overlay"></div>
+    <div class="particles" id="particles"></div>
+    
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="logo">
+                <h1><a href="/" style="color: inherit; text-decoration: none;">LoL Item Quiz</a></h1>
+                <span class="patch-badge">Patch {{ patch_version }}</span>
+            </div>
+            <div class="nav-links">
+                <a href="/leaderboard" class="nav-link">
+                    <span class="icon">🏆</span>
+                    Leaderboard
+                </a>
+                <a href="/stats" class="nav-link active">
+                    <span class="icon">📊</span>
+                    Stats
+                </a>
+                <a href="/about" class="nav-link">
+                    <span class="icon">ℹ️</span>
+                    About
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="glow-text">📊</span>
+                <span class="highlight-text">Statistics</span>
+            </h1>
+            <p class="hero-subtitle">
+                Analyze your performance and track your improvement.<br>
+                Detailed insights into your quiz mastery.
+            </p>
+        </div>
+    </section>
+
+    <!-- Coming Soon Section -->
+    <section class="game-modes">
+        <div class="container">
+            <div class="coming-soon-card">
+                <div class="coming-soon-icon">📈</div>
+                <h2>準備中 / Coming Soon</h2>
+                <p>統計機能は現在開発中です。<br>詳細なパフォーマンス分析機能を実装予定です。</p>
+                
+                <div class="preview-features">
+                    <h3>予定機能 / Planned Features</h3>
+                    <div class="features-grid">
+                        <div class="feature-item">
+                            <span class="feature-icon">📈</span>
+                            <span>Progress Charts</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🎯</span>
+                            <span>Accuracy Trends</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">⏱️</span>
+                            <span>Response Time</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🔍</span>
+                            <span>Weak Areas</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">📊</span>
+                            <span>Category Breakdown</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🏅</span>
+                            <span>Achievement System</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mock-stats">
+                    <h3>予想される統計項目 / Expected Stats</h3>
+                    <div class="stats-preview">
+                        <div class="stat-card">
+                            <div class="stat-value">--</div>
+                            <div class="stat-label">Total Questions</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">--%</div>
+                            <div class="stat-label">Overall Accuracy</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">--s</div>
+                            <div class="stat-label">Avg Response Time</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">--</div>
+                            <div class="stat-label">Best Streak</div>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="/" class="back-button">
+                    <span>← Back to Home</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>LoL Item Quiz</h3>
+                    <p>Master your League of Legends item knowledge through interactive challenges.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link">Discord</a>
+                        <a href="#" class="social-link">GitHub</a>
+                        <a href="#" class="social-link">Twitter</a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Game Modes</h4>
+                    <ul>
+                        <li><a href="/quiz_a">Component Master</a></li>
+                        <li><a href="/quiz_b">Price Master</a></li>
+                        <li><a href="/math_game">Number Wizard</a></li>
+                        <li><a href="/etc">More Challenges</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="/quiz_a_algorithm">Algorithm Guide</a></li>
+                        <li><a href="/quiz_a_full_graph">Item Graph</a></li>
+                        <li><a href="/leaderboard">Leaderboard</a></li>
+                        <li><a href="/stats">Statistics</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>About</h4>
+                    <ul>
+                        <li><a href="/about">About Project</a></li>
+                        <li><a href="/changelog">Changelog</a></li>
+                        <li><a href="/feedback">Feedback</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 LoL Item Quiz. League of Legends is a trademark of Riot Games, Inc.</p>
+                <p>This project is not affiliated with Riot Games. All game assets belong to their respective owners.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Particle Animation Script -->
+    <script>
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 20) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', createParticles);
+    </script>
+
+    <style>
+        .coming-soon-card {
+            background: var(--gradient-card);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: var(--space-xl);
+            text-align: center;
+            box-shadow: var(--shadow-strong);
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .coming-soon-icon {
+            font-size: 4rem;
+            margin-bottom: var(--space-md);
+        }
+
+        .coming-soon-card h2 {
+            font-family: var(--font-heading);
+            font-size: 2.5rem;
+            margin-bottom: var(--space-md);
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .coming-soon-card p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-xl);
+            line-height: 1.8;
+        }
+
+        .preview-features {
+            margin: var(--space-xl) 0;
+        }
+
+        .preview-features h3, .mock-stats h3 {
+            font-family: var(--font-heading);
+            margin-bottom: var(--space-md);
+            color: var(--accent-gold);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-md);
+            margin-top: var(--space-md);
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-md);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 1.5rem;
+        }
+
+        .mock-stats {
+            margin: var(--space-xl) 0;
+            padding: var(--space-xl);
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stats-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-md);
+            margin-top: var(--space-md);
+        }
+
+        .stat-card {
+            padding: var(--space-lg);
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: var(--font-heading);
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-bottom: var(--space-xs);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: var(--space-md) var(--space-lg);
+            background: var(--gradient-primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: var(--transition-smooth);
+            margin-top: var(--space-lg);
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow-blue);
+        }
+
+        .nav-link.active {
+            background: rgba(0, 212, 255, 0.2);
+            color: var(--accent-blue);
+        }
+    </style>
+</body>
+</html>

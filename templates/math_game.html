@@ -1,162 +1,320 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>数学ゲーム - LoL Item Quiz</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='animations.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='header-nav.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='performance-accessibility.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='browser-compatibility.css') }}">
+    <title>Number Wizard - LoL Item Quiz | Patch 14.14</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='gaming-ui.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='quiz-gaming.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='number-wizard.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
-<body>
-    <!-- 統一ヘッダー -->
-    <header class="site-header math-game-header">
-        <div class="header-content">
-            <a href="/" class="site-logo">
-                <div>
-                    <h1 class="site-title">LoL Item Quiz</h1>
-                    <p class="site-subtitle">数学ゲーム</p>
-                </div>
+<body class="quiz-body math-wizard-body">
+    <!-- Background Effects -->
+    <div class="bg-overlay"></div>
+    <div class="particles" id="particles"></div>
+    
+    <!-- Navigation -->
+    <nav class="quiz-nav math-nav">
+        <div class="nav-container">
+            <a href="/" class="nav-home">
+                <span class="home-icon">⬅</span>
+                <span>Back to Menu</span>
             </a>
             
-            <nav class="site-nav">
-                <a href="/" class="nav-link">
-                    <span>🏠</span>
-                    <span>TOP</span>
-                </a>
-                <div class="page-indicator">
-                    <span class="indicator-icon">🧮</span>
-                    <span>数学ゲーム</span>
+            <div class="quiz-title">
+                <h1>Number Wizard</h1>
+                <span class="difficulty-badge platinum">Platinum Challenge</span>
+            </div>
+            
+            <div class="quiz-stats" id="gameStats" style="display: none;">
+                <div class="stat-item">
+                    <span class="stat-label">Question</span>
+                    <span class="stat-value"><span id="currentQuestion">1</span>/10</span>
                 </div>
-            </nav>
+                <div class="stat-item">
+                    <span class="stat-label">Time</span>
+                    <span class="stat-value" id="timer">00:00</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Score</span>
+                    <span class="stat-value" id="scoreDisplay">0</span>
+                </div>
+            </div>
         </div>
-    </header>
-    
-    <div class="container" id="main-content" role="main">
-        <header class="math-game-header">
-            <h1>数学ゲーム</h1>
-            <p class="text-secondary">桁当てチャレンジ</p>
-            <div class="game-status-bar">
-                <div class="status-item">
-                    <span class="status-label">問題</span>
-                    <span id="currentQuestion" class="status-value">1</span>/10
-                </div>
-                <div class="status-item">
-                    <span class="status-label">時間</span>
-                    <span id="timer" class="status-value">00:00</span>
+    </nav>
+
+    <!-- Main Game Area -->
+    <main class="quiz-main math-main">
+        
+        <!-- Start Screen -->
+        <div id="startScreen" class="math-screen active">
+            <div class="welcome-container">
+                <div class="welcome-content">
+                    <div class="wizard-icon">🧙‍♂️</div>
+                    <h1 class="welcome-title">Number Wizard</h1>
+                    <p class="welcome-subtitle">Test your mental math skills with digit challenges</p>
+                    
+                    <div class="game-features">
+                        <div class="feature-item">
+                            <span class="feature-icon">🎯</span>
+                            <span class="feature-text">Guess the digit of calculation results</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">⚡</span>
+                            <span class="feature-text">10 consecutive challenges</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🏆</span>
+                            <span class="feature-text">Precision & speed scoring</span>
+                        </div>
+                    </div>
+                    
+                    <button id="startButton" class="wizard-button start-button">
+                        <span class="button-text">Begin Challenge</span>
+                        <span class="button-icon">✨</span>
+                        <div class="button-effect"></div>
+                    </button>
                 </div>
             </div>
-        </header>
+        </div>
 
-        <main class="math-game-area">
-            <!-- 開始画面 -->
-            <div id="startScreen" class="math-screen active">
-                <div class="math-welcome-card">
-                    <h2>桁当てゲーム</h2>
-                    <p class="game-description">計算結果の十の位または一の位を当てるゲームです</p>
-                    <p class="game-challenge">10問連続で挑戦しましょう！</p>
-                    <button id="startButton" class="btn btn-primary btn-large">ゲームスタート</button>
-                </div>
-            </div>
-
-            <!-- 難易度選択画面 -->
-            <div id="difficultyScreen" class="math-screen" style="display: none;">
-                <h2>難易度を選択</h2>
+        <!-- Difficulty Selection Screen -->
+        <div id="difficultyScreen" class="math-screen">
+            <div class="difficulty-container">
+                <h2 class="section-title">Choose Your Challenge</h2>
+                
                 <div class="difficulty-grid">
-                    <div class="difficulty-card normal">
-                        <h3>ノーマル</h3>
+                    <div class="difficulty-card normal-mode">
+                        <div class="difficulty-header">
+                            <div class="difficulty-icon">🎲</div>
+                            <span class="difficulty-badge bronze">Normal</span>
+                        </div>
+                        <h3>Apprentice Mode</h3>
                         <div class="difficulty-features">
-                            <p>• 2桁 + 2桁</p>
-                            <p>• 3桁 - 2桁</p>
-                            <p>• 2桁 × 1桁</p>
+                            <div class="feature-row">
+                                <span class="operator">+</span>
+                                <span class="desc">2-digit + 2-digit</span>
+                            </div>
+                            <div class="feature-row">
+                                <span class="operator">−</span>
+                                <span class="desc">3-digit − 2-digit</span>
+                            </div>
+                            <div class="feature-row">
+                                <span class="operator">×</span>
+                                <span class="desc">2-digit × 1-digit</span>
+                            </div>
                         </div>
-                        <p class="difficulty-description">適度な難易度で楽しめます</p>
-                        <button id="normalButton" class="btn btn-primary">ノーマル</button>
+                        <button id="normalButton" class="mode-button">
+                            <span>Select Normal</span>
+                            <div class="button-effect"></div>
+                        </button>
                     </div>
-                    <div class="difficulty-card hard">
-                        <h3>ハード</h3>
+                    
+                    <div class="difficulty-card hard-mode">
+                        <div class="difficulty-header">
+                            <div class="difficulty-icon">⚡</div>
+                            <span class="difficulty-badge platinum">Hard</span>
+                        </div>
+                        <h3>Master Mode</h3>
                         <div class="difficulty-features">
-                            <p>• 3桁 + 1-4桁</p>
-                            <p>• 3-4桁 - n桁</p>
-                            <p>• 2桁 × 2桁</p>
-                            <p>• 3-4桁 ÷ n桁</p>
+                            <div class="feature-row">
+                                <span class="operator">+</span>
+                                <span class="desc">3-digit + multi-digit</span>
+                            </div>
+                            <div class="feature-row">
+                                <span class="operator">−</span>
+                                <span class="desc">4-digit − multi-digit</span>
+                            </div>
+                            <div class="feature-row">
+                                <span class="operator">×</span>
+                                <span class="desc">2-digit × 2-digit</span>
+                            </div>
+                            <div class="feature-row">
+                                <span class="operator">÷</span>
+                                <span class="desc">Multi-digit division</span>
+                            </div>
                         </div>
-                        <p class="difficulty-description">本格的な暗算力が試されます</p>
-                        <button id="hardButton" class="btn btn-secondary">ハード</button>
+                        <button id="hardButton" class="mode-button hard">
+                            <span>Select Hard</span>
+                            <div class="button-effect"></div>
+                        </button>
                     </div>
                 </div>
-                <button id="backButton" class="btn btn-secondary">戻る</button>
+                
+                <button id="backButton" class="back-button">
+                    <span>← Back to Menu</span>
+                </button>
             </div>
+        </div>
 
-            <!-- ゲーム画面 -->
-            <div id="gameScreen" class="math-screen" style="display: none;">
-                <div class="math-problem-card">
-                    <div id="expression" class="math-expression"></div>
-                    <div id="answerDisplay" class="math-answer-display"></div>
-                    <div id="instruction" class="math-instruction"></div>
-                </div>
-
-                <div id="feedback" class="math-feedback"></div>
-
-                <!-- Wordleスタイル数字キーボード -->
-                <div class="math-keyboard">
-                    <div class="keyboard-row">
-                        <button class="math-key tile" data-digit="1">1</button>
-                        <button class="math-key tile" data-digit="2">2</button>
-                        <button class="math-key tile" data-digit="3">3</button>
-                        <button class="math-key tile" data-digit="4">4</button>
-                        <button class="math-key tile" data-digit="5">5</button>
+        <!-- Game Screen -->
+        <div id="gameScreen" class="math-screen">
+            <div class="game-container">
+                
+                <!-- Left Panel - Problem Display -->
+                <section class="problem-panel">
+                    <div class="problem-showcase">
+                        <div class="problem-card">
+                            <div class="expression-display">
+                                <div id="expression" class="math-expression">Ready...</div>
+                            </div>
+                            <div class="answer-preview">
+                                <span class="answer-label">Your Answer:</span>
+                                <div id="answerDisplay" class="answer-digits"></div>
+                            </div>
+                            <div id="instruction" class="instruction-text">
+                                Select a digit for the answer
+                            </div>
+                        </div>
+                        
+                        <div class="problem-hints">
+                            <div class="hint-item">
+                                <span class="hint-icon">🎯</span>
+                                <span class="hint-text">Focus on the required digit</span>
+                            </div>
+                            <div class="hint-item">
+                                <span class="hint-icon">⚡</span>
+                                <span class="hint-text">Speed matters for bonus points</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="keyboard-row">
-                        <button class="math-key tile" data-digit="6">6</button>
-                        <button class="math-key tile" data-digit="7">7</button>
-                        <button class="math-key tile" data-digit="8">8</button>
-                        <button class="math-key tile" data-digit="9">9</button>
-                        <button class="math-key tile" data-digit="0">0</button>
+                </section>
+
+                <!-- Right Panel - Number Keyboard -->
+                <section class="keyboard-panel">
+                    <div class="keyboard-container">
+                        <div class="keyboard-title">Number Pad</div>
+                        
+                        <div class="math-keyboard">
+                            <div class="keyboard-row">
+                                <button class="math-key number-tile" data-digit="1">1</button>
+                                <button class="math-key number-tile" data-digit="2">2</button>
+                                <button class="math-key number-tile" data-digit="3">3</button>
+                            </div>
+                            <div class="keyboard-row">
+                                <button class="math-key number-tile" data-digit="4">4</button>
+                                <button class="math-key number-tile" data-digit="5">5</button>
+                                <button class="math-key number-tile" data-digit="6">6</button>
+                            </div>
+                            <div class="keyboard-row">
+                                <button class="math-key number-tile" data-digit="7">7</button>
+                                <button class="math-key number-tile" data-digit="8">8</button>
+                                <button class="math-key number-tile" data-digit="9">9</button>
+                            </div>
+                            <div class="keyboard-row">
+                                <button class="math-key number-tile wide" data-digit="0">0</button>
+                            </div>
+                        </div>
+                        
+                        <div id="feedback" class="math-feedback"></div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="resultScreen" class="math-screen">
+            <div class="result-container">
+                <div class="result-content">
+                    <div class="result-header">
+                        <div class="wizard-icon large">🧙‍♂️</div>
+                        <h2 class="result-title">Challenge Complete!</h2>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">✅</div>
+                            <div class="stat-number" id="correctCount">0</div>
+                            <div class="stat-label">Correct</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🎯</div>
+                            <div class="stat-number" id="accuracy">0%</div>
+                            <div class="stat-label">Accuracy</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">⏱️</div>
+                            <div class="stat-number" id="totalTime">00:00</div>
+                            <div class="stat-label">Total Time</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">⚡</div>
+                            <div class="stat-number" id="avgTime">0s</div>
+                            <div class="stat-label">Avg Time</div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-actions">
+                        <button id="playAgainButton" class="action-button primary">
+                            <span>Play Again</span>
+                            <span class="action-icon">🔄</span>
+                        </button>
+                        <a href="/etc" class="action-button secondary">
+                            <span>More Games</span>
+                            <span class="action-icon">🎮</span>
+                        </a>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- 結果画面 -->
-            <div id="resultScreen" class="math-screen" style="display: none;">
-                <div class="math-result-card">
-                    <h2>ゲーム終了</h2>
-                    <div class="math-results-grid">
-                        <div class="math-result-item">
-                            <div class="result-number" id="correctCount"></div>
-                            <div class="result-label">正解数</div>
-                        </div>
-                        <div class="math-result-item">
-                            <div class="result-number" id="accuracy"></div>
-                            <div class="result-label">正答率</div>
-                        </div>
-                        <div class="math-result-item">
-                            <div class="result-number" id="totalTime"></div>
-                            <div class="result-label">総時間</div>
-                        </div>
-                        <div class="math-result-item">
-                            <div class="result-number" id="avgTime"></div>
-                            <div class="result-label">平均時間</div>
-                        </div>
-                    </div>
-                    <div class="math-result-actions">
-                        <button id="playAgainButton" class="btn btn-primary btn-large">もう一度プレイ</button>
-                        <a href="/etc" class="btn btn-secondary">戻る</a>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
+    </main>
 
+    <!-- Enhanced Scripts -->
     <script src="{{ url_for('static', filename='math-game-webapp/js/timer.js') }}"></script>
     <script src="{{ url_for('static', filename='math-game-webapp/js/gameEngine.js') }}"></script>
     <script src="{{ url_for('static', filename='math-game-webapp/js/inputHandler.js') }}"></script>
     <script src="{{ url_for('static', filename='math-game-webapp/js/uiController.js') }}"></script>
     <script src="{{ url_for('static', filename='math-game-webapp/js/main.js') }}"></script>
-</body>
+    
+    <script>
+        // Enhanced particle system for math wizard
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 40;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle math-particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 20) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Enhanced interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            
+            // Number key hover effects
+            document.querySelectorAll('.number-tile').forEach(key => {
+                key.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px) scale(1.05)';
+                });
+                
+                key.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+            
+            // Enhanced button interactions
+            document.querySelectorAll('.wizard-button, .mode-button').forEach(btn => {
+                btn.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-3px)';
+                });
+                
+                btn.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
 
+</body>
 </html>

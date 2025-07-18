@@ -3,85 +3,315 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>その他のクイズ - LoL Item Quiz</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='animations.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='header-nav.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='performance-accessibility.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='browser-compatibility.css') }}">
+    <title>Challenge Hub - LoL Item Quiz | Patch 14.14</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='gaming-ui.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='quiz-gaming.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='challenge-hub.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
-    <!-- 統一ヘッダー -->
-    <header class="site-header etc-header">
-        <div class="header-content">
-            <a href="/" class="site-logo">
-                <div>
-                    <h1 class="site-title">LoL Item Quiz</h1>
-                    <p class="site-subtitle">その他のクイズ</p>
-                </div>
+
+<body class="quiz-body challenge-hub-body">
+    <!-- Background Effects -->
+    <div class="bg-overlay"></div>
+    <div class="particles" id="particles"></div>
+    
+    <!-- Navigation -->
+    <nav class="quiz-nav challenge-nav">
+        <div class="nav-container">
+            <a href="/" class="nav-home">
+                <span class="home-icon">⬅</span>
+                <span>Back to Menu</span>
             </a>
             
-            <nav class="site-nav">
-                <a href="/" class="nav-link">
-                    <span>🏠</span>
-                    <span>TOP</span>
-                </a>
-                <div class="page-indicator">
-                    <span class="indicator-icon">🎮</span>
-                    <span>その他</span>
+            <div class="quiz-title">
+                <h1>Challenge Hub</h1>
+                <span class="difficulty-badge epic">Epic Zone</span>
+            </div>
+            
+            <div class="hub-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Available</span>
+                    <span class="stat-value">4</span>
                 </div>
-            </nav>
-        </div>
-    </header>
-    
-    <div class="index-container" id="main-content" role="main">
-        
-        <!-- ゲームカードセクション -->
-        <div class="quiz-card-grid">
-            <div class="quiz-card">
-                <h3>🔢 数学ゲーム</h3>
-                <p>計算結果の桁を当てる暗算チャレンジ</p>
-                <p class="game-features">
-                    • 10問連続チャレンジ<br>
-                    • ノーマル・ハード難易度<br>
-                    • タイマー付きスコア計測
-                </p>
-                <a href="/math-game" class="btn btn-primary">チャレンジ開始</a>
+                <div class="stat-item">
+                    <span class="stat-label">Modes</span>
+                    <span class="stat-value">∞</span>
+                </div>
             </div>
+        </div>
+    </nav>
+
+    <!-- Main Hub Area -->
+    <main class="quiz-main hub-main">
+        <div class="hub-container">
             
-            <div class="quiz-card placeholder">
-                <h3>🎯 更なるチャレンジ</h3>
-                <p>今後追加予定のクイズやミニゲーム</p>
-                <p class="game-features">
-                    • アイテムビルドクイズ<br>
-                    • タイムアタックモード<br>
-                    • 上級者向けチャレンジ
-                </p>
-                <button class="btn btn-secondary" disabled>準備中</button>
-            </div>
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <div class="hero-content">
+                    <div class="hub-icon">⚔️</div>
+                    <h1 class="hero-title">Challenge Hub</h1>
+                    <p class="hero-subtitle">Choose your battleground and test your mastery</p>
+                </div>
+            </section>
+
+            <!-- Active Games Grid -->
+            <section class="games-section">
+                <h2 class="section-title">
+                    <span class="title-icon">🎮</span>
+                    Active Challenges
+                </h2>
+                
+                <div class="games-grid">
+                    
+                    <!-- Number Wizard -->
+                    <div class="game-card active">
+                        <div class="card-header">
+                            <div class="game-icon">🧙‍♂️</div>
+                            <span class="difficulty-badge platinum">Platinum</span>
+                        </div>
+                        <h3 class="game-title">Number Wizard</h3>
+                        <p class="game-description">Master the ancient art of mathematical calculation</p>
+                        <div class="game-features">
+                            <div class="feature-item">
+                                <span class="feature-icon">⚡</span>
+                                <span class="feature-text">10 Consecutive Challenges</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">🎯</span>
+                                <span class="feature-text">Precision & Speed Scoring</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">🔥</span>
+                                <span class="feature-text">Dual Difficulty Modes</span>
+                            </div>
+                        </div>
+                        <a href="/math-game" class="game-button">
+                            <span class="button-text">Enter the Arena</span>
+                            <span class="button-icon">✨</span>
+                        </a>
+                    </div>
+
+                    <!-- Component Master -->
+                    <div class="game-card active">
+                        <div class="card-header">
+                            <div class="game-icon">⚙️</div>
+                            <span class="difficulty-badge diamond">Diamond</span>
+                        </div>
+                        <h3 class="game-title">Component Master</h3>
+                        <p class="game-description">Identify item components with lightning speed</p>
+                        <div class="game-features">
+                            <div class="feature-item">
+                                <span class="feature-icon">🎯</span>
+                                <span class="feature-text">Component Recognition</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">⚡</span>
+                                <span class="feature-text">Speed Challenges</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">🏆</span>
+                                <span class="feature-text">Streak System</span>
+                            </div>
+                        </div>
+                        <a href="/quiz_a" class="game-button">
+                            <span class="button-text">Start Challenge</span>
+                            <span class="button-icon">⚙️</span>
+                        </a>
+                    </div>
+
+                    <!-- Price Master -->
+                    <div class="game-card active">
+                        <div class="card-header">
+                            <div class="game-icon">💰</div>
+                            <span class="difficulty-badge gold">Gold</span>
+                        </div>
+                        <h3 class="game-title">Price Master</h3>
+                        <p class="game-description">Prove your knowledge of item economics</p>
+                        <div class="game-features">
+                            <div class="feature-item">
+                                <span class="feature-icon">💎</span>
+                                <span class="feature-text">Price Prediction</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">⏱️</span>
+                                <span class="feature-text">8-Second Timer</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">💯</span>
+                                <span class="feature-text">Precision Scoring</span>
+                            </div>
+                        </div>
+                        <a href="/quiz_b" class="game-button">
+                            <span class="button-text">Test Your Worth</span>
+                            <span class="button-icon">💰</span>
+                        </a>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Future Challenges -->
+            <section class="future-section">
+                <h2 class="section-title">
+                    <span class="title-icon">🔮</span>
+                    Future Challenges
+                </h2>
+                
+                <div class="future-grid">
+                    
+                    <div class="future-card">
+                        <div class="card-header">
+                            <div class="game-icon">🛡️</div>
+                            <span class="status-badge">Coming Soon</span>
+                        </div>
+                        <h3 class="future-title">Build Master</h3>
+                        <p class="future-description">Complete builds for different champion roles</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 45%"></div>
+                        </div>
+                        <div class="progress-text">Development: 45%</div>
+                    </div>
+
+                    <div class="future-card">
+                        <div class="card-header">
+                            <div class="game-icon">⏱️</div>
+                            <span class="status-badge">Planned</span>
+                        </div>
+                        <h3 class="future-title">Time Attack</h3>
+                        <p class="future-description">Ultimate speed challenges with global leaderboards</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 20%"></div>
+                        </div>
+                        <div class="progress-text">Planning: 20%</div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Hub Tools -->
+            <section class="tools-section">
+                <h2 class="section-title">
+                    <span class="title-icon">⚔️</span>
+                    Battle Hub
+                </h2>
+                
+                <div class="tools-grid">
+                    
+                    <div class="tool-card">
+                        <div class="tool-header">
+                            <div class="tool-icon">📊</div>
+                            <span class="tool-badge">Battle Records</span>
+                        </div>
+                        <h3 class="tool-title">Performance Analytics</h3>
+                        <p class="tool-description">Track your progress across all challenges</p>
+                        <div class="tool-features">
+                            <div class="feature-row">
+                                <span class="feature-bullet">•</span>
+                                <span>Detailed Score History</span>
+                            </div>
+                            <div class="feature-row">
+                                <span class="feature-bullet">•</span>
+                                <span>Performance Trends</span>
+                            </div>
+                            <div class="feature-row">
+                                <span class="feature-bullet">•</span>
+                                <span>Global Rankings</span>
+                            </div>
+                        </div>
+                        <button class="tool-button disabled">
+                            <span>Coming Soon</span>
+                            <span class="button-icon">🔒</span>
+                        </button>
+                    </div>
+
+                    <div class="tool-card">
+                        <div class="tool-header">
+                            <div class="tool-icon">🏆</div>
+                            <span class="tool-badge">Achievement Vault</span>
+                        </div>
+                        <h3 class="tool-title">Titles & Badges</h3>
+                        <p class="tool-description">Unlock prestigious achievements and show your mastery</p>
+                        <div class="tool-features">
+                            <div class="feature-row">
+                                <span class="feature-bullet">•</span>
+                                <span>Exclusive Titles</span>
+                            </div>
+                            <div class="feature-row">
+                                <span class="feature-bullet">•</span>
+                                <span>Rare Badge Collection</span>
+                            </div>
+                            <div class="feature-row">
+                                <span class="feature-bullet">•</span>
+                                <span>Profile Customization</span>
+                            </div>
+                        </div>
+                        <button class="tool-button disabled">
+                            <span>In Development</span>
+                            <span class="button-icon">⚙️</span>
+                        </button>
+                    </div>
+
+                </div>
+            </section>
+
         </div>
-        
-        <!-- 統計・情報セクション -->
-        <div class="section-divider"></div>
-        
-        <h2>ゲーム情報</h2>
-        <div class="tool-card-grid">
-            <div class="tool-card">
-                <h4>📊 プレイ統計</h4>
-                <p>あなたのゲーム成績とランキング</p>
-                <button class="btn btn-secondary" disabled>準備中</button>
-            </div>
+    </main>
+
+    <!-- Enhanced Scripts -->
+    <script>
+        // Enhanced particle system for challenge hub
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
             
-            <div class="tool-card">
-                <h4>🏆 実績システム</h4>
-                <p>獲得できる称号とバッジ</p>
-                <button class="btn btn-secondary" disabled>準備中</button>
-            </div>
-        </div>
-    </div>
-    
-    <footer>
-        <p>&copy; 2024 LoL Item Quiz. All rights reserved.</p>
-    </footer>
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle epic-particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 25) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Enhanced interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            
+            // Game card hover effects
+            document.querySelectorAll('.game-card, .future-card, .tool-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+            
+            // Button hover effects
+            document.querySelectorAll('.game-button').forEach(btn => {
+                btn.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+                
+                btn.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+            
+            // Progress bar animations
+            document.querySelectorAll('.progress-fill').forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 500);
+            });
+        });
+    </script>
+
 </body>
 </html>
