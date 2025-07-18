@@ -523,6 +523,22 @@
             hybrid: '#DA70D6'         // 紫ピンク - 複合アイテム
         };
         
+        // 視認性向上のための辺の色マッピング（ヒートマップ色の補色系）
+        const edgeColors = {
+            'default': '#333333',        // デフォルト（濃いグレー）
+            'pureAP': '#FFD700',        // 金色（紫の補色系）
+            'apHybrid': '#FF6347',      // トマト色（青紫の補色系）
+            'pureAD': '#00CED1',        // 水色（赤の補色）
+            'adCrit': '#4169E1',        // ロイヤルブルー（オレンジの補色）
+            'adAS': '#8A2BE2',          // 紫（黄色の補色）
+            'tankHP': '#FF69B4',        // ピンク（緑の補色）
+            'tankArmor': '#00FFFF',     // シアン（茶色の補色）
+            'tankMR': '#FF4500',        // オレンジレッド（青緑の補色）
+            'support': '#32CD32',       // 緑（ピンクの補色）
+            'utility': '#FF8C00',       // オレンジ（水色の補色）
+            'hybrid': '#00FA9A'         // 緑（紫ピンクの補色）
+        };
+        
         // アイテムタイプ判定機能（詳細11分類）
         function getItemType(node) {
             const stats = node.stats || {};
@@ -830,6 +846,9 @@
                 .attr('stroke', '#ccc')
                 .attr('stroke-width', 1)
                 .attr('marker-end', 'url(#arrowhead)');
+            
+            // 初期辺の色を設定
+            setTimeout(updateEdgeColors, 100);
             
             // 矢印マーカーとヒートマップグラデーションを定義
             const defs = svg.append('defs');
@@ -1498,6 +1517,9 @@
             if (typeof updateHeatmap === 'function') {
                 updateHeatmap();
             }
+            
+            // 辺の色を連動更新
+            updateEdgeColors();
         }
         
         
@@ -1513,6 +1535,9 @@
                 
                 console.log('ヒートマップ透明度を更新:', heatmapOpacity);
             }
+            
+            // 辺の色も更新（透明度変更時も視認性を保つ）
+            updateEdgeColors();
         });
         
         function pauseSimulation() {
@@ -1699,6 +1724,33 @@
                 heatmapGroup.selectAll('.heatmap-circle')
                     .attr('r', d => getHeatmapRadius(d.price));
             }
+        }
+        
+        // 辺の色を動的に更新（ヒートマップ状態に応じて視認性を向上）
+        function updateEdgeColors() {
+            if (!links) return;
+            
+            let edgeColor = edgeColors.default;
+            let edgeWidth = 2;
+            
+            if (heatmapEnabled) {
+                // ヒートマップが有効な場合、主要な色を判定
+                const activeTypes = Object.keys(heatmapColors);
+                if (activeTypes.length > 0) {
+                    // 最初のアクティブなタイプの補色を使用
+                    const dominantType = activeTypes[0];
+                    edgeColor = edgeColors[dominantType] || edgeColors.default;
+                    edgeWidth = 3; // ヒートマップ有効時は太く
+                }
+            }
+            
+            // 辺の色とスタイルを更新
+            links.attr('stroke', edgeColor)
+                 .attr('stroke-width', edgeWidth)
+                 .attr('stroke-opacity', 0.9) // 高い透明度で視認性確保
+                 .style('filter', 'drop-shadow(0 0 2px rgba(0,0,0,0.5))'); // 影効果
+                 
+            console.log('辺の色を更新:', edgeColor, 'width:', edgeWidth);
         }
         
         // デフォルト値に戻す
