@@ -496,57 +496,57 @@
         <div class="item-info-section">
             <h3>📊 アイテム詳細情報</h3>
             <div id="info-panel" class="info-panel-external">
-                <div id="panel-title" class="panel-title">ノードの詳細分析</div>
+                <div id="panel-title" class="panel-title">アイテム詳細情報</div>
                 <div id="panel-content" class="panel-content">
-                    <p>🔬 <strong>データ探索モード</strong>：グラフ上のノード（アイテム）にマウスホバーすると、以下の情報が表示されます</p>
+                    <p>🎮 グラフ上のアイテムにマウスを乗せると、以下の詳細情報が表示されます</p>
                     <ul style="margin: 10px 0; padding-left: 20px;">
-                        <li><strong>基本属性</strong>：価格、カテゴリ、統計値</li>
-                        <li><strong>グラフ構造</strong>：隣接ノード数、接続深度</li>
-                        <li><strong>分類結果</strong>：11分類システムによる自動分類</li>
+                        <li><strong>基本情報</strong>：価格、カテゴリ、ステータス</li>
+                        <li><strong>合成関係</strong>：直接つながるアイテム数、合成チェーン</li>
+                        <li><strong>分類</strong>：AP/AD/タンクなどの自動判定結果</li>
                     </ul>
-                    <p>📊 各ノードの<strong>半径</strong>は価格に基づく数学関数で決定され、<strong>ヒートマップ</strong>は統計的特性による色分けを表現しています。</p>
+                    <p>📊 アイテムの<strong>サイズ</strong>は価格に応じて変化し、<strong>ヒートマップ</strong>はアイテムの特性（AP、AD、タンクなど）を色で表現しています。</p>
                 </div>
             </div>
         </div>
         
         <div style="margin-top: 30px;">
-            <h3>📚 情報系学部生向け：グラフ理論とデータ可視化の実践</h3>
-            <p>このアプリケーションは、ゲームアイテムの関係性をグラフ理論の概念で可視化した教育ツールです。情報系学部の皆さんが学ぶアルゴリズムやデータ構造の実装例を体験できます。</p>
+            <h3>📊 アイテム関係性グラフについて</h3>
+            <p>League of Legendsのアイテム合成関係を視覚的に表現したインタラクティブなグラフです。どのアイテムがどのアイテムに合成されるかの関係性を、ノード（点）とエッジ（線）で表現しています。</p>
             
-            <h4>🔬 実装されている技術要素</h4>
+            <h4>🔧 実装技術</h4>
             <ul>
-                <li><strong>Force-Directed Layout</strong>: D3.jsの物理シミュレーションによる自動配置アルゴリズム</li>
-                <li><strong>Kamada-Kawai Algorithm</strong>: グラフの美的配置を実現する最適化アルゴリズム</li>
-                <li><strong>ヒートマップ可視化</strong>: 11分類のアイテム特性を色彩で表現（統計学習の応用）</li>
-                <li><strong>インタラクティブUI</strong>: リアルタイム操作による動的データ探索</li>
-                <li><strong>グラフ探索</strong>: BFS（幅優先探索）による隣接ノード検出</li>
+                <li><strong>物理シミュレーション</strong>: アイテム同士が自然に配置されるよう物理エンジンで計算</li>
+                <li><strong>最適化アルゴリズム</strong>: より見やすいレイアウトになるよう自動調整</li>
+                <li><strong>カテゴリ分類システム</strong>: APアイテム、ADアイテム、タンクアイテムなど11種類に自動分類</li>
+                <li><strong>リアルタイム操作</strong>: マウスでドラッグ、ズーム、フィルタリングが可能</li>
+                <li><strong>関係性探索</strong>: アイテムにカーソルを合わせると関連アイテムがハイライト</li>
             </ul>
             
-            <h4>🎛️ パラメータ調整と実験</h4>
+            <h4>⚙️ 操作機能</h4>
             <ul>
-                <li><strong>半径関数の切り替え</strong>: 線形・対数・指数・ルート関数の視覚的比較</li>
-                <li><strong>辺の長さ制御</strong>: グラフレイアウトアルゴリズムの挙動観察</li>
-                <li><strong>価格フィルタリング</strong>: データの部分集合抽出と動的更新</li>
-                <li><strong>ヒートマップ透明度</strong>: 重畳表示における視認性の最適化</li>
-                <li><strong>物理シミュレーション</strong>: 収束過程の観察と停止/再開制御</li>
+                <li><strong>半径関数の変更</strong>: アイテム価格に応じたサイズ表示の計算方法を変更</li>
+                <li><strong>辺の長さ調整</strong>: アイテム間の距離を調整してレイアウトを最適化</li>
+                <li><strong>価格フィルター</strong>: 特定の価格帯のアイテムのみを表示</li>
+                <li><strong>ヒートマップ表示</strong>: アイテムの特性（AP、AD、タンクなど）を色で可視化</li>
+                <li><strong>アニメーション制御</strong>: グラフの動きを停止・再開</li>
             </ul>
             
-            <h4>🧮 学習できる概念</h4>
+            <h4>🎮 LoLプレイヤーにとっての活用</h4>
             <ul>
-                <li><strong>グラフ理論</strong>: ノード・エッジ・隣接関係・最短経路の可視化</li>
-                <li><strong>アルゴリズム解析</strong>: 異なるレイアウトアルゴリズムの性能比較</li>
-                <li><strong>データマイニング</strong>: アイテム特性の分類と相関関係の発見</li>
-                <li><strong>ヒューマンコンピュータインタラクション</strong>: 直感的操作によるデータ探索</li>
-                <li><strong>計算幾何学</strong>: 2D座標系における効率的な描画とイベント処理</li>
+                <li><strong>ビルドパス理解</strong>: 基本アイテムから完成品までの合成ルートが一目瞭然</li>
+                <li><strong>アイテム特性の把握</strong>: どのアイテムがどの役割（AP、AD、タンク）かを色で判別</li>
+                <li><strong>価格帯分析</strong>: 同価格帯のアイテム選択肢を比較検討</li>
+                <li><strong>合成効率の理解</strong>: アイテム間の関係性から効率的なビルド順を発見</li>
+                <li><strong>メタ分析</strong>: アイテムの分布や関係性からゲームバランスを理解</li>
             </ul>
             
-            <h4>💡 実習課題のヒント</h4>
-            <p>各パラメータを変更して以下を観察してみましょう：</p>
+            <h4>💡 使い方のコツ</h4>
+            <p>以下の機能を使ってアイテム関係を深く理解しましょう：</p>
             <ul>
-                <li>半径関数の違いによるデータ分布の見え方の変化</li>
-                <li>ヒートマップの色分けから読み取れるアイテムクラスタリング</li>
-                <li>グラフの接続性と実際のゲーム内関係性の対応</li>
-                <li>物理シミュレーションの収束速度と安定性</li>
+                <li>価格フィルターでアーリーゲームアイテム（1000G以下）を表示</li>
+                <li>ヒートマップでAP/ADアイテムの分布を確認</li>
+                <li>アイテムホバーで合成に必要な材料アイテムをチェック</li>
+                <li>半径関数を変更して高価なレジェンダリーアイテムを強調表示</li>
             </ul>
         </div>
         
@@ -1678,15 +1678,15 @@
         function hideInfoPanel() {
             // 外部専用エリアなので、デフォルト状態に戻すのみ
             if (window.panelTitle && window.panelContent) {
-                window.panelTitle.text('ノードの詳細分析');
+                window.panelTitle.text('アイテム詳細情報');
                 window.panelContent.html(`
-                    <p>🔬 <strong>データ探索モード</strong>：グラフ上のノード（アイテム）にマウスホバーすると、以下の情報が表示されます</p>
+                    <p>🎮 グラフ上のアイテムにマウスを乗せると、以下の詳細情報が表示されます</p>
                     <ul style="margin: 10px 0; padding-left: 20px;">
-                        <li><strong>基本属性</strong>：価格、カテゴリ、統計値</li>
-                        <li><strong>グラフ構造</strong>：隣接ノード数、接続深度</li>
-                        <li><strong>分類結果</strong>：11分類システムによる自動分類</li>
+                        <li><strong>基本情報</strong>：価格、カテゴリ、ステータス</li>
+                        <li><strong>合成関係</strong>：直接つながるアイテム数、合成チェーン</li>
+                        <li><strong>分類</strong>：AP/AD/タンクなどの自動判定結果</li>
                     </ul>
-                    <p>📊 各ノードの<strong>半径</strong>は価格に基づく数学関数で決定され、<strong>ヒートマップ</strong>は統計的特性による色分けを表現しています。</p>
+                    <p>📊 アイテムの<strong>サイズ</strong>は価格に応じて変化し、<strong>ヒートマップ</strong>はアイテムの特性（AP、AD、タンクなど）を色で表現しています。</p>
                 `);
                 console.log('InfoPanel reset to default state');
             }
