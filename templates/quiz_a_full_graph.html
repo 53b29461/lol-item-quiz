@@ -858,10 +858,10 @@
             
             // テキストラベルを削除（画像のみで表示）
             
-            // 固定情報パネルの実装
-            const infoPanel = d3.select('#info-panel');
-            const panelTitle = d3.select('#panel-title');
-            const panelContent = d3.select('#panel-content');
+            // 固定情報パネルの実装（グローバル変数に変更）
+            window.infoPanel = d3.select('#info-panel');
+            window.panelTitle = d3.select('#panel-title');
+            window.panelContent = d3.select('#panel-content');
             
             // 深さ別エッジハイライト機能
             function highlightConnectedEdges(hoveredNode) {
@@ -1420,6 +1420,14 @@
         }
         
         function showInfoPanel(d) {
+            console.log('showInfoPanel called for:', d.label);
+            
+            // パネル要素が存在するか確認
+            if (!window.infoPanel || window.infoPanel.empty()) {
+                console.error('infoPanel not found');
+                return;
+            }
+            
             // BFS で深さ1、2の接続を探索（接続情報用）
             const depth1 = new Set();
             const depth2 = new Set();
@@ -1472,8 +1480,8 @@
             }
             
             // パネルの内容を更新
-            panelTitle.text(d.label);
-            panelContent.html(`
+            window.panelTitle.text(d.label);
+            window.panelContent.html(`
                 <div class="item-price">${d.price}G</div>
                 ${d.description ? `<div class="item-description">${d.description}</div>` : ''}
                 ${statsHtml}
@@ -1481,11 +1489,15 @@
             `);
             
             // パネルを表示
-            infoPanel.style('display', 'block');
+            window.infoPanel.style('display', 'block');
+            console.log('InfoPanel displayed');
         }
         
         function hideInfoPanel() {
-            infoPanel.style('display', 'none');
+            if (window.infoPanel && !window.infoPanel.empty()) {
+                window.infoPanel.style('display', 'none');
+                console.log('InfoPanel hidden');
+            }
         }
         
         function getStatName(stat) {
