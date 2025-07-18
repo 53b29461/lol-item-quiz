@@ -375,15 +375,7 @@
         
         <div class="heatmap-control">
             <button id="heatmap-toggle" class="heatmap-toggle active" onclick="toggleHeatmap()">ヒートマップ ON</button>
-            <label for="heatmap-radius-slider">半径:</label>
-            <input type="range" 
-                   id="heatmap-radius-slider" 
-                   class="heatmap-slider"
-                   min="20" 
-                   max="100" 
-                   value="60" 
-                   step="5">
-            <span id="heatmap-radius-value" class="heatmap-value">60px</span>
+            <span style="color: #e65100; font-weight: bold;">※ノード・ヒートマップ半径は価格準拠</span>
             <label for="heatmap-opacity-slider">透明度:</label>
             <input type="range" 
                    id="heatmap-opacity-slider" 
@@ -457,8 +449,8 @@
         
         // ヒートマップ設定をグローバルに移動
         let heatmapEnabled = true;  // デフォルトでONに変更
-        let heatmapRadius = 60;     // より大きな半径に変更
         let heatmapOpacity = 0.4;   // より濃い透明度に変更
+        // 注：heatmapRadiusは価格ベースになったため削除
         
         // アイテムタイプ別の色設定
         const heatmapColors = {
@@ -799,7 +791,7 @@
                         .attr('class', 'heatmap-circle');
                     
                     heatmapCircles.merge(heatmapEnter)
-                        .attr('r', heatmapRadius)
+                        .attr('r', d => getHeatmapRadius(d.price))  // 価格ベースの半径
                         .attr('fill', `url(#heatmap-gradient-${type})`)
                         .attr('cx', d => d.x || 0)
                         .attr('cy', d => d.y || 0);
@@ -1022,13 +1014,27 @@
             updateHeatmap();
         }
         
+        // 価格ベースの半径計算関数
+        function getPriceBasedRadius(price, minRadius = 8, maxRadius = 35) {
+            const minPrice = 0;
+            const maxPrice = 3500;
+            
+            // 価格が0の場合は最小半径
+            if (price <= 0) return minRadius;
+            
+            // 線形スケーリング
+            const ratio = Math.min(price / maxPrice, 1);
+            return minRadius + (maxRadius - minRadius) * ratio;
+        }
+        
         function getNodeRadius(d) {
-            switch(d.category) {
-                case 'basic': return 15;
-                case 'intermediate': return 20;
-                case 'legendary': return 25;
-                default: return 18;
-            }
+            return getPriceBasedRadius(d.price || 0);
+        }
+        
+        // ヒートマップ用の半径計算（ノード半径の1.5～2倍）
+        function getHeatmapRadius(price) {
+            const nodeRadius = getPriceBasedRadius(price || 0);
+            return nodeRadius * 1.8; // ノード半径の1.8倍
         }
         
         function getNodeColor(d) {
@@ -1297,8 +1303,6 @@
         
         // ヒートマップコントロール機能
         const heatmapToggle = document.getElementById('heatmap-toggle');
-        const heatmapRadiusSlider = document.getElementById('heatmap-radius-slider');
-        const heatmapRadiusValue = document.getElementById('heatmap-radius-value');
         const heatmapOpacitySlider = document.getElementById('heatmap-opacity-slider');
         const heatmapOpacityValue = document.getElementById('heatmap-opacity-value');
         
@@ -1313,15 +1317,6 @@
             }
         }
         
-        // 半径スライダーのイベントリスナー
-        heatmapRadiusSlider.addEventListener('input', function(e) {
-            heatmapRadius = parseInt(e.target.value);
-            heatmapRadiusValue.textContent = heatmapRadius + 'px';
-            
-            if (heatmapEnabled && typeof updateHeatmap === 'function') {
-                updateHeatmap();
-            }
-        });
         
         // 透明度スライダーのイベントリスナー
         heatmapOpacitySlider.addEventListener('input', function(e) {
