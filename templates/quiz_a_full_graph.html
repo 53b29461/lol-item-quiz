@@ -496,30 +496,57 @@
         <div class="item-info-section">
             <h3>📊 アイテム詳細情報</h3>
             <div id="info-panel" class="info-panel-external">
-                <div id="panel-title" class="panel-title">アイテムを選択してください</div>
+                <div id="panel-title" class="panel-title">ノードの詳細分析</div>
                 <div id="panel-content" class="panel-content">
-                    <p>グラフ上のアイテムにマウスを乗せると詳細情報が表示されます</p>
-                    <p><strong>辺の長さ均等化モード</strong>では、全ての辺が同じ長さになるように配置されます</p>
+                    <p>🔬 <strong>データ探索モード</strong>：グラフ上のノード（アイテム）にマウスホバーすると、以下の情報が表示されます</p>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li><strong>基本属性</strong>：価格、カテゴリ、統計値</li>
+                        <li><strong>グラフ構造</strong>：隣接ノード数、接続深度</li>
+                        <li><strong>分類結果</strong>：11分類システムによる自動分類</li>
+                    </ul>
+                    <p>📊 各ノードの<strong>半径</strong>は価格に基づく数学関数で決定され、<strong>ヒートマップ</strong>は統計的特性による色分けを表現しています。</p>
                 </div>
             </div>
         </div>
         
         <div style="margin-top: 30px;">
-            <h3>辺の長さ均等化モード</h3>
+            <h3>📚 情報系学部生向け：グラフ理論とデータ可視化の実践</h3>
+            <p>このアプリケーションは、ゲームアイテムの関係性をグラフ理論の概念で可視化した教育ツールです。情報系学部の皆さんが学ぶアルゴリズムやデータ構造の実装例を体験できます。</p>
+            
+            <h4>🔬 実装されている技術要素</h4>
             <ul>
-                <li><strong>均等な辺の長さ</strong>: 全ての辺が80pxの同じ長さになるように配置</li>
-                <li><strong>幾何学的な美しさ</strong>: 規則正しいパターンで視覚的に美しいグラフ</li>
-                <li><strong>重なり許容</strong>: ノードの重なりを許可し、構造を優先</li>
-                <li><strong>自然な配置</strong>: 15秒間の物理シミュレーションで自然に収束</li>
+                <li><strong>Force-Directed Layout</strong>: D3.jsの物理シミュレーションによる自動配置アルゴリズム</li>
+                <li><strong>Kamada-Kawai Algorithm</strong>: グラフの美的配置を実現する最適化アルゴリズム</li>
+                <li><strong>ヒートマップ可視化</strong>: 11分類のアイテム特性を色彩で表現（統計学習の応用）</li>
+                <li><strong>インタラクティブUI</strong>: リアルタイム操作による動的データ探索</li>
+                <li><strong>グラフ探索</strong>: BFS（幅優先探索）による隣接ノード検出</li>
             </ul>
             
-            <h3>使い方</h3>
+            <h4>🎛️ パラメータ調整と実験</h4>
             <ul>
-                <li><strong>レイアウト リセット</strong>: 新しいランダム配置で再計算</li>
-                <li><strong>価格フィルター</strong>: 指定した価格帯のアイテムのみ表示</li>
-                <li><strong>ズーム・パン</strong>: マウスホイールでズーム、ドラッグで移動</li>
-                <li><strong>ノードドラッグ</strong>: ノードをドラッグして位置調整可能</li>
-                <li><strong>深さ別ハイライト</strong>: ホバー時に関係性を色分け表示</li>
+                <li><strong>半径関数の切り替え</strong>: 線形・対数・指数・ルート関数の視覚的比較</li>
+                <li><strong>辺の長さ制御</strong>: グラフレイアウトアルゴリズムの挙動観察</li>
+                <li><strong>価格フィルタリング</strong>: データの部分集合抽出と動的更新</li>
+                <li><strong>ヒートマップ透明度</strong>: 重畳表示における視認性の最適化</li>
+                <li><strong>物理シミュレーション</strong>: 収束過程の観察と停止/再開制御</li>
+            </ul>
+            
+            <h4>🧮 学習できる概念</h4>
+            <ul>
+                <li><strong>グラフ理論</strong>: ノード・エッジ・隣接関係・最短経路の可視化</li>
+                <li><strong>アルゴリズム解析</strong>: 異なるレイアウトアルゴリズムの性能比較</li>
+                <li><strong>データマイニング</strong>: アイテム特性の分類と相関関係の発見</li>
+                <li><strong>ヒューマンコンピュータインタラクション</strong>: 直感的操作によるデータ探索</li>
+                <li><strong>計算幾何学</strong>: 2D座標系における効率的な描画とイベント処理</li>
+            </ul>
+            
+            <h4>💡 実習課題のヒント</h4>
+            <p>各パラメータを変更して以下を観察してみましょう：</p>
+            <ul>
+                <li>半径関数の違いによるデータ分布の見え方の変化</li>
+                <li>ヒートマップの色分けから読み取れるアイテムクラスタリング</li>
+                <li>グラフの接続性と実際のゲーム内関係性の対応</li>
+                <li>物理シミュレーションの収束速度と安定性</li>
             </ul>
         </div>
         
@@ -1651,10 +1678,15 @@
         function hideInfoPanel() {
             // 外部専用エリアなので、デフォルト状態に戻すのみ
             if (window.panelTitle && window.panelContent) {
-                window.panelTitle.text('アイテムを選択してください');
+                window.panelTitle.text('ノードの詳細分析');
                 window.panelContent.html(`
-                    <p>グラフ上のアイテムにマウスを乗せると詳細情報が表示されます</p>
-                    <p><strong>辺の長さ均等化モード</strong>では、全ての辺が同じ長さになるように配置されます</p>
+                    <p>🔬 <strong>データ探索モード</strong>：グラフ上のノード（アイテム）にマウスホバーすると、以下の情報が表示されます</p>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li><strong>基本属性</strong>：価格、カテゴリ、統計値</li>
+                        <li><strong>グラフ構造</strong>：隣接ノード数、接続深度</li>
+                        <li><strong>分類結果</strong>：11分類システムによる自動分類</li>
+                    </ul>
+                    <p>📊 各ノードの<strong>半径</strong>は価格に基づく数学関数で決定され、<strong>ヒートマップ</strong>は統計的特性による色分けを表現しています。</p>
                 `);
                 console.log('InfoPanel reset to default state');
             }
