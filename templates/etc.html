@@ -6,13 +6,33 @@
     <title>その他のクイズ - LoL Item Quiz</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='animations.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='header-nav.css') }}">
 </head>
 <body>
-    <a href="/" class="back-link">← TOP</a>
+    <!-- 統一ヘッダー -->
+    <header class="site-header etc-header">
+        <div class="header-content">
+            <a href="/" class="site-logo">
+                <div>
+                    <h1 class="site-title">LoL Item Quiz</h1>
+                    <p class="site-subtitle">その他のクイズ</p>
+                </div>
+            </a>
+            
+            <nav class="site-nav">
+                <a href="/" class="nav-link">
+                    <span>🏠</span>
+                    <span>TOP</span>
+                </a>
+                <div class="page-indicator">
+                    <span class="indicator-icon">🎮</span>
+                    <span>その他</span>
+                </div>
+            </nav>
+        </div>
+    </header>
     
     <div class="index-container">
-        <h1>その他のクイズ</h1>
-        <p class="text-secondary mb-lg">追加のゲームとチャレンジ</p>
         
         <!-- ゲームカードセクション -->
         <div class="quiz-card-grid">

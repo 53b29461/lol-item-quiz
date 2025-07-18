@@ -6,6 +6,7 @@
     <title>クイズB - LoL Item Quiz (Patch {{ patch_version }})</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='animations.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='header-nav.css') }}">
     <script>
     function copyTextAndShowInlineMessage() {
         var text = "連続正解回数: {{ previous_consecutive_correct_answers }}回\n#LoLItemQuiz\n#クイズB\n\nhttps://lol-item-quiz.com/";
@@ -21,11 +22,34 @@
     </script>
 </head>
 <body>
-    <a href="/" class="back-link">← TOP</a>
+    <!-- 統一ヘッダー -->
+    <header class="site-header quiz-header">
+        <div class="header-content">
+            <a href="/" class="site-logo">
+                <div>
+                    <h1 class="site-title">LoL Item Quiz</h1>
+                    <p class="site-subtitle">Patch {{ patch_version }}</p>
+                </div>
+            </a>
+            
+            <nav class="site-nav">
+                <a href="/" class="nav-link">
+                    <span>🏠</span>
+                    <span>TOP</span>
+                </a>
+                <div class="page-indicator">
+                    <span class="indicator-icon">💰</span>
+                    <span>クイズB</span>
+                </div>
+                <div class="header-timer">
+                    <span class="timer-icon">⏱️</span>
+                    <span>8s</span>
+                </div>
+            </nav>
+        </div>
+    </header>
 
     <div class="container">
-        <h1>クイズB</h1>
-        <p class="text-secondary mb-md">Patch {{ patch_version }}</p>
         
         <!-- アイテム画像カード -->
         <div class="item-display-card">
