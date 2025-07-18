@@ -470,34 +470,100 @@
         let heatmapOpacity = 0.4;   // より濃い透明度に変更
         // 注：heatmapRadiusは価格ベースになったため削除
         
-        // アイテムタイプ別の色設定
+        // アイテムタイプ別の詳細色設定（11分類）
         const heatmapColors = {
-            ap: '#DA70D6',     // 明るい紫（orchid）
-            ad: '#FF4500',     // 赤色（orangered）
-            tank: '#32CD32',   // 明るい緑（limegreen）
-            other: '#FFD700'   // その他は金色
+            pureAP: '#8A2BE2',        // 明るい紫 - 純粋AP
+            apHybrid: '#6A5ACD',      // 青紫 - APハイブリッド
+            pureAD: '#DC143C',        // 赤 - 純粋AD
+            adCrit: '#FF8C00',        // オレンジ - ADクリティカル
+            adAS: '#FFD700',          // 黄オレンジ - AD攻撃速度
+            tankHP: '#228B22',        // 濃い緑 - HPタンク
+            tankArmor: '#8B4513',     // 茶色 - 物理防御タンク
+            tankMR: '#20B2AA',        // 青緑 - 魔法防御タンク
+            support: '#FF69B4',       // ピンク - サポート
+            utility: '#00CED1',       // 水色 - ユーティリティ
+            hybrid: '#DA70D6'         // 紫ピンク - 複合アイテム
         };
         
-        // アイテムタイプ判定機能をグローバルに移動
+        // アイテムタイプ判定機能（詳細11分類）
         function getItemType(node) {
             const stats = node.stats || {};
             
-            // APアイテム: FlatMagicDamageMod があるもの
-            if (stats.FlatMagicDamageMod) {
-                return 'ap';
+            // 各統計の有無を確認
+            const hasAP = stats.FlatMagicDamageMod > 0;
+            const hasAD = stats.FlatPhysicalDamageMod > 0;
+            const hasCrit = stats.FlatCritChanceMod > 0;
+            const hasAS = stats.PercentAttackSpeedMod > 0;
+            const hasHP = stats.FlatHPPoolMod > 0;
+            const hasArmor = stats.FlatArmorMod > 0;
+            const hasMR = stats.FlatSpellBlockMod > 0;
+            const hasMP = stats.FlatMPPoolMod > 0;
+            const hasLS = stats.PercentLifeStealMod > 0;
+            const hasMS = stats.FlatMovementSpeedMod > 0 || stats.PercentMovementSpeedMod > 0;
+            
+            // 複数カテゴリ判定のためのカウンター
+            const attackCount = (hasAP ? 1 : 0) + (hasAD ? 1 : 0);
+            const defenseCount = (hasHP ? 1 : 0) + (hasArmor ? 1 : 0) + (hasMR ? 1 : 0);
+            const utilityCount = (hasMP ? 1 : 0) + (hasLS ? 1 : 0) + (hasMS ? 1 : 0);
+            
+            // 複合アイテム判定（3つ以上の異なるカテゴリを持つ）
+            const totalCategories = (attackCount > 0 ? 1 : 0) + (defenseCount > 0 ? 1 : 0) + (utilityCount > 0 ? 1 : 0);
+            if (totalCategories >= 3) {
+                return 'hybrid';
             }
-            // ADアイテム: FlatPhysicalDamageMod があるもの
-            else if (stats.FlatPhysicalDamageMod) {
-                return 'ad';
+            
+            // 純粋AP (APのみ、またはAP + ユーティリティ)
+            if (hasAP && !hasAD && !hasHP && !hasArmor && !hasMR) {
+                return 'pureAP';
             }
-            // タンクアイテム: FlatArmorMod または FlatSpellBlockMod があるもの
-            else if (stats.FlatArmorMod || stats.FlatSpellBlockMod) {
-                return 'tank';
+            
+            // APハイブリッド (AP + 防御能力)
+            if (hasAP && (hasHP || hasArmor || hasMR)) {
+                return 'apHybrid';
             }
-            // その他
-            else {
-                return 'other';
+            
+            // ADクリティカル (AD + クリティカル)
+            if (hasAD && hasCrit) {
+                return 'adCrit';
             }
+            
+            // AD攻撃速度 (AD + 攻撃速度)
+            if (hasAD && hasAS) {
+                return 'adAS';
+            }
+            
+            // 純粋AD (ADのみ、またはAD + ユーティリティ)
+            if (hasAD && !hasCrit && !hasAS && !hasHP && !hasArmor && !hasMR) {
+                return 'pureAD';
+            }
+            
+            // HPタンク (HP主体)
+            if (hasHP && !hasAP && !hasAD) {
+                return 'tankHP';
+            }
+            
+            // 物理防御タンク (Armor主体)
+            if (hasArmor && !hasAP && !hasAD && !hasMR) {
+                return 'tankArmor';
+            }
+            
+            // 魔法防御タンク (MR主体)
+            if (hasMR && !hasAP && !hasAD && !hasArmor) {
+                return 'tankMR';
+            }
+            
+            // サポート (ライフスティール主体)
+            if (hasLS || (hasMP && !hasAP)) {
+                return 'support';
+            }
+            
+            // ユーティリティ (移動速度主体)
+            if (hasMS && !hasAP && !hasAD) {
+                return 'utility';
+            }
+            
+            // デフォルト：統計がない場合はユーティリティ
+            return 'utility';
         }
         
         // Kamada-Kawaiアルゴリズムの実装
