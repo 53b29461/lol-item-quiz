@@ -309,8 +309,10 @@
         }
         
         .uniform-edge-layout .link {
-            stroke-width: 2;
-            opacity: 0.8;
+            stroke: #2c3e50;
+            stroke-width: 2.5;
+            opacity: 0.9;
+            filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3));
         }
         
         .uniform-edge-layout .overlapping-nodes {
@@ -396,12 +398,13 @@
         
         <div class="filter-controls">
             <label for="radius-function">半径関数:</label>
-            <select id="radius-function" onchange="updateRadiusFunction()">
+            <select id="radius-function">
                 <option value="logarithmic">対数関数</option>
                 <option value="exponential">指数関数</option>
                 <option value="linear">線形関数</option>
                 <option value="sqrt">ルート関数</option>
             </select>
+            <button onclick="updateRadiusFunction()">グラフ更新</button>
             
             <label for="min-price">最低価格:</label>
             <input type="range" id="min-price" min="0" max="5000" value="0" step="100">
@@ -1070,16 +1073,29 @@
         // 半径関数変更時の処理
         function updateRadiusFunction() {
             currentRadiusFunction = document.getElementById('radius-function').value;
+            console.log('半径関数を変更:', currentRadiusFunction);
             
             // ノードの半径を更新
-            if (typeof nodes !== 'undefined' && nodes) {
+            if (typeof svg !== 'undefined' && svg && typeof nodes !== 'undefined' && nodes) {
+                // 通常のノード半径更新
                 svg.selectAll('.node circle')
                     .transition()
                     .duration(500)
                     .attr('r', d => getNodeRadius(d));
+                
+                // 衝突検知の半径も更新
+                if (typeof simulation !== 'undefined' && simulation) {
+                    simulation.force('collision')
+                        .radius(d => getNodeRadius(d) * 1.05);
+                    simulation.alpha(0.3).restart();
+                }
                     
                 // ヒートマップも更新
                 updateHeatmap();
+                
+                console.log('半径関数更新完了');
+            } else {
+                console.warn('グラフが初期化されていません');
             }
         }
         
