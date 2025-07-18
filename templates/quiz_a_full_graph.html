@@ -423,7 +423,7 @@
         
         <div class="filter-controls">
             <label for="radius-function">半径関数:</label>
-            <select id="radius-function" onchange="updateRadiusFunction()">
+            <select id="radius-function">
                 <option value="logarithmic">対数関数</option>
                 <option value="exponential">指数関数</option>
                 <option value="linear">線形関数</option>
@@ -1280,6 +1280,24 @@
             return minRadius + (maxRadius - minRadius) * scaledRatio;
         }
         
+        // DOMコンテンツ読み込み完了時の処理
+        document.addEventListener('DOMContentLoaded', function() {
+            // プルダウンの変更を監視
+            const radiusFunctionSelect = document.getElementById('radius-function');
+            if (radiusFunctionSelect) {
+                radiusFunctionSelect.addEventListener('change', function() {
+                    console.log('プルダウンが変更されました:', this.value);
+                    updateRadiusFunction();
+                    
+                    // 関数グラフが表示されている場合は即座に更新
+                    if (chartVisible) {
+                        console.log('プルダウン変更による関数グラフの即座更新');
+                        setTimeout(updateRadiusChart, 100);
+                    }
+                });
+            }
+        });
+        
         // 半径関数変更時の処理
         function updateRadiusFunction() {
             currentRadiusFunction = document.getElementById('radius-function').value;
@@ -1312,8 +1330,11 @@
             console.log('Chart visible flag:', chartVisible);
             console.log('radiusChart exists:', !!radiusChart);
             
-            if (chartVisible) {
+            if (chartVisible && radiusChart) {
                 console.log('関数グラフを更新中...');
+                updateRadiusChart();
+            } else if (chartVisible) {
+                console.log('グラフが表示されているが、チャートオブジェクトが存在しない');
                 updateRadiusChart();
             } else {
                 console.log('関数グラフは非表示のため更新をスキップ');
