@@ -321,30 +321,35 @@
                     </div>
                 </div>
                 <div class="graph-container" id="extended-family-graph">
-                    <div class="graph-legend" style="font-size: 11px; padding: 8px; width: 180px;">
+                    <div class="graph-legend" style="font-size: 10px; padding: 6px; width: 200px;">
                         <div class="legend-item">
                             <div class="legend-color" style="background: #9c27b0;"></div>
-                            <span>Lv0: 出題アイテム</span>
+                            <span>Lv0: マリグナンス</span>
                         </div>
                         <div class="legend-item">
                             <div class="legend-color" style="background: #4caf50;"></div>
                             <span>Lv1: 直接素材</span>
                         </div>
                         <div class="legend-item">
-                            <div class="legend-color" style="background: #ff5722;"></div>
-                            <span>Lv2: 姉妹アイテム</span>
-                        </div>
-                        <div class="legend-item">
                             <div class="legend-color" style="background: #2196f3;"></div>
                             <span>Lv2: 基本素材</span>
                         </div>
                         <div class="legend-item">
-                            <div class="legend-color" style="background: #ffc107;"></div>
-                            <span>Lv3: 拡張関係</span>
+                            <div class="legend-color" style="background: #ff5722;"></div>
+                            <span>Lv2: 合成先アイテム</span>
                         </div>
-                        <div style="margin-top: 8px; padding-top: 5px; border-top: 1px solid #ddd;">
-                            <div style="font-size: 10px; color: #666;">
-                                線の種類: 実線=素材 | 点線=関連
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #ffc107;"></div>
+                            <span>Lv3: 追加関係</span>
+                        </div>
+                        <div style="margin-top: 6px; padding-top: 4px; border-top: 1px solid #ddd;">
+                            <div style="font-size: 9px; color: #666;">
+                                緑実線=素材 | 赤点線=合成 | 黄点線=Level3
+                            </div>
+                        </div>
+                        <div style="margin-top: 4px;">
+                            <div style="font-size: 9px; color: #666;">
+                                総ノード: 23個 | 深さ3レベル網羅
                             </div>
                         </div>
                     </div>
@@ -610,45 +615,44 @@
             // グラフ要素を含むグループ
             const g = svg.append("g");
 
-            // データ定義（マリグナンス中心の3次関係網羅グラフ）
+            // データ定義（マリグナンス中心の正確な深さ3網羅グラフ）
             const nodes = [
-                // Level 0: Root
+                // Level 0: マリグナンス
                 { id: "malignance", name: "マリグナンス", itemId: "3118", level: 0, type: "root", color: "#9c27b0" },
                 
-                // Level 1: 直接素材
+                // Level 1: マリグナンスの直接素材
                 { id: "lost_chapter", name: "ロスト チャプター", itemId: "3802", level: 1, type: "material", color: "#4caf50" },
                 { id: "blasting_wand", name: "ブラスティング ワンド", itemId: "1026", level: 1, type: "material", color: "#4caf50" },
                 
-                // Level 2: ロストチャプター姉妹アイテム
-                { id: "everfrost", name: "エバーフロスト", itemId: "6656", level: 2, type: "sibling", color: "#ff5722" },
-                { id: "ludens", name: "ルーデン コンパニオン", itemId: "6655", level: 2, type: "sibling", color: "#ff5722" },
-                { id: "archangel", name: "アークエンジェル スタッフ", itemId: "3003", level: 2, type: "sibling", color: "#ff5722" },
-                { id: "blackfire", name: "黒炎のトーチ", itemId: "2503", level: 2, type: "sibling", color: "#ff5722" },
-                
-                // Level 2: ブラスティングワンド姉妹アイテム  
-                { id: "nashors", name: "ナッシャー トゥース", itemId: "3115", level: 2, type: "sibling", color: "#ff5722" },
-                { id: "rylais", name: "リーライ クリスタル セプター", itemId: "3116", level: 2, type: "sibling", color: "#ff5722" },
-                { id: "lichbane", name: "リッチ ベイン", itemId: "3100", level: 2, type: "sibling", color: "#ff5722" },
-                { id: "voidstaff", name: "ヴォイド スタッフ", itemId: "3135", level: 2, type: "sibling", color: "#ff5722" },
-                { id: "morello", name: "モレロノミコン", itemId: "3165", level: 2, type: "sibling", color: "#ff5722" },
-                { id: "horizon", name: "ホライゾン フォーカス", itemId: "4628", level: 2, type: "sibling", color: "#ff5722" },
-                
-                // Level 2: ロストチャプターの基本素材
+                // Level 2: ロストチャプターの素材
                 { id: "amp_tome", name: "増魔の書", itemId: "1052", level: 2, type: "base_material", color: "#2196f3" },
                 { id: "sapphire", name: "サファイア クリスタル", itemId: "1027", level: 2, type: "base_material", color: "#2196f3" },
                 { id: "glowing_mote", name: "輝きのモート", itemId: "2022", level: 2, type: "base_material", color: "#2196f3" },
                 
-                // Level 3: 基本素材を使う主要アイテム  
-                { id: "zhonyas", name: "ゾーニャの砂時計", itemId: "3157", level: 3, type: "extended", color: "#ffc107" },
-                { id: "mejais", name: "メジャイ ソウルスティーラー", itemId: "3041", level: 3, type: "extended", color: "#ffc107" },
-                { id: "dark_seal", name: "暗黒の印", itemId: "1082", level: 3, type: "extended", color: "#ffc107" },
-                { id: "seeker", name: "シーカー アームガード", itemId: "2420", level: 3, type: "extended", color: "#ffc107" },
-                { id: "hextech_alt", name: "ヘクステック オルタネーター", itemId: "3145", level: 3, type: "extended", color: "#ffc107" },
+                // Level 2: ロストチャプターの合成先（有効なアイテムのみ）
+                { id: "archangel", name: "アークエンジェル スタッフ", itemId: "3003", level: 2, type: "composite", color: "#ff5722" },
+                { id: "ludens", name: "ルーデン コンパニオン", itemId: "6655", level: 2, type: "composite", color: "#ff5722" },
+                { id: "blackfire", name: "黒炎のトーチ", itemId: "2503", level: 2, type: "composite", color: "#ff5722" },
                 
-                // Level 3: サファイアクリスタル系
-                { id: "frozen_heart", name: "フローズン ハート", itemId: "3110", level: 3, type: "extended", color: "#ffc107" },
-                { id: "abyssal", name: "深淵の仮面", itemId: "3001", level: 3, type: "extended", color: "#ffc107" },
-                { id: "tear", name: "女神の涙", itemId: "3070", level: 3, type: "extended", color: "#ffc107" }
+                // Level 2: ブラスティングワンドの合成先（有効なアイテムのみ）
+                { id: "lichbane", name: "リッチ ベイン", itemId: "3100", level: 2, type: "composite", color: "#ff5722" },
+                { id: "nashors", name: "ナッシャー トゥース", itemId: "3115", level: 2, type: "composite", color: "#ff5722" },
+                { id: "rylais", name: "リーライ クリスタル セプター", itemId: "3116", level: 2, type: "composite", color: "#ff5722" },
+                { id: "voidstaff", name: "ヴォイド スタッフ", itemId: "3135", level: 2, type: "composite", color: "#ff5722" },
+                { id: "morello", name: "モレロノミコン", itemId: "3165", level: 2, type: "composite", color: "#ff5722" },
+                { id: "horizon", name: "ホライゾン フォーカス", itemId: "4628", level: 2, type: "composite", color: "#ff5722" },
+                { id: "dawncore", name: "ドーンコア", itemId: "6621", level: 2, type: "composite", color: "#ff5722" },
+                { id: "rod", name: "ロッド オブ エイジス", itemId: "6657", level: 2, type: "composite", color: "#ff5722" },
+                
+                // Level 3: Level 2アイテムの素材・合成先（主要のみ）
+                { id: "kindlegem", name: "キンドルジェム", itemId: "3067", level: 3, type: "level3", color: "#ffc107" },
+                { id: "tear", name: "女神の涙", itemId: "3070", level: 3, type: "level3", color: "#ffc107" },
+                { id: "fiendish", name: "フィンディッシュの古書", itemId: "3108", level: 3, type: "level3", color: "#ffc107" },
+                { id: "hextech_alt", name: "ヘクステック オルタネーター", itemId: "3145", level: 3, type: "level3", color: "#ffc107" },
+                { id: "seeker", name: "シーカー アームガード", itemId: "2420", level: 3, type: "level3", color: "#ffc107" },
+                { id: "oblivion", name: "忘却のオーブ", itemId: "3916", level: 3, type: "level3", color: "#ffc107" },
+                { id: "catalyst", name: "カタリスト オブ エイオンズ", itemId: "3803", level: 3, type: "level3", color: "#ffc107" },
+                { id: "ruby", name: "ルビー クリスタル", itemId: "1011", level: 3, type: "level3", color: "#ffc107" }
             ];
 
             const links = [
@@ -656,43 +660,45 @@
                 { source: "malignance", target: "lost_chapter", type: "material", strength: 3 },
                 { source: "malignance", target: "blasting_wand", type: "material", strength: 3 },
                 
-                // Level 1 → Level 2: ロストチャプター → 基本素材
-                { source: "lost_chapter", target: "amp_tome", type: "base_material", strength: 2 },
-                { source: "lost_chapter", target: "sapphire", type: "base_material", strength: 2 },
-                { source: "lost_chapter", target: "glowing_mote", type: "base_material", strength: 2 },
+                // Level 1 → Level 2: ロストチャプターの素材
+                { source: "lost_chapter", target: "amp_tome", type: "material", strength: 2 },
+                { source: "lost_chapter", target: "sapphire", type: "material", strength: 2 },
+                { source: "lost_chapter", target: "glowing_mote", type: "material", strength: 2 },
                 
-                // Level 1 → Level 2: ロストチャプター姉妹アイテム
-                { source: "lost_chapter", target: "everfrost", type: "sibling", strength: 1 },
-                { source: "lost_chapter", target: "ludens", type: "sibling", strength: 1 },
-                { source: "lost_chapter", target: "archangel", type: "sibling", strength: 1 },
-                { source: "lost_chapter", target: "blackfire", type: "sibling", strength: 1 },
+                // Level 1 → Level 2: ロストチャプターの合成先（有効なアイテムのみ）
+                { source: "lost_chapter", target: "archangel", type: "composite", strength: 1.5 },
+                { source: "lost_chapter", target: "ludens", type: "composite", strength: 1.5 },
+                { source: "lost_chapter", target: "blackfire", type: "composite", strength: 1.5 },
                 
-                // Level 1 → Level 2: ブラスティングワンド姉妹アイテム
-                { source: "blasting_wand", target: "nashors", type: "sibling", strength: 1 },
-                { source: "blasting_wand", target: "rylais", type: "sibling", strength: 1 },
-                { source: "blasting_wand", target: "lichbane", type: "sibling", strength: 1 },
-                { source: "blasting_wand", target: "voidstaff", type: "sibling", strength: 1 },
-                { source: "blasting_wand", target: "morello", type: "sibling", strength: 1 },
-                { source: "blasting_wand", target: "horizon", type: "sibling", strength: 1 },
+                // Level 1 → Level 2: ブラスティングワンドの合成先（有効なアイテムのみ）
+                { source: "blasting_wand", target: "lichbane", type: "composite", strength: 1.5 },
+                { source: "blasting_wand", target: "nashors", type: "composite", strength: 1.5 },
+                { source: "blasting_wand", target: "rylais", type: "composite", strength: 1.5 },
+                { source: "blasting_wand", target: "voidstaff", type: "composite", strength: 1.5 },
+                { source: "blasting_wand", target: "morello", type: "composite", strength: 1.5 },
+                { source: "blasting_wand", target: "horizon", type: "composite", strength: 1.5 },
+                { source: "blasting_wand", target: "dawncore", type: "composite", strength: 1.5 },
+                { source: "blasting_wand", target: "rod", type: "composite", strength: 1.5 },
                 
-                // Level 2 → Level 3: 増魔の書を使うアイテム
-                { source: "amp_tome", target: "zhonyas", type: "extended", strength: 0.5 },
-                { source: "amp_tome", target: "dark_seal", type: "extended", strength: 0.5 },
-                { source: "amp_tome", target: "seeker", type: "extended", strength: 0.5 },
-                { source: "amp_tome", target: "hextech_alt", type: "extended", strength: 0.5 },
+                // Level 2 → Level 3: アークエンジェルの追加素材
+                { source: "archangel", target: "tear", type: "level3", strength: 1 },
+                { source: "archangel", target: "fiendish", type: "level3", strength: 1 },
                 
-                // Level 2 → Level 3: サファイアクリスタルを使うアイテム
-                { source: "sapphire", target: "frozen_heart", type: "extended", strength: 0.5 },
-                { source: "sapphire", target: "abyssal", type: "extended", strength: 0.5 },
-                { source: "sapphire", target: "tear", type: "extended", strength: 0.5 },
+                // Level 2 → Level 3: 増魔の書を使う主要アイテム
+                { source: "amp_tome", target: "hextech_alt", type: "level3", strength: 0.8 },
+                { source: "amp_tome", target: "seeker", type: "level3", strength: 0.8 },
                 
-                // Level 3: 特殊な関係性
-                { source: "dark_seal", target: "mejais", type: "upgrade", strength: 1 },
-                { source: "seeker", target: "zhonyas", type: "upgrade", strength: 1 },
+                // Level 2 → Level 3: リーライの追加素材
+                { source: "rylais", target: "ruby", type: "level3", strength: 1 },
                 
-                // Level 2 → Level 3: クロス関係（複数素材を共有）
-                { source: "rylais", target: "hextech_alt", type: "cross_relation", strength: 0.3 },
-                { source: "everfrost", target: "zhonyas", type: "cross_relation", strength: 0.3 }
+                // Level 2 → Level 3: モレロの追加素材
+                { source: "morello", target: "oblivion", type: "level3", strength: 1 },
+                
+                // Level 2 → Level 3: ロッドオブエイジスの追加素材
+                { source: "rod", target: "catalyst", type: "level3", strength: 1 },
+                
+                // Level 2 → Level 3: その他の主要関係
+                { source: "ludens", target: "hextech_alt", type: "level3", strength: 0.8 }
             ];
 
             // シミュレーション設定（23ノード用に最適化）
@@ -701,15 +707,12 @@
                     // 関係性タイプに応じた距離調整
                     switch(d.type) {
                         case "material": return 80;
-                        case "base_material": return 60;
-                        case "sibling": return 120;
-                        case "extended": return 100;
-                        case "upgrade": return 70;
-                        case "cross_relation": return 150;
+                        case "composite": return 120;
+                        case "level3": return 100;
                         default: return 100;
                     }
                 }))
-                .force("charge", d3.forceManyBody().strength(-300))
+                .force("charge", d3.forceManyBody().strength(-250))
                 .force("center", d3.forceCenter(width / 2, height / 2))
                 .force("collision", d3.forceCollide().radius(35));
 
@@ -721,11 +724,8 @@
                 .attr("stroke", d => {
                     switch(d.type) {
                         case "material": return "#4caf50";
-                        case "base_material": return "#2196f3";
-                        case "sibling": return "#ff5722";
-                        case "extended": return "#ffc107";
-                        case "upgrade": return "#9c27b0";
-                        case "cross_relation": return "#607d8b";
+                        case "composite": return "#ff5722";
+                        case "level3": return "#ffc107";
                         default: return "#999";
                     }
                 })
@@ -733,11 +733,8 @@
                 .attr("stroke-dasharray", d => {
                     switch(d.type) {
                         case "material": return "none";
-                        case "base_material": return "none";
-                        case "sibling": return "5,5";
-                        case "extended": return "3,3";
-                        case "upgrade": return "8,3";
-                        case "cross_relation": return "2,2";
+                        case "composite": return "5,5";
+                        case "level3": return "3,3";
                         default: return "none";
                     }
                 })
