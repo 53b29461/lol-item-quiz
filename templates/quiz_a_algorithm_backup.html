@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>クイズA 出題アルゴリズム解説 - League of Legends Item Quiz</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .algorithm-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .algorithm-section {
+            margin-bottom: 30px;
+        }
+        .algorithm-section h2 {
+            color: #0596aa;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #0596aa;
+            padding-bottom: 10px;
+        }
+        .algorithm-section h3 {
+            color: #333;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .example-box {
+            background: #f0f9ff;
+            border: 1px solid #0596aa;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .example-box h4 {
+            color: #0596aa;
+            margin-bottom: 10px;
+        }
+        .item-example {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .item-example img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+        .step-box {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .step-number {
+            background: #0596aa;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        .step-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        ul {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+        .back-link {
+            display: inline-block;
+            background: #0596aa;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 30px;
+        }
+        .back-link:hover {
+            background: #047a8a;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        .correct-answer {
+            background: #d4edda;
+            padding: 2px 5px;
+            border-radius: 3px;
+            color: #155724;
+        }
+        .tree-diagram {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .tree-level {
+            margin: 20px 0;
+        }
+        .tree-item {
+            display: inline-block;
+            background: white;
+            border: 2px solid #0596aa;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 5px;
+            min-width: 120px;
+        }
+        .tree-item.target {
+            background: #fff3cd;
+            border-color: #ffc107;
+            font-weight: bold;
+        }
+        .tree-item.material {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        .tree-item.synthesis {
+            background: #cce7ff;
+            border-color: #007bff;
+        }
+        .tree-item.cousin {
+            background: #fff2e6;
+            border-color: #ff8c00;
+            border-style: dashed;
+        }
+        .tree-arrow {
+            font-size: 24px;
+            color: #0596aa;
+            margin: 10px 0;
+        }
+        .tree-arrow-horizontal {
+            font-size: 20px;
+            color: #ff8c00;
+            margin: 0 10px;
+        }
+        .tree-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .family-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .cytoscape-graph {
+            width: 100%;
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .d3-graph {
+            width: 100%;
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .d3-graph svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .node {
+            cursor: pointer;
+        }
+        
+        .node circle {
+            stroke-width: 2px;
+        }
+        
+        .node text {
+            font-family: sans-serif;
+            font-size: 10px;
+            text-anchor: middle;
+            pointer-events: none;
+        }
+        
+        .link {
+            stroke: #999;
+            stroke-opacity: 0.6;
+            stroke-width: 2px;
+        }
+        
+        .link.parent-child {
+            stroke: #0596aa;
+            stroke-width: 3px;
+        }
+        
+        .link.child-parent {
+            stroke: #28a745;
+            stroke-width: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="algorithm-container">
+        <h1>クイズA 出題の仕組み</h1>
+        
+        <div class="algorithm-section">
+            <h2>クイズAって何？</h2>
+            <p>クイズAは、画面に表示されたアイテムに<strong>関係するアイテム</strong>をすべて見つけるクイズです。</p>
+            <p>「関係するアイテム」とは：</p>
+            <ul>
+                <li><strong>素材アイテム</strong>：そのアイテムを作るのに必要なアイテム</li>
+                <li><strong>合成先アイテム</strong>：そのアイテムを使って作れるアイテム</li>
+            </ul>
+            <p>10個の選択肢の中から、正解をすべて見つけて選んでください！</p>
+        </div>
+
+        <div class="algorithm-section">
+            <h2>クイズが作られる手順</h2>
+            
+            <div class="step-box">
+                <div class="step-title">
+                    <span class="step-number">1</span>
+                    出題するアイテムを選ぶ
+                </div>
+                <p>まず、League of Legendsの全アイテムの中から出題するアイテムを1つ選びます。</p>
+                <p><strong>選ばれる条件：</strong></p>
+                <ul>
+                    <li>サモナーズリフト（普通のマップ）で使えるアイテム</li>
+                    <li>消耗品（ポーション等）、トリンケット、ブーツ、ジャングル専用アイテムは除く</li>
+                    <li>関係するアイテムが5個以上あるもの（難しすぎず簡単すぎないため）</li>
+                </ul>
+            </div>
+
+            <div class="step-box">
+                <div class="step-title">
+                    <span class="step-number">2</span>
+                    正解アイテムを決める
+                </div>
+                <p>選んだアイテムに関係するアイテムをすべて見つけて、これが正解になります。</p>
+                <p><strong>正解になるアイテム：</strong></p>
+                <ul>
+                    <li><strong>子アイテム</strong>：そのアイテムの直接の素材（基本アイテム）</li>
+                    <li><strong>親アイテム</strong>：そのアイテムを直接の素材として使うアイテム（完成品）</li>
+                    <li><strong>孫・祖父母アイテム</strong>：子の子、親の親など、関係が深いアイテム</li>
+                </ul>
+            </div>
+
+            <div class="step-box">
+                <div class="step-title">
+                    <span class="step-number">3</span>
+                    選択肢を作る（最大10個）
+                </div>
+                <p>正解アイテムと、ひっかけ用のアイテムを混ぜて選択肢を作ります。</p>
+                <p><strong>重要：</strong>関係アイテムが少ない場合は、10個未満（例：8個）の選択肢が表示されることもあります。</p>
+                <p><strong>選択肢に含まれるアイテム：</strong></p>
+                <ul>
+                    <li><span class="correct-answer">正解アイテム</span>：手順2で見つけた関係アイテム</li>
+                    <li>ひっかけアイテム：正解アイテムに似ているけど違うアイテム</li>
+                </ul>
+                <p><strong>ひっかけアイテムの作り方：</strong></p>
+                <ul>
+                    <li>正解アイテムと似たような関係にあるアイテムを探す</li>
+                    <li>同じ素材を使う別のアイテムや、似たような素材など</li>
+                    <li>重複するアイテムは除いて、ユニークなアイテムのみを選ぶ</li>
+                </ul>
+                
+                <div class="tree-diagram">
+                    <h4>アイテムの家族関係図</h4>
+                    <div class="tree-level">
+                        <div class="tree-label">祖父母（親の親：最終完成品）</div>
+                        <div class="tree-item synthesis">祖父母アイテムA</div>
+                        <div class="tree-item synthesis">祖父母アイテムB</div>
+                    </div>
+                    <div class="tree-arrow">↑</div>
+                    <div class="tree-level">
+                        <div class="tree-label">親（このアイテムを使って作れるもの：完成品）</div>
+                        <div class="tree-item synthesis">親アイテムA</div>
+                        <div class="tree-item synthesis">親アイテムB</div>
+                        <div class="tree-item synthesis">親アイテムC</div>
+                    </div>
+                    <div class="tree-arrow">↑</div>
+                    <div class="tree-level">
+                        <div class="tree-label">出題されるアイテム</div>
+                        <div class="tree-item target">出題アイテム</div>
+                    </div>
+                    <div class="tree-arrow">↑</div>
+                    <div class="tree-level">
+                        <div class="tree-label">子（このアイテムの素材：中間アイテム）</div>
+                        <div class="tree-item material">子アイテムA</div>
+                        <div class="tree-item material">子アイテムB</div>
+                    </div>
+                    <div class="tree-arrow">↑</div>
+                    <div class="tree-level">
+                        <div class="tree-label">孫（子の子：基本アイテム）</div>
+                        <div class="tree-item material">孫アイテムA</div>
+                        <div class="tree-item material">孫アイテムB</div>
+                    </div>
+                </div>
+                
+                <p>正解は<span class="correct-answer">緑色（子・孫：素材系）</span>と<span class="correct-answer" style="background: #cce7ff; color: #004085;">青色（親・祖父母：完成品系）</span>のアイテムです！<br>
+                <span style="background: #fff2e6; color: #ff8c00; padding: 2px 5px; border-radius: 3px;">オレンジ色（兄弟・従兄弟）</span>はひっかけアイテムなので注意！<br>
+                つまり、出題アイテムの<strong>直接の家族関係</strong>にあるアイテムのみが正解になります。</p>
+            </div>
+        </div>
+
+        <div class="algorithm-section">
+            <h2>具体例で見てみよう</h2>
+            
+            <div class="example-box">
+                <h4>例1: ジャイアントベルトが出題された場合</h4>
+                <div class="item-example">
+                    <img src="https://ddragon.leagueoflegends.com/cdn/{{ patch_version }}/img/item/1011.png" alt="ジャイアントベルト">
+                    <strong>出題アイテム：ジャイアントベルト（900ゴールド）</strong>
+                </div>
+                
+                <h4>手順1：正解を探す</h4>
+                <p><strong>ジャイアントベルトの素材：</strong></p>
+                <ul>
+                    <li>ルビークリスタル（400ゴールド）</li>
+                </ul>
+                <p><strong>ジャイアントベルトを使って作れるアイテム：</strong></p>
+                <ul>
+                    <li>ウォーモグアーマー、サンファイアイージス、ランデュインオーメン、フローズンマレット など</li>
+                </ul>
+                
+                <h4>ジャイアントベルトの家族関係図</h4>
+                <div id="giants-belt-graph" class="cytoscape-graph"></div>
+                
+                <div style="margin: 10px 0; font-size: 14px;">
+                    <span style="color: #28a745;">■</span> 素材アイテム（子がいない）　
+                    <span style="color: #007bff;">■</span> 中間アイテム（親も子もいる）　
+                    <span style="color: #ffc107;">■</span> レジェンダリーアイテム（親がいない）
+                </div>
+                
+                <h4>D3.js版 - Force-Directed Layout</h4>
+                <div id="giants-belt-d3-graph" class="d3-graph"></div>
+                
+                <div style="margin: 10px 0; font-size: 12px; color: #666;">
+                    D3.js物理シミュレーション - ドラッグして移動可能、ズーム・パン対応
+                </div>
+                
+                <h4>手順2：ひっかけアイテムを探す</h4>
+                <p>正解アイテムと似たような関係にあるアイテムを探します：</p>
+                <ul>
+                    <li><strong>兄弟アイテム</strong>：ルビークリスタルを使う他のアイテム（キンドルジェム、ライラインドリークリスタルセプター）</li>
+                    <li><strong>従兄弟アイテム</strong>：兄弟アイテムの子（スピリットビサージュ、トリニティフォース等）</li>
+                    <li><strong>叔父叔母アイテム</strong>：親アイテムの他の素材（ソーンメイル、バミシンダー等）</li>
+                </ul>
+                <p>これらは<strong>家族だけど直接の関係じゃない</strong>ので、ひっかけになります。</p>
+                
+                <h4>手順3：選択肢完成</h4>
+                <p><strong>10個の選択肢例：</strong></p>
+                <ol>
+                    <li><span class="correct-answer">ウォーモグアーマー（正解）</span></li>
+                    <li><span class="correct-answer">サンファイアイージス（正解）</span></li>
+                    <li><span class="correct-answer">ランデュインオーメン（正解）</span></li>
+                    <li><span class="correct-answer">フローズンマレット（正解）</span></li>
+                    <li>キンドルジェム（ひっかけ）</li>
+                    <li>ライラインドリークリスタルセプター（ひっかけ）</li>
+                    <li>ソーンメイル（ひっかけ）</li>
+                    <li>バミシンダー（ひっかけ）</li>
+                    <li>デッドマンプレート（ひっかけ）</li>
+                    <li>ガーゴイルストーンプレート（ひっかけ）</li>
+                </ol>
+            </div>
+
+            <div class="example-box">
+                <h4>例2: フェアリーチャームが出題された場合</h4>
+                <div class="item-example">
+                    <img src="https://ddragon.leagueoflegends.com/cdn/{{ patch_version }}/img/item/1004.png" alt="フェアリーチャーム">
+                    <strong>出題アイテム：フェアリーチャーム（250ゴールド）</strong>
+                </div>
+                
+                <h4>手順1：正解を探す</h4>
+                <p><strong>フェアリーチャームの素材：</strong></p>
+                <ul>
+                    <li>なし（基本アイテムなので、これ以上分解できない）</li>
+                </ul>
+                <p><strong>フェアリーチャームを使って作れるアイテム：</strong></p>
+                <ul>
+                    <li>アーデントセンサー、フォービドンアイドル、ハーモニックエコー、ミカエルのるつぼ など</li>
+                </ul>
+                
+                <h4>フェアリーチャームの家族関係図</h4>
+                <div id="faerie-charm-graph" class="cytoscape-graph"></div>
+                
+                <div style="margin: 10px 0; font-size: 14px;">
+                    <span style="color: #28a745;">■</span> 素材アイテム（子がいない）　
+                    <span style="color: #007bff;">■</span> 中間アイテム（親も子もいる）
+                </div>
+                
+                <div class="tree-diagram">
+                    <h4>フェアリーチャームの家族関係図</h4>
+                    <div class="tree-level">
+                        <div class="tree-label">親（フェアリーチャームを使って作れるもの：完成品）（正解）</div>
+                        <div class="tree-item synthesis">アーデントセンサー</div>
+                        <div class="tree-item synthesis">フォービドンアイドル</div>
+                        <div class="tree-item synthesis">ハーモニックエコー</div>
+                        <div class="tree-item synthesis">ミカエルのるつぼ</div>
+                    </div>
+                    <div class="tree-arrow">↑</div>
+                    <div class="tree-level">
+                        <div class="tree-label">出題アイテム</div>
+                        <div class="tree-item target">フェアリーチャーム</div>
+                    </div>
+                    <div class="tree-arrow">↑</div>
+                    <div class="tree-level">
+                        <div class="tree-label">子（フェアリーチャームの素材）</div>
+                        <div class="tree-item" style="background: #f8f9fa; color: #6c757d;">なし（基本アイテム）</div>
+                    </div>
+                </div>
+                
+                <h4>手順2：ひっかけアイテムを探す</h4>
+                <p>正解アイテムと似たような関係にあるアイテムを探します：</p>
+                <ul>
+                    <li>フェアリーチャームアイテムの他の素材：ブラスティングワンド、サッパイアクリスタル、アンプリファイングトーム</li>
+                    <li>似たような効果を持つサポートアイテム：スタッフオブフローイングウォーター、シュレリアのレクイエム</li>
+                </ul>
+                
+                <h4>手順3：選択肢完成</h4>
+                <p><strong>10個の選択肢例：</strong></p>
+                <ol>
+                    <li><span class="correct-answer">アーデントセンサー（正解）</span></li>
+                    <li><span class="correct-answer">フォービドンアイドル（正解）</span></li>
+                    <li><span class="correct-answer">ハーモニックエコー（正解）</span></li>
+                    <li><span class="correct-answer">ミカエルのるつぼ（正解）</span></li>
+                    <li>ブラスティングワンド（ひっかけ）</li>
+                    <li>サッパイアクリスタル（ひっかけ）</li>
+                    <li>スタッフオブフローイングウォーター（ひっかけ）</li>
+                    <li>シュレリアのレクイエム（ひっかけ）</li>
+                    <li>リデンプション（ひっかけ）</li>
+                    <li>ルーデンテンペスト（ひっかけ）</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="algorithm-section">
+            <h2>なぜこの仕組みなの？</h2>
+            
+            <h3>適度な難易度にするため</h3>
+            <ul>
+                <li><strong>簡単すぎない</strong>：ひっかけアイテムがあることで、単純な暗記では解けない</li>
+                <li><strong>難しすぎない</strong>：関係するアイテムなので、完全にランダムではない</li>
+                <li><strong>勉強になる</strong>：アイテム同士のつながりを覚えられる</li>
+            </ul>
+            
+            <h3>毎回違う問題にするため</h3>
+            <ul>
+                <li>同じアイテムが出題されても、ひっかけアイテムがランダムに変わる</li>
+                <li>何度やっても飽きない</li>
+                <li>本当の理解が必要になる</li>
+            </ul>
+        </div>
+
+        <div class="algorithm-section">
+            <h2>攻略のコツ</h2>
+            <ul>
+                <li><strong>直接の家族関係を覚える</strong>：「このアイテムの親と子は何か？」</li>
+                <li><strong>兄弟・従兄弟に注意</strong>：「同じ素材を使うけど違うアイテム」はひっかけ</li>
+                <li><strong>材料ツリーを意識</strong>：「素材→中間→完成品」の流れを理解する</li>
+                <li><strong>「直接」がキーワード</strong>：1段階の関係のみが正解、2段階以上は罠</li>
+            </ul>
+        </div>
+
+        <a href="/" class="back-link">メインページに戻る</a>
+        <a href="/quiz_a_full_graph" class="back-link" style="background: #28a745;">全体アイテム関係性グラフ</a>
+    </div>
+
+    <script>
+        // ジャイアントベルトの家族関係グラフ
+        document.addEventListener('DOMContentLoaded', function() {
+            var cy = cytoscape({
+                container: document.getElementById('giants-belt-graph'),
+                
+                elements: [
+                    // ノード（拡張5層構造・画像付き）
+                    { data: { id: 'giants-belt', label: 'ジャイアント\\nベルト', type: 'center', itemId: '1011' } },
+                    { data: { id: 'ruby-crystal', label: 'ルビー\\nクリスタル', type: 'center_child', itemId: '1028' } },
+                    { data: { id: 'parent-3083', label: 'ウォーモグ\\nアーマー', type: 'center_parent', itemId: '3083' } },
+                    { data: { id: 'parent-3143', label: 'ランデュイン\\nオーメン', type: 'center_parent', itemId: '3143' } },
+                    { data: { id: 'parent-3116', label: 'ライライ\\nクリスタル\\nセプター', type: 'center_parent', itemId: '3116' } },
+                    { data: { id: 'parent-3084', label: 'ハートスチール', type: 'center_parent', itemId: '3084' } },
+                    { data: { id: 'child-parent-3067', label: 'キンドルジェム', type: 'child_other_parent', itemId: '3067' } },
+                    { data: { id: 'child-parent-3066', label: 'ウイング\\nムーンプレート', type: 'child_other_parent', itemId: '3066' } },
+                    { data: { id: 'child-parent-3044', label: 'ファージ', type: 'child_other_parent', itemId: '3044' } },
+                    { data: { id: 'material-3801', label: 'クリスタライン\\nブレーサー', type: 'parent_other_child', itemId: '3801' } },
+                    { data: { id: 'material-3082', label: 'ウォーデン\\nメイル', type: 'parent_other_child', itemId: '3082' } },
+                    { data: { id: 'material-1026', label: 'ブラスティング\\nワンド', type: 'parent_other_child', itemId: '1026' } },
+                    { data: { id: 'material-1052', label: 'アンプリファイング\\nトーム', type: 'parent_other_child', itemId: '1052' } },
+                    
+                    // 新しい素材ノード
+                    { data: { id: 'material-2022', label: 'グローイング\\nモート', type: 'extended_material', itemId: '2022' } },
+                    { data: { id: 'material-1006', label: 'リジュベネーション\\nビード', type: 'extended_material', itemId: '1006' } },
+                    { data: { id: 'material-1036', label: 'ロング\\nソード', type: 'extended_material', itemId: '1036' } },
+                    { data: { id: 'material-1029-1', label: 'クロース\\nアーマー', type: 'extended_material', itemId: '1029' } },
+                    { data: { id: 'material-1029-2', label: 'クロース\\nアーマー', type: 'extended_material', itemId: '1029' } },
+                    
+                    // エッジ（直接の親子関係のみ）
+                    { data: { source: 'ruby-crystal', target: 'giants-belt', type: 'child-parent' } },
+                    { data: { source: 'giants-belt', target: 'parent-3083', type: 'parent-child' } },
+                    { data: { source: 'giants-belt', target: 'parent-3143', type: 'parent-child' } },
+                    { data: { source: 'giants-belt', target: 'parent-3116', type: 'parent-child' } },
+                    { data: { source: 'giants-belt', target: 'parent-3084', type: 'parent-child' } },
+                    { data: { source: 'ruby-crystal', target: 'child-parent-3067', type: 'child-parent' } },
+                    { data: { source: 'ruby-crystal', target: 'child-parent-3066', type: 'child-parent' } },
+                    { data: { source: 'ruby-crystal', target: 'child-parent-3044', type: 'child-parent' } },
+                    // ハートスチールの子どもたち
+                    { data: { source: 'material-3801', target: 'parent-3084', type: 'child-parent' } },
+                    // ライライクリスタルセプターの子どもたち
+                    { data: { source: 'material-1026', target: 'parent-3116', type: 'child-parent' } },
+                    { data: { source: 'material-1052', target: 'parent-3116', type: 'child-parent' } },
+                    // ランデュインオーメンの子どもたち
+                    { data: { source: 'material-3082', target: 'parent-3143', type: 'child-parent' } },
+                    { data: { source: 'giants-belt', target: 'parent-3143', type: 'child-parent' } },
+                    // キンドルジェムの子どもたち
+                    { data: { source: 'ruby-crystal', target: 'child-parent-3067', type: 'child-parent' } },
+                    { data: { source: 'material-2022', target: 'child-parent-3067', type: 'child-parent' } },
+                    // ファージの子どもたち
+                    { data: { source: 'ruby-crystal', target: 'child-parent-3044', type: 'child-parent' } },
+                    { data: { source: 'material-1036', target: 'child-parent-3044', type: 'child-parent' } },
+                    // クリスタラインブレーサーの子どもたち
+                    { data: { source: 'ruby-crystal', target: 'material-3801', type: 'child-parent' } },
+                    { data: { source: 'material-1006', target: 'material-3801', type: 'child-parent' } },
+                    // ウォーデンメイルの子どもたち
+                    { data: { source: 'material-1029-1', target: 'material-3082', type: 'child-parent' } },
+                    { data: { source: 'material-1029-2', target: 'material-3082', type: 'child-parent' } }
+                ],
+                
+                style: [
+                    {
+                        selector: 'node',
+                        style: {
+                            'background-color': '#f0f0f0',
+                            'label': 'data(label)',
+                            'text-valign': 'center',
+                            'text-halign': 'center',
+                            'text-wrap': 'wrap',
+                            'font-size': '12px',
+                            'color': '#333',
+                            'width': 60,
+                            'height': 40,
+                            'border-width': 2,
+                            'border-color': '#ccc'
+                        }
+                    },
+                    {
+                        selector: 'node[type="center"]',
+                        style: {
+                            'background-color': '#fff3cd',
+                            'border-color': '#ffc107',
+                            'border-width': 4,
+                            'width': 100,
+                            'height': 60
+                        }
+                    },
+                    {
+                        selector: 'node[type="center_child"]',
+                        style: {
+                            'background-color': '#d4edda',
+                            'border-color': '#28a745',
+                            'border-width': 3
+                        }
+                    },
+                    {
+                        selector: 'node[type="center_parent"]',
+                        style: {
+                            'background-color': '#cce7ff',
+                            'border-color': '#007bff',
+                            'border-width': 3
+                        }
+                    },
+                    {
+                        selector: 'node[type="child_other_parent"]',
+                        style: {
+                            'background-color': '#e2f7e2',
+                            'border-color': '#28a745',
+                            'border-style': 'dashed'
+                        }
+                    },
+                    {
+                        selector: 'node[type="parent_other_child"]',
+                        style: {
+                            'background-color': '#e6f3ff',
+                            'border-color': '#007bff',
+                            'border-style': 'dotted'
+                        }
+                    },
+                    // 素材アイテム（子がいない）- 小サイズ・緑系・画像付き
+                    {
+                        selector: 'node[id="ruby-crystal"], node[id="material-1052"], node[id="material-2022"], node[id="material-1006"], node[id="material-1036"], node[id="material-1029-1"], node[id="material-1029-2"], node[id="material-1026"]',
+                        style: {
+                            'background-image': function(ele) {
+                                return 'url(https://ddragon.leagueoflegends.com/cdn/{{ patch_version }}/img/item/' + ele.data('itemId') + '.png)';
+                            },
+                            'background-fit': 'cover',
+                            'background-opacity': 0.8,
+                            'border-color': '#28a745',
+                            'border-width': 3,
+                            'width': 70,
+                            'height': 70,
+                            'font-size': '10px',
+                            'text-margin-y': 10,
+                            'text-background-color': 'rgba(255, 255, 255, 0.8)',
+                            'text-background-opacity': 1,
+                            'text-background-padding': '2px'
+                        }
+                    },
+                    // 中間アイテム（親も子もいる）- 中サイズ・青系・画像付き
+                    {
+                        selector: 'node[id="child-parent-3067"], node[id="child-parent-3066"], node[id="material-3801"], node[id="giants-belt"], node[id="material-3082"], node[id="child-parent-3044"]',
+                        style: {
+                            'background-image': function(ele) {
+                                return 'url(https://ddragon.leagueoflegends.com/cdn/{{ patch_version }}/img/item/' + ele.data('itemId') + '.png)';
+                            },
+                            'background-fit': 'cover',
+                            'background-opacity': 0.8,
+                            'border-color': '#007bff',
+                            'border-width': 3,
+                            'width': 80,
+                            'height': 80,
+                            'font-size': '11px',
+                            'text-margin-y': 12,
+                            'text-background-color': 'rgba(255, 255, 255, 0.8)',
+                            'text-background-opacity': 1,
+                            'text-background-padding': '2px'
+                        }
+                    },
+                    // レジェンダリーアイテム（1601G+）- 大サイズ・金系・画像付き
+                    {
+                        selector: 'node[id="parent-3116"], node[id="parent-3143"], node[id="parent-3084"], node[id="parent-3083"]',
+                        style: {
+                            'background-image': function(ele) {
+                                return 'url(https://ddragon.leagueoflegends.com/cdn/{{ patch_version }}/img/item/' + ele.data('itemId') + '.png)';
+                            },
+                            'background-fit': 'cover',
+                            'background-opacity': 0.8,
+                            'border-color': '#ffc107',
+                            'border-width': 4,
+                            'width': 100,
+                            'height': 100,
+                            'font-size': '12px',
+                            'font-weight': 'bold',
+                            'text-margin-y': 15,
+                            'text-background-color': 'rgba(255, 255, 255, 0.9)',
+                            'text-background-opacity': 1,
+                            'text-background-padding': '3px'
+                        }
+                    },
+                    // extended_materialタイプのスタイル
+                    {
+                        selector: 'node[type="extended_material"]',
+                        style: {
+                            'background-color': '#d4edda',
+                            'border-color': '#28a745',
+                            'border-width': 2,
+                            'border-style': 'dashed'
+                        }
+                    },
+                    {
+                        selector: 'edge[type="parent-child"]',
+                        style: {
+                            'width': 3,
+                            'line-color': '#0596aa'
+                        }
+                    },
+                    {
+                        selector: 'edge[type="child-parent"]',
+                        style: {
+                            'width': 3,
+                            'line-color': '#28a745'
+                        }
+                    }
+                ],
+                
+                layout: {
+                    name: 'preset',
+                    positions: {
+                        'giants-belt': { x: 400, y: 180 },
+                        'ruby-crystal': { x: 150, y: 300 },
+                        'parent-3083': { x: 280, y: 60 },
+                        'parent-3143': { x: 600, y: 180 },
+                        'parent-3116': { x: 520, y: 180 },
+                        'parent-3084': { x: 150, y: 60 },
+                        'child-parent-3067': { x: 200, y: 180 },
+                        'child-parent-3066': { x: 250, y: 180 },
+                        'child-parent-3044': { x: 650, y: 180 },
+                        'material-3801': { x: 300, y: 180 },
+                        'material-3082': { x: 480, y: 180 },
+                        'material-1026': { x: 350, y: 180 },
+                        'material-1052': { x: 280, y: 300 }
+                    }
+                }
+            });
+            
+            // フェアリーチャームの家族関係グラフ
+            var cy2 = cytoscape({
+                container: document.getElementById('faerie-charm-graph'),
+                
+                elements: [
+                    // ノード（3層構造）
+                    { data: { id: 'faerie-charm', label: 'フェアリー\\nチャーム', type: 'center', itemId: '1004' } },
+                    { data: { id: 'parent-3012', label: 'チャリス\\nオブ\\nブレッシング', type: 'center_parent', itemId: '3012' } },
+                    { data: { id: 'material-1028', label: 'ルビー\\nクリスタル', type: 'parent_other_child', itemId: '1028' } },
+                    
+                    // エッジ（関係）
+                    { data: { source: 'faerie-charm', target: 'parent-3012', type: 'parent-child' } },
+                    { data: { source: 'material-1028', target: 'parent-3012', type: 'child-parent' } }
+                ],
+                
+                style: [
+                    {
+                        selector: 'node',
+                        style: {
+                            'background-color': '#f0f0f0',
+                            'label': 'data(label)',
+                            'text-valign': 'center',
+                            'text-halign': 'center',
+                            'text-wrap': 'wrap',
+                            'font-size': '12px',
+                            'color': '#333',
+                            'width': 60,
+                            'height': 40,
+                            'border-width': 2,
+                            'border-color': '#ccc'
+                        }
+                    },
+                    {
+                        selector: 'node[type="center"]',
+                        style: {
+                            'background-color': '#fff3cd',
+                            'border-color': '#ffc107',
+                            'border-width': 4,
+                            'width': 100,
+                            'height': 60
+                        }
+                    },
+                    {
+                        selector: 'node[type="center_parent"]',
+                        style: {
+                            'background-color': '#cce7ff',
+                            'border-color': '#007bff',
+                            'border-width': 3
+                        }
+                    },
+                    {
+                        selector: 'node[type="parent_other_child"]',
+                        style: {
+                            'background-color': '#e6f3ff',
+                            'border-color': '#007bff',
+                            'border-style': 'dotted'
+                        }
+                    },
+                    // 素材アイテム（799G以下）- 小サイズ・緑系・画像付き
+                    {
+                        selector: 'node[id="faerie-charm"], node[id="material-1028"]',
+                        style: {
+                            'background-image': function(ele) {
+                                return 'url(https://ddragon.leagueoflegends.com/cdn/{{ patch_version }}/img/item/' + ele.data('itemId') + '.png)';
+                            },
+                            'background-fit': 'cover',
+                            'background-opacity': 0.8,
+                            'border-color': '#28a745',
+                            'border-width': 3,
+                            'width': 70,
+                            'height': 70,
+                            'font-size': '10px',
+                            'text-margin-y': 10,
+                            'text-background-color': 'rgba(255, 255, 255, 0.8)',
+                            'text-background-opacity': 1,
+                            'text-background-padding': '2px'
+                        }
+                    },
+                    // 中間アイテム（800-1600G）- 中サイズ・青系・画像付き
+                    {
+                        selector: 'node[id="parent-3012"]',
+                        style: {
+                            'background-image': function(ele) {
+                                return 'url(https://ddragon.leagueoflegends.com/cdn/{{ patch_version }}/img/item/' + ele.data('itemId') + '.png)';
+                            },
+                            'background-fit': 'cover',
+                            'background-opacity': 0.8,
+                            'border-color': '#007bff',
+                            'border-width': 3,
+                            'width': 80,
+                            'height': 80,
+                            'font-size': '11px',
+                            'text-margin-y': 12,
+                            'text-background-color': 'rgba(255, 255, 255, 0.8)',
+                            'text-background-opacity': 1,
+                            'text-background-padding': '2px'
+                        }
+                    },
+                    {
+                        selector: 'edge[type="parent-child"]',
+                        style: {
+                            'width': 3,
+                            'line-color': '#0596aa'
+                        }
+                    },
+                    {
+                        selector: 'edge[type="child-parent"]',
+                        style: {
+                            'width': 3,
+                            'line-color': '#28a745'
+                        }
+                    }
+                ],
+                
+                layout: {
+                    name: 'preset',
+                    positions: {
+                        'faerie-charm': { x: 200, y: 300 },
+                        'parent-3012': { x: 200, y: 180 },
+                        'material-1028': { x: 330, y: 300 }
+                    }
+                }
+            });
+            
+            // D3.js Force-Directed Graph
+            const width = 800;
+            const height = 400;
+            
+            // データ準備（itemId付き）
+            const nodes = [
+                { id: 'giants-belt', label: 'ジャイアント\nベルト', type: 'center', itemId: '1011' },
+                { id: 'ruby-crystal', label: 'ルビー\nクリスタル', type: 'center_child', itemId: '1028' },
+                { id: 'parent-3083', label: 'ウォーモグ\nアーマー', type: 'center_parent', itemId: '3083' },
+                { id: 'parent-3143', label: 'ランデュイン\nオーメン', type: 'center_parent', itemId: '3143' },
+                { id: 'parent-3116', label: 'ライライ\nクリスタル\nセプター', type: 'center_parent', itemId: '3116' },
+                { id: 'parent-3084', label: 'ハートスチール', type: 'center_parent', itemId: '3084' },
+                { id: 'child-parent-3067', label: 'キンドルジェム', type: 'child_other_parent', itemId: '3067' },
+                { id: 'child-parent-3066', label: 'ウイング\nムーンプレート', type: 'child_other_parent', itemId: '3066' },
+                { id: 'child-parent-3044', label: 'ファージ', type: 'child_other_parent', itemId: '3044' },
+                { id: 'material-3801', label: 'クリスタライン\nブレーサー', type: 'parent_other_child', itemId: '3801' },
+                { id: 'material-3082', label: 'ウォーデン\nメイル', type: 'parent_other_child', itemId: '3082' },
+                { id: 'material-1026', label: 'ブラスティング\nワンド', type: 'parent_other_child', itemId: '1026' },
+                { id: 'material-1052', label: 'アンプリファイング\nトーム', type: 'parent_other_child', itemId: '1052' },
+                // 新しい素材ノード
+                { id: 'material-2022', label: 'グローイング\nモート', type: 'extended_material', itemId: '2022' },
+                { id: 'material-1006', label: 'リジュベネーション\nビード', type: 'extended_material', itemId: '1006' },
+                { id: 'material-1036', label: 'ロング\nソード', type: 'extended_material', itemId: '1036' },
+                { id: 'material-1029-1', label: 'クロース\nアーマー', type: 'extended_material', itemId: '1029' },
+                { id: 'material-1029-2', label: 'クロース\nアーマー', type: 'extended_material', itemId: '1029' }
+            ];
+            
+            const links = [
+                { source: 'ruby-crystal', target: 'giants-belt', type: 'child-parent' },
+                { source: 'giants-belt', target: 'parent-3083', type: 'parent-child' },
+                { source: 'giants-belt', target: 'parent-3143', type: 'parent-child' },
+                { source: 'giants-belt', target: 'parent-3116', type: 'parent-child' },
+                { source: 'giants-belt', target: 'parent-3084', type: 'parent-child' },
+                { source: 'ruby-crystal', target: 'child-parent-3067', type: 'child-parent' },
+                { source: 'ruby-crystal', target: 'child-parent-3066', type: 'child-parent' },
+                { source: 'ruby-crystal', target: 'child-parent-3044', type: 'child-parent' },
+                // ハートスチールの子どもたち
+                { source: 'material-3801', target: 'parent-3084', type: 'child-parent' },
+                // ライライクリスタルセプターの子どもたち
+                { source: 'material-1026', target: 'parent-3116', type: 'child-parent' },
+                { source: 'material-1052', target: 'parent-3116', type: 'child-parent' },
+                // ランデュインオーメンの子どもたち
+                { source: 'material-3082', target: 'parent-3143', type: 'child-parent' },
+                { source: 'giants-belt', target: 'parent-3143', type: 'child-parent' },
+                // キンドルジェムの子どもたち
+                { source: 'ruby-crystal', target: 'child-parent-3067', type: 'child-parent' },
+                { source: 'material-2022', target: 'child-parent-3067', type: 'child-parent' },
+                // ファージの子どもたち
+                { source: 'ruby-crystal', target: 'child-parent-3044', type: 'child-parent' },
+                { source: 'material-1036', target: 'child-parent-3044', type: 'child-parent' },
+                // クリスタラインブレーサーの子どもたち
+                { source: 'ruby-crystal', target: 'material-3801', type: 'child-parent' },
+                { source: 'material-1006', target: 'material-3801', type: 'child-parent' },
+                // ウォーデンメイルの子どもたち
+                { source: 'material-1029-1', target: 'material-3082', type: 'child-parent' },
+                { source: 'material-1029-2', target: 'material-3082', type: 'child-parent' }
+            ];
+            
+            // SVG作成
+            const svg = d3.select('#giants-belt-d3-graph')
+                .append('svg')
+                .attr('viewBox', [0, 0, width, height]);
+            
+            // ズーム機能
+            const g = svg.append('g');
+            
+            svg.call(d3.zoom()
+                .extent([[0, 0], [width, height]])
+                .scaleExtent([0.5, 3])
+                .on('zoom', (event) => {
+                    g.attr('transform', event.transform);
+                }));
+            
+            // フォースシミュレーション
+            const simulation = d3.forceSimulation(nodes)
+                .force('link', d3.forceLink(links).id(d => d.id).distance(100))
+                .force('charge', d3.forceManyBody().strength(-300))
+                .force('center', d3.forceCenter(width / 2, height / 2))
+                .force('collision', d3.forceCollide().radius(40));
+            
+            // エッジ描画（無向グラフ）
+            const link = g.append('g')
+                .selectAll('line')
+                .data(links)
+                .join('line')
+                .attr('class', d => `link ${d.type}`);
+            
+            // ノード描画
+            const node = g.append('g')
+                .selectAll('.node')
+                .data(nodes)
+                .join('g')
+                .attr('class', 'node');
+            
+            // アイテム関係性でサイズ決定
+            const getNodeRadius = (id) => {
+                // 素材アイテム（子がいない）- 小サイズ
+                if (['ruby-crystal', 'material-1052', 'material-2022', 'material-1006', 'material-1036', 'material-1029-1', 'material-1029-2', 'material-1026'].includes(id)) return 15;
+                // レジェンダリーアイテム（親がいない）- 大サイズ
+                if (['parent-3116', 'parent-3143', 'parent-3084', 'parent-3083'].includes(id)) return 25;
+                // 中間アイテム（親も子もいる）- 中サイズ（デフォルト）
+                return 20;
+            };
+            
+            // アイテム関係性で色決定
+            const getNodeColor = (id) => {
+                // 素材アイテム（子がいない）- 緑系
+                if (['ruby-crystal', 'material-1052', 'material-2022', 'material-1006', 'material-1036', 'material-1029-1', 'material-1029-2', 'material-1026'].includes(id)) return { fill: '#d4edda', stroke: '#28a745' };
+                // レジェンダリーアイテム（親がいない）- 金系
+                if (['parent-3116', 'parent-3143', 'parent-3084', 'parent-3083'].includes(id)) return { fill: '#fff3cd', stroke: '#ffc107' };
+                // 中間アイテム（親も子もいる）- 青系（デフォルト）
+                return { fill: '#cce7ff', stroke: '#007bff' };
+            };
+            
+            // ノードの画像（丸型フレーム付き）
+            node.append('circle')
+                .attr('r', d => getNodeRadius(d.id))
+                .attr('fill', 'none')
+                .attr('stroke', d => getNodeColor(d.id).stroke)
+                .attr('stroke-width', d => {
+                    // レジェンダリーアイテムは太いボーダー
+                    if (['parent-3116', 'parent-3143', 'parent-3084', 'parent-3083'].includes(d.id)) return 4;
+                    return 3;
+                });
+            
+            // アイテム画像
+            node.append('image')
+                .attr('href', d => `https://ddragon.leagueoflegends.com/cdn/{{ patch_version }}/img/item/${d.itemId}.png`)
+                .attr('width', d => getNodeRadius(d.id) * 2)
+                .attr('height', d => getNodeRadius(d.id) * 2)
+                .attr('x', d => -getNodeRadius(d.id))
+                .attr('y', d => -getNodeRadius(d.id))
+                .style('clip-path', d => `circle(${getNodeRadius(d.id) - 2}px)`);
+            
+            // ノードのテキスト（画像の下に表示）
+            node.append('text')
+                .text(d => d.label.replace(/\\n/g, ' '))
+                .attr('dy', d => getNodeRadius(d.id) + 12) // 画像の下に表示
+                .attr('font-size', d => {
+                    // 素材アイテム（子がいない）
+                    if (['ruby-crystal', 'material-1052', 'material-2022', 'material-1006', 'material-1036', 'material-1029-1', 'material-1029-2', 'material-1026'].includes(d.id)) return '9px';
+                    // レジェンダリーアイテム（親がいない）
+                    if (['parent-3116', 'parent-3143', 'parent-3084', 'parent-3083'].includes(d.id)) return '11px';
+                    // 中間アイテム（親も子もいる）
+                    return '10px';
+                })
+                .attr('font-weight', d => {
+                    // レジェンダリーアイテムは太字
+                    if (['parent-3116', 'parent-3143', 'parent-3084', 'parent-3083'].includes(d.id)) return 'bold';
+                    return 'normal';
+                })
+                .attr('text-anchor', 'middle')
+                .attr('fill', '#333')
+                .attr('stroke', '#fff')
+                .attr('stroke-width', '1px')
+                .attr('paint-order', 'stroke')
+                .style('background', 'rgba(255, 255, 255, 0.8)')
+                .style('padding', '2px')
+                .style('border-radius', '3px');
+            
+            // ドラッグ機能
+            node.call(d3.drag()
+                .on('start', dragstarted)
+                .on('drag', dragged)
+                .on('end', dragended));
+            
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+            
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+            
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+            
+            // シミュレーション更新
+            simulation.on('tick', () => {
+                link
+                    .attr('x1', d => d.source.x)
+                    .attr('y1', d => d.source.y)
+                    .attr('x2', d => d.target.x)
+                    .attr('y2', d => d.target.y);
+                
+                node
+                    .attr('transform', d => `translate(${d.x},${d.y})`);
+            });
+        });
+    </script>
+</body>
+<footer>
+    <p>&copy; 2024 LoL Item Quiz. All rights reserved.</p>
+</footer>
+</html>

@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>出題アルゴリズム解説 - League of Legends Item Quiz</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .algorithm-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .algorithm-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .algorithm-header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .algorithm-header p {
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+        .step-container {
+            margin: 30px 0;
+        }
+        .step-card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            position: relative;
+        }
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: #007bff;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .step-title {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .step-description {
+            color: #6c757d;
+            line-height: 1.6;
+        }
+        .example-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title {
+            color: #1976d2;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .item-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .item-tag {
+            background: #007bff;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .correct-answer {
+            background: #28a745;
+        }
+        .algorithm-flow {
+            background: #f1f3f4;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .flow-arrow {
+            text-align: center;
+            color: #007bff;
+            font-size: 24px;
+            margin: 10px 0;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .feature-card {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        .feature-title {
+            color: #2c3e50;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .feature-description {
+            color: #6c757d;
+            line-height: 1.5;
+        }
+        .back-links {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .back-link {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin: 0 10px;
+            transition: background 0.3s;
+        }
+        .back-link:hover {
+            background: #0056b3;
+        }
+        .back-link.secondary {
+            background: #6c757d;
+        }
+        .back-link.secondary:hover {
+            background: #5a6268;
+        }
+        .graph-container {
+            width: 100%;
+            min-height: 400px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            background: white;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .graph-legend {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            border-radius: 50%;
+            border: 2px solid #333;
+        }
+        .node-text {
+            font-size: 12px;
+            font-weight: bold;
+            text-anchor: middle;
+            fill: white;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="algorithm-container">
+        <div class="algorithm-header">
+            <h1>🎯 出題アルゴリズム解説</h1>
+            <p>League of Legends Item Quiz の出題システムがどのように動作するかを詳しく解説します</p>
+        </div>
+
+        <div class="step-container">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <div class="step-title">アイテムデータの取得</div>
+                <div class="step-description">
+                    Riot Games公式API（Data Dragon）からパッチ{{ patch_version }}のアイテムデータを取得します。
+                    このデータには全アイテムの情報（名前、価格、画像、素材など）が含まれています。
+                </div>
+                <div class="example-box">
+                    <div class="example-title">データ取得URL</div>
+                    <code>https://ddragon.leagueoflegends.com/cdn/{{ patch_version }}/data/ja_JP/item.json</code>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <div class="step-title">出題対象アイテムの選定</div>
+                <div class="step-description">
+                    全アイテムの中から出題に適したアイテムを選定します。除外されるアイテムは以下の通りです：
+                    <ul>
+                        <li>オーンの特殊アイテム（requiredAlly == 'Ornn'）</li>
+                        <li>消費アイテム（ポーション類）</li>
+                        <li>ワード・トリンケット類</li>
+                        <li>ブーツ類（移動速度アイテム）</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <div class="step-title">出題アイテムのランダム選択</div>
+                <div class="step-description">
+                    選定されたアイテムの中から、ランダムに1つのアイテムを選択します。
+                    このアイテムが問題の正解となります。
+                </div>
+                <div class="example-box">
+                    <div class="example-title">選択例</div>
+                    <div class="item-list">
+                        <span class="item-tag correct-answer">インフィニティエッジ</span>
+                        <span class="item-tag">（正解アイテム）</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">4</div>
+                <div class="step-title">アイテムツリーの構築</div>
+                <div class="step-description">
+                    選択されたアイテムから、そのアイテムを作成するために必要な全ての素材アイテムを探索し、
+                    アイテムツリーを構築します。これには直接の素材だけでなく、
+                    素材の素材（間接的な素材）も全て含まれます。
+                </div>
+                <div class="example-box">
+                    <div class="example-title">マリグナンスの場合</div>
+                    <div class="item-list">
+                        <span class="item-tag">ロスト チャプター</span>
+                        <span class="item-tag">ブラスティング ワンド</span>
+                        <span class="item-tag">増魔の書</span>
+                        <span class="item-tag">サファイア クリスタル</span>
+                        <span class="item-tag">輝きのモート</span>
+                    </div>
+                </div>
+                <div class="graph-container" id="material-tree-graph">
+                    <div class="graph-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #9c27b0;"></div>
+                            <span>出題アイテム</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #4caf50;"></div>
+                            <span>直接素材</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #2196f3;"></div>
+                            <span>間接素材</span>
+                        </div>
+                    </div>
+                    <div style="position: absolute; bottom: 10px; left: 10px; font-size: 12px; color: #666; background: rgba(255,255,255,0.9); padding: 5px; border-radius: 3px;">
+                        ドラッグで移動 | マウスホイールで拡大縮小
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">5</div>
+                <div class="step-title">関連アイテム群の取得</div>
+                <div class="step-description">
+                    選択されたアイテムの「関連アイテム群」を取得します。これは、そのアイテムと何らかの関係性を持つアイテムの集合で、
+                    巧妙なひっかけ選択肢を生成するために使用されます。具体的には以下の関係を持つアイテムが含まれます：
+                    <ul>
+                        <li><strong>姉妹アイテム</strong>: 同じ素材から作られる他のアイテム</li>
+                        <li><strong>類似カテゴリ</strong>: 同じ効果系統（AP、マナなど）のアイテム</li>
+                        <li><strong>間接的関連</strong>: 素材を部分的に共有するアイテム</li>
+                        <li><strong>2段階関係</strong>: 関連アイテムの関連アイテム</li>
+                    </ul>
+                </div>
+                <div class="example-box">
+                    <div class="example-title">マリグナンスの関連アイテム群の例</div>
+                    <div style="margin: 10px 0;">
+                        <strong>📍 正解の素材アイテム</strong><br>
+                        <div class="item-list">
+                            <span class="item-tag correct-answer">ロスト チャプター</span>
+                            <span class="item-tag correct-answer">ブラスティング ワンド</span>
+                            <span class="item-tag correct-answer">増魔の書</span>
+                            <span class="item-tag correct-answer">サファイア クリスタル</span>
+                            <span class="item-tag correct-answer">輝きのモート</span>
+                        </div>
+                    </div>
+                    <div style="margin: 10px 0;">
+                        <strong>📍 姉妹アイテム（ひっかけ候補）</strong><br>
+                        <div class="item-list">
+                            <span class="item-tag">エバーフロスト</span>
+                            <span class="item-tag">（ロスト チャプター使用）</span>
+                            <span class="item-tag">ナッシャー トゥース</span>
+                            <span class="item-tag">（ブラスティング ワンド使用）</span>
+                            <span class="item-tag">リーライ クリスタル セプター</span>
+                            <span class="item-tag">（ブラスティング ワンド使用）</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="graph-container" id="extended-family-graph">
+                    <div class="graph-legend" style="font-size: 10px; padding: 6px; width: 200px;">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #9c27b0;"></div>
+                            <span>Lv0: マリグナンス</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #4caf50;"></div>
+                            <span>Lv1: 直接素材</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #2196f3;"></div>
+                            <span>Lv2: 基本素材</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #ff5722;"></div>
+                            <span>Lv2: 合成先アイテム</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #ffc107;"></div>
+                            <span>Lv3: 追加関係</span>
+                        </div>
+                        <div style="margin-top: 6px; padding-top: 4px; border-top: 1px solid #ddd;">
+                            <div style="font-size: 9px; color: #666;">
+                                一様デザイン | グレー実線
+                            </div>
+                        </div>
+                        <div style="margin-top: 4px;">
+                            <div style="font-size: 9px; color: #666;">
+                                総ノード: 46個 | 総リンク: 62個 | 深さ3レベル完全網羅
+                            </div>
+                        </div>
+                    </div>
+                    <div style="position: absolute; bottom: 10px; left: 10px; font-size: 12px; color: #666; background: rgba(255,255,255,0.9); padding: 5px; border-radius: 3px;">
+                        ドラッグで移動 | マウスホイールで拡大縮小
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">6</div>
+                <div class="step-title">選択肢の生成</div>
+                <div class="step-description">
+                    拡張ファミリーから正解の素材アイテムを除外し、残ったアイテムの中から最大10個をランダムに選択します。
+                    これにより、以下のような効果的なひっかけ選択肢が生成されます：
+                    <ul>
+                        <li><strong>関連性のあるひっかけ</strong>: 完全に無関係ではなく、何らかの関係性を持つアイテム</li>
+                        <li><strong>学習効果</strong>: アイテム間の関係性を深く理解する必要がある</li>
+                        <li><strong>適切な難易度</strong>: 知識があれば解けるが、曖昧な理解では間違える</li>
+                    </ul>
+                </div>
+                <div class="example-box">
+                    <div class="example-title">なぜこの方法が効果的なのか</div>
+                    <div style="margin: 10px 0;">
+                        <strong>❌ 悪い例</strong>: 完全に無関係なアイテム（例：ポーション類）<br>
+                        <strong>✅ 良い例</strong>: 関連性があるが正解ではないアイテム（例：同じ素材を使う別のアイテム）
+                    </div>
+                    <div style="margin: 10px 0;">
+                        これにより、プレイヤーは「なんとなく関係がありそう」なアイテムに惑わされず、
+                        正確な素材関係を理解する必要があります。
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">7</div>
+                <div class="step-title">正解判定</div>
+                <div class="step-description">
+                    ユーザーが選択したアイテムが、構築されたアイテムツリーに含まれる素材アイテムと
+                    完全に一致するかどうかを判定します。部分的な正解は認められません。
+                </div>
+            </div>
+        </div>
+
+        <div class="algorithm-flow">
+            <h3 style="text-align: center; margin-bottom: 20px;">🔄 アルゴリズムの流れ</h3>
+            <div style="text-align: center;">
+                <div>アイテムデータ取得</div>
+                <div class="flow-arrow">↓</div>
+                <div>出題対象フィルタリング</div>
+                <div class="flow-arrow">↓</div>
+                <div>ランダム選択</div>
+                <div class="flow-arrow">↓</div>
+                <div>アイテムツリー構築</div>
+                <div class="flow-arrow">↓</div>
+                <div>拡張ファミリー取得</div>
+                <div class="flow-arrow">↓</div>
+                <div>選択肢生成</div>
+                <div class="flow-arrow">↓</div>
+                <div>正解判定</div>
+            </div>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🎲</div>
+                <div class="feature-title">ランダム性</div>
+                <div class="feature-description">
+                    毎回異なるアイテムが出題されるため、
+                    繰り返し学習が可能です。
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <div class="feature-title">完全性</div>
+                <div class="feature-description">
+                    直接・間接を問わず、すべての素材アイテムが
+                    正解に含まれます。
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <div class="feature-title">公平性</div>
+                <div class="feature-description">
+                    公式APIデータを使用し、
+                    常に最新パッチの情報で出題されます。
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <div class="feature-title">効率性</div>
+                <div class="feature-description">
+                    高速なアルゴリズムにより、
+                    即座に問題が生成されます。
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <div class="feature-title">教育的効果</div>
+                <div class="feature-description">
+                    巧妙なひっかけ選択肢により、
+                    深い理解と正確な知識が身につきます。
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚖️</div>
+                <div class="feature-title">難易度バランス</div>
+                <div class="feature-description">
+                    適切な難易度調整により、
+                    挑戦的だが公平な問題を提供します。
+                </div>
+            </div>
+        </div>
+
+        <div class="back-links">
+            <a href="/" class="back-link">メインページに戻る</a>
+            <a href="/quiz_a_full_graph" class="back-link secondary">関係性グラフを見る</a>
+        </div>
+    </div>
+
+    <script>
+        // マリグナンスの素材ツリーグラフ
+        function drawMaterialTreeGraph() {
+            const container = d3.select("#material-tree-graph");
+            const width = container.node().getBoundingClientRect().width;
+            const height = 400;
+
+            const svg = container.append("svg")
+                .attr("width", width)
+                .attr("height", height);
+
+            // ズーム機能を設定
+            const zoom = d3.zoom()
+                .scaleExtent([0.3, 3])
+                .on("zoom", (event) => {
+                    g.attr("transform", event.transform);
+                });
+
+            svg.call(zoom);
+
+            // グラフ要素を含むグループ
+            const g = svg.append("g");
+
+            // データ定義（マリグナンスの素材ツリー）
+            const nodes = [
+                { id: "malignance", name: "マリグナンス", itemId: "3118", level: 0, color: "#9c27b0" },
+                { id: "lost_chapter", name: "ロスト チャプター", itemId: "3802", level: 1, color: "#4caf50" },
+                { id: "blasting_wand", name: "ブラスティング ワンド", itemId: "1026", level: 1, color: "#4caf50" },
+                { id: "amp_tome", name: "増魔の書", itemId: "1052", level: 2, color: "#2196f3" },
+                { id: "sapphire_crystal", name: "サファイア クリスタル", itemId: "1027", level: 2, color: "#2196f3" },
+                { id: "glowing_mote", name: "輝きのモート", itemId: "2022", level: 2, color: "#2196f3" }
+            ];
+
+            const links = [
+                { source: "malignance", target: "lost_chapter" },
+                { source: "malignance", target: "blasting_wand" },
+                { source: "lost_chapter", target: "amp_tome" },
+                { source: "lost_chapter", target: "sapphire_crystal" },
+                { source: "lost_chapter", target: "glowing_mote" }
+            ];
+
+            // シミュレーション設定
+            const simulation = d3.forceSimulation(nodes)
+                .force("link", d3.forceLink(links).id(d => d.id).distance(100))
+                .force("charge", d3.forceManyBody().strength(-300))
+                .force("center", d3.forceCenter(width / 2, height / 2));
+
+            // リンクの描画
+            const link = g.append("g")
+                .selectAll("line")
+                .data(links)
+                .enter().append("line")
+                .attr("stroke", "#999")
+                .attr("stroke-width", 2);
+
+            // ノードの描画
+            const node = g.append("g")
+                .selectAll("g")
+                .data(nodes)
+                .enter().append("g")
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended));
+
+            // 画像用のクリップパスを定義
+            const defs = g.append("defs");
+            nodes.forEach((d, i) => {
+                defs.append("clipPath")
+                    .attr("id", `clip-${d.id}`)
+                    .append("circle")
+                    .attr("r", 30);
+            });
+
+            // 背景の円
+            node.append("circle")
+                .attr("r", 30)
+                .attr("fill", d => d.color)
+                .attr("stroke", "#333")
+                .attr("stroke-width", 3);
+
+            // アイテム画像
+            node.append("image")
+                .attr("xlink:href", d => `https://ddragon.leagueoflegends.com/cdn/{{ patch_version }}/img/item/${d.itemId}.png`)
+                .attr("width", 48)
+                .attr("height", 48)
+                .attr("x", -24)
+                .attr("y", -24)
+                .attr("clip-path", d => `url(#clip-${d.id})`)
+                .append("title")
+                .text(d => d.name);
+
+            // シミュレーションの更新
+            simulation.on("tick", () => {
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
+                node
+                    .attr("transform", d => `translate(${d.x},${d.y})`);
+            });
+
+            // ドラッグ機能
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+        }
+
+        // 関連アイテム群グラフ
+        function drawExtendedFamilyGraph() {
+            const container = d3.select("#extended-family-graph");
+            const width = container.node().getBoundingClientRect().width;
+            const height = width; // 正方形に設定
+
+            const svg = container.append("svg")
+                .attr("width", width)
+                .attr("height", height);
+
+            // ズーム機能を設定
+            const zoom = d3.zoom()
+                .scaleExtent([0.3, 3])
+                .on("zoom", (event) => {
+                    g.attr("transform", event.transform);
+                });
+
+            svg.call(zoom);
+
+            // グラフ要素を含むグループ
+            const g = svg.append("g");
+
+            // 深さ3ルール完全網羅データ（46ノード・ユニークID対応）
+            const nodes = [
+                { id: "3118-L0", name: "マリグナンス", itemId: "3118", level: 0, type: "target", color: "#9c27b0" },
+                { id: "1026-L1", name: "ブラスティング ワンド", itemId: "1026", level: 1, type: "direct_material", color: "#4caf50" },
+                { id: "3802-L1", name: "ロスト チャプター", itemId: "3802", level: 1, type: "direct_material", color: "#4caf50" },
+                { id: "1027-L2", name: "サファイア クリスタル", itemId: "1027", level: 2, type: "level2", color: "#ff5722" },
+                { id: "1052-L2", name: "増魔の書", itemId: "1052", level: 2, type: "level2", color: "#ff5722" },
+                { id: "2022-L2", name: "輝きのモート", itemId: "2022", level: 2, type: "level2", color: "#ff5722" },
+                { id: "2503-L2", name: "黒炎のトーチ", itemId: "2503", level: 2, type: "level2", color: "#ff5722" },
+                { id: "3003-L2", name: "アークエンジェル スタッフ", itemId: "3003", level: 2, type: "level2", color: "#ff5722" },
+                { id: "3100-L2", name: "リッチ ベイン", itemId: "3100", level: 2, type: "level2", color: "#ff5722" },
+                { id: "3115-L2", name: "ナッシャー トゥース", itemId: "3115", level: 2, type: "level2", color: "#ff5722" },
+                { id: "3116-L2", name: "リーライ クリスタル セプター", itemId: "3116", level: 2, type: "level2", color: "#ff5722" },
+                { id: "3118-L2", name: "マリグナンス", itemId: "3118", level: 2, type: "level2", color: "#ff5722" },
+                { id: "3135-L2", name: "ヴォイド スタッフ", itemId: "3135", level: 2, type: "level2", color: "#ff5722" },
+                { id: "3165-L2", name: "モレロノミコン", itemId: "3165", level: 2, type: "level2", color: "#ff5722" },
+                { id: "4628-L2", name: "ホライゾン フォーカス", itemId: "4628", level: 2, type: "level2", color: "#ff5722" },
+                { id: "6621-L2", name: "ドーンコア", itemId: "6621", level: 2, type: "level2", color: "#ff5722" },
+                { id: "6655-L2", name: "ルーデン コンパニオン", itemId: "6655", level: 2, type: "level2", color: "#ff5722" },
+                { id: "6657-L2", name: "ロッド オブ エイジス", itemId: "6657", level: 2, type: "level2", color: "#ff5722" },
+                { id: "1011-L3", name: "ジャイアント ベルト", itemId: "1011", level: 3, type: "level3", color: "#ffc107" },
+                { id: "1026-L3", name: "ブラスティング ワンド", itemId: "1026", level: 3, type: "level3", color: "#ffc107" },
+                { id: "1043-L3", name: "リカーブ ボウ", itemId: "1043", level: 3, type: "level3", color: "#ffc107" },
+                { id: "1052-L3", name: "増魔の書", itemId: "1052", level: 3, type: "level3", color: "#ffc107" },
+                { id: "2020-L3", name: "ブルータライザー", itemId: "2020", level: 3, type: "level3", color: "#ffc107" },
+                { id: "2420-L3", name: "シーカー アームガード", itemId: "2420", level: 3, type: "level3", color: "#ffc107" },
+                { id: "2421-L3", name: "砕けたアームガード", itemId: "2421", level: 3, type: "level3", color: "#ffc107" },
+                { id: "2508-L3", name: "運命の灰", itemId: "2508", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3024-L3", name: "グレイシャル バックラー", itemId: "3024", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3057-L3", name: "シーン", itemId: "3057", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3067-L3", name: "キンドルジェム", itemId: "3067", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3070-L3", name: "女神の涙", itemId: "3070", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3108-L3", name: "フィンディッシュの古書", itemId: "3108", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3113-L3", name: "エーテル ウィスプ", itemId: "3113", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3114-L3", name: "フォビドゥン アイドル", itemId: "3114", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3116-L3", name: "リーライ クリスタル セプター", itemId: "3116", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3124-L3", name: "グインソー レイジブレード", itemId: "3124", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3133-L3", name: "コールフィールド ウォーハンマー", itemId: "3133", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3145-L3", name: "ヘクステック オルタネーター", itemId: "3145", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3147-L3", name: "悲愴な仮面", itemId: "3147", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3802-L3", name: "ロスト チャプター", itemId: "3802", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3803-L3", name: "久遠のカタリスト", itemId: "3803", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3916-L3", name: "忘却のオーブ", itemId: "3916", level: 3, type: "level3", color: "#ffc107" },
+                { id: "4630-L3", name: "枯死の宝石", itemId: "4630", level: 3, type: "level3", color: "#ffc107" },
+                { id: "4632-L3", name: "ヴァーダント バリア", itemId: "4632", level: 3, type: "level3", color: "#ffc107" },
+                { id: "4635-L3", name: "リーチング リア", itemId: "4635", level: 3, type: "level3", color: "#ffc107" },
+                { id: "4642-L3", name: "バンドルグラスの鏡", itemId: "4642", level: 3, type: "level3", color: "#ffc107" },
+                { id: "6660-L3", name: "バミ シンダー", itemId: "6660", level: 3, type: "level3", color: "#ffc107" }
+            ];
+
+            // 一様デザインのリンク（62個・ユニークID対応）
+            const links = [
+                { source: "1052-L2", target: "3124-L3", type: "relation" },
+                { source: "1043-L3", target: "3124-L3", type: "relation" },
+                { source: "1052-L2", target: "2421-L3", type: "relation" },
+                { source: "1052-L2", target: "2421-L3", type: "relation" },
+                { source: "4630-L3", target: "3135-L2", type: "relation" },
+                { source: "1026-L1", target: "3135-L2", type: "relation" },
+                { source: "1052-L2", target: "4642-L3", type: "relation" },
+                { source: "2022-L2", target: "4642-L3", type: "relation" },
+                { source: "1052-L2", target: "3108-L3", type: "relation" },
+                { source: "2022-L2", target: "3108-L3", type: "relation" },
+                { source: "1026-L1", target: "3116-L2", type: "relation" },
+                { source: "1011-L3", target: "3116-L2", type: "relation" },
+                { source: "1052-L2", target: "3116-L2", type: "relation" },
+                { source: "3802-L1", target: "3118-L0", type: "relation" },
+                { source: "1026-L1", target: "3118-L0", type: "relation" },
+                { source: "1052-L2", target: "2420-L3", type: "relation" },
+                { source: "1052-L2", target: "2420-L3", type: "relation" },
+                { source: "3802-L1", target: "2503-L2", type: "relation" },
+                { source: "2508-L3", target: "2503-L2", type: "relation" },
+                { source: "1052-L2", target: "3113-L3", type: "relation" },
+                { source: "3070-L3", target: "3003-L2", type: "relation" },
+                { source: "3802-L1", target: "3003-L2", type: "relation" },
+                { source: "3108-L3", target: "3003-L2", type: "relation" },
+                { source: "1052-L2", target: "3916-L3", type: "relation" },
+                { source: "2022-L2", target: "6660-L3", type: "relation" },
+                { source: "3802-L1", target: "6655-L2", type: "relation" },
+                { source: "3145-L3", target: "6655-L2", type: "relation" },
+                { source: "2022-L2", target: "3067-L3", type: "relation" },
+                { source: "2022-L2", target: "3133-L3", type: "relation" },
+                { source: "3108-L3", target: "4628-L2", type: "relation" },
+                { source: "3108-L3", target: "4628-L2", type: "relation" },
+                { source: "1026-L1", target: "4628-L2", type: "relation" },
+                { source: "1052-L2", target: "4632-L3", type: "relation" },
+                { source: "1052-L2", target: "4632-L3", type: "relation" },
+                { source: "1043-L3", target: "3115-L2", type: "relation" },
+                { source: "1026-L1", target: "3115-L2", type: "relation" },
+                { source: "3108-L3", target: "3115-L2", type: "relation" },
+                { source: "1026-L1", target: "6621-L2", type: "relation" },
+                { source: "3114-L3", target: "6621-L2", type: "relation" },
+                { source: "3114-L3", target: "6621-L2", type: "relation" },
+                { source: "1027-L2", target: "3024-L3", type: "relation" },
+                { source: "2022-L2", target: "3024-L3", type: "relation" },
+                { source: "1026-L1", target: "6657-L2", type: "relation" },
+                { source: "3803-L3", target: "6657-L2", type: "relation" },
+                { source: "1052-L2", target: "4630-L3", type: "relation" },
+                { source: "3057-L3", target: "3100-L2", type: "relation" },
+                { source: "3113-L3", target: "3100-L2", type: "relation" },
+                { source: "1026-L1", target: "3100-L2", type: "relation" },
+                { source: "1052-L2", target: "4635-L3", type: "relation" },
+                { source: "1052-L2", target: "3802-L1", type: "relation" },
+                { source: "1027-L2", target: "3802-L1", type: "relation" },
+                { source: "2022-L2", target: "3802-L1", type: "relation" },
+                { source: "2022-L2", target: "3057-L3", type: "relation" },
+                { source: "2022-L2", target: "2020-L3", type: "relation" },
+                { source: "1052-L2", target: "3145-L3", type: "relation" },
+                { source: "1052-L2", target: "3145-L3", type: "relation" },
+                { source: "1027-L2", target: "3803-L3", type: "relation" },
+                { source: "1052-L2", target: "3147-L3", type: "relation" },
+                { source: "1052-L2", target: "2508-L3", type: "relation" },
+                { source: "3916-L3", target: "3165-L2", type: "relation" },
+                { source: "1026-L1", target: "3165-L2", type: "relation" },
+                { source: "3067-L3", target: "3165-L2", type: "relation" }
+            ];
+
+            // シミュレーション設定（46ノード用に最適化）
+            const simulation = d3.forceSimulation(nodes)
+                .force("link", d3.forceLink(links).id(d => d.id).distance(100))
+                .force("charge", d3.forceManyBody().strength(-250))
+                .force("center", d3.forceCenter(width / 2, height / 2))
+                .force("collision", d3.forceCollide().radius(35));
+
+            // リンクの描画（一様デザイン）
+            const link = g.append("g")
+                .selectAll("line")
+                .data(links)
+                .enter().append("line")
+                .attr("stroke", "#999")
+                .attr("stroke-width", 2)
+                .attr("stroke-dasharray", "none")
+                .attr("opacity", 0.8);
+
+            // ノードの描画
+            const node = g.append("g")
+                .selectAll("g")
+                .data(nodes)
+                .enter().append("g")
+                .call(d3.drag()
+                    .on("start", dragstarted2)
+                    .on("drag", dragged2)
+                    .on("end", dragended2));
+
+            // 画像用のクリップパスを定義（レベル別サイズ対応）
+            const defs2 = g.append("defs");
+            nodes.forEach((d, i) => {
+                const radius = d.level === 0 ? 40 : d.level === 1 ? 35 : d.level === 2 ? 30 : 25;
+                defs2.append("clipPath")
+                    .attr("id", `clip-ext-${d.id}`)
+                    .append("circle")
+                    .attr("r", radius);
+            });
+
+            // 背景の円（レベル別サイズ調整）
+            node.append("circle")
+                .attr("r", d => {
+                    switch(d.level) {
+                        case 0: return 40; // Root
+                        case 1: return 35; // 直接素材
+                        case 2: return 30; // 2次関係
+                        case 3: return 25; // 3次関係
+                        default: return 25;
+                    }
+                })
+                .attr("fill", d => d.color)
+                .attr("stroke", "#333")
+                .attr("stroke-width", d => d.level === 0 ? 4 : 2);
+
+            // アイテム画像（レベル別サイズ調整）
+            node.append("image")
+                .attr("xlink:href", d => `https://ddragon.leagueoflegends.com/cdn/{{ patch_version }}/img/item/${d.itemId}.png`)
+                .attr("width", d => {
+                    switch(d.level) {
+                        case 0: return 64; // Root
+                        case 1: return 56; // 直接素材
+                        case 2: return 48; // 2次関係
+                        case 3: return 40; // 3次関係
+                        default: return 40;
+                    }
+                })
+                .attr("height", d => {
+                    switch(d.level) {
+                        case 0: return 64;
+                        case 1: return 56;
+                        case 2: return 48;
+                        case 3: return 40;
+                        default: return 40;
+                    }
+                })
+                .attr("x", d => {
+                    switch(d.level) {
+                        case 0: return -32;
+                        case 1: return -28;
+                        case 2: return -24;
+                        case 3: return -20;
+                        default: return -20;
+                    }
+                })
+                .attr("y", d => {
+                    switch(d.level) {
+                        case 0: return -32;
+                        case 1: return -28;
+                        case 2: return -24;
+                        case 3: return -20;
+                        default: return -20;
+                    }
+                })
+                .attr("clip-path", d => `url(#clip-ext-${d.id})`)
+                .append("title")
+                .text(d => `${d.name} (Level ${d.level})`);
+
+            // シミュレーションの更新
+            simulation.on("tick", () => {
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
+                node
+                    .attr("transform", d => `translate(${d.x},${d.y})`);
+            });
+
+            // ドラッグ機能（関連アイテム群グラフ用）
+            function dragstarted2(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+
+            function dragged2(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+
+            function dragended2(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+        }
+
+        // ページ読み込み時にグラフを描画
+        window.addEventListener("DOMContentLoaded", () => {
+            drawMaterialTreeGraph();
+            drawExtendedFamilyGraph();
+        });
+    </script>
+</body>
+</html>

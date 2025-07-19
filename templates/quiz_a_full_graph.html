@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .full-graph-container {
             max-width: 1400px;
@@ -422,13 +423,14 @@
         
         <div class="filter-controls">
             <label for="radius-function">半径関数:</label>
-            <select id="radius-function">
+            <select id="radius-function" onchange="if(radiusChart){radiusChart.destroy();radiusChart=null;createRadiusChart();}updateRadiusFunction();">
                 <option value="logarithmic">対数関数</option>
                 <option value="exponential">指数関数</option>
                 <option value="linear">線形関数</option>
                 <option value="sqrt">ルート関数</option>
             </select>
             <button onclick="updateRadiusFunction()">グラフ更新</button>
+            <button onclick="toggleRadiusChart()" id="chart-toggle-btn">関数グラフを表示</button>
             
             <div class="radius-controls">
                 <label for="node-radius-multiplier">ノード半径:</label>
@@ -456,6 +458,17 @@
         
         <div class="loading" id="loading">グラフデータを読み込み中...</div>
         
+        <!-- 半径関数グラフ -->
+        <div id="radius-chart-container" style="display: none; margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
+            <h4 style="text-align: center; margin-bottom: 20px;">半径関数の比較グラフ</h4>
+            <div style="position: relative; height: 400px; width: 100%;">
+                <canvas id="radius-chart"></canvas>
+            </div>
+            <div style="margin-top: 15px; text-align: center; color: #666;">
+                <small>横軸: アイテム価格（G）　縦軸: ノード半径（px）</small>
+            </div>
+        </div>
+        
         <div id="d3-full-graph" class="d3-full-graph uniform-edge-layout" style="display: none; position: relative;">
             <div id="info-panel" class="info-panel">
                 <h3 id="panel-title">アイテムを選択してください</h3>
@@ -467,21 +480,87 @@
         </div>
         
         <div style="margin-top: 30px;">
-            <h3>辺の長さ均等化モード</h3>
+            <h3>🎨 ノードの色分けについて</h3>
             <ul>
-                <li><strong>均等な辺の長さ</strong>: 全ての辺が80pxの同じ長さになるように配置</li>
+                <li><strong>AD（物理攻撃）</strong>: 赤色系 - 攻撃力（AD）を重視するアイテム</li>
+                <li><strong>AP（魔法攻撃）</strong>: 青色系 - 魔法攻撃力（AP）を重視するアイテム</li>
+                <li><strong>ハイブリッド</strong>: 紫色系 - AD・AP両方を持つアイテム</li>
+                <li><strong>物理防御タンク</strong>: 黄色系 - 物理防御（アーマー）を重視するアイテム</li>
+                <li><strong>魔法防御タンク</strong>: 橙色系 - 魔法防御（MR）を重視するアイテム</li>
+                <li><strong>サポート</strong>: 水色系 - ライフスティール、マナ回復を重視するアイテム</li>
+                <li><strong>ユーティリティ</strong>: 緑色系 - 移動速度やその他のユーティリティ効果</li>
+            </ul>
+            
+            <h3>📏 ノードの大きさについて</h3>
+            <ul>
+                <li><strong>基本ルール</strong>: アイテムの価格に応じて大きさが決まります</li>
+                <li><strong>半径関数</strong>: 4つの関数から選択可能で、価格と大きさの関係を調整できます</li>
+                <ul>
+                    <li><strong>対数関数</strong>: 高価格アイテム同士の差を小さく（推奨）</li>
+                    <li><strong>指数関数</strong>: 高価格アイテムをより強調</li>
+                    <li><strong>線形関数</strong>: 価格に比例して大きさが増加</li>
+                    <li><strong>ルート関数</strong>: 低価格アイテムの差を大きく</li>
+                </ul>
+                <li><strong>調整スライダー</strong>: ノード半径倍率（0.5x～3.0x）で手動調整可能</li>
+            </ul>
+            
+            <h3>🎯 ノードの外枠色について</h3>
+            <ul>
+                <li><strong>赤色（濃い赤）</strong>: 選択されたノード - 詳細情報を表示中</li>
+                <li><strong>オレンジ色</strong>: 直接関連ノード - 選択ノードから1つ先のアイテム</li>
+                <li><strong>青色</strong>: 間接関連ノード - 選択ノードから2つ先のアイテム</li>
+                <li><strong>黒色</strong>: 通常状態 - 選択されていないノード</li>
+            </ul>
+            
+            <h3>🌈 ヒートマップ機能</h3>
+            <ul>
+                <li><strong>重なり表示</strong>: 各ノードの周囲に色付きの円を表示</li>
+                <li><strong>透明度調整</strong>: 10%～60%の範囲で調整可能</li>
+                <li><strong>半径調整</strong>: ヒートマップ半径倍率（0.5x～5.0x）で調整可能</li>
+                <li><strong>重なり効果</strong>: 複数のヒートマップが重なると色が混合されます</li>
+                <li><strong>グラデーション</strong>: 中心から外側に向かって透明度が変化</li>
+            </ul>
+            
+            <h3>🖱️ マウス操作について</h3>
+            <ul>
+                <li><strong>ノード選択</strong>: アイテムにマウスを乗せると詳細情報が表示されます</li>
+                <li><strong>関係性表示</strong>: 選択したアイテムから派生する関係を色分けで表示</li>
+                <li><strong>ノードドラッグ</strong>: アイテムをクリックして引っ張ることで位置を調整できます</li>
+                <li><strong>グラフ全体の移動</strong>: 空いている場所をドラッグしてグラフ全体を移動</li>
+                <li><strong>拡大・縮小</strong>: マウスホイールでズームイン・ズームアウト</li>
+            </ul>
+            
+            <h3>⚙️ 辺の長さ均等化モード</h3>
+            <ul>
+                <li><strong>均等な辺の長さ</strong>: 全ての辺が同じ長さになるように配置</li>
                 <li><strong>幾何学的な美しさ</strong>: 規則正しいパターンで視覚的に美しいグラフ</li>
                 <li><strong>重なり許容</strong>: ノードの重なりを許可し、構造を優先</li>
                 <li><strong>自然な配置</strong>: 15秒間の物理シミュレーションで自然に収束</li>
+                <li><strong>エッジの色</strong>: 視認性を重視し、黒色で統一（白いドロップシャドウ付き）</li>
             </ul>
             
-            <h3>使い方</h3>
+            <h3>🔍 除外されているアイテムについて</h3>
+            <ul>
+                <li><strong>除外理由</strong>: 出題範囲外のアイテムは表示されません</li>
+                <li><strong>除外されるアイテム</strong>: 
+                    <ul>
+                        <li>ブーツ類 - 移動速度アイテムは出題対象外</li>
+                        <li>ワード・トリンケット - 視界系アイテムは出題対象外</li>
+                        <li>ポーション類 - 消費アイテムは出題対象外</li>
+                        <li>神話級アイテム - 現在のパッチでは対象外</li>
+                        <li>一部のサポートアイテム - 専用アイテムは出題対象外</li>
+                    </ul>
+                </li>
+                <li><strong>対象アイテム</strong>: 主要な装備品（武器、防具、アクセサリー）のみ表示</li>
+            </ul>
+            
+            <h3>💡 使い方のコツ</h3>
             <ul>
                 <li><strong>レイアウト リセット</strong>: 新しいランダム配置で再計算</li>
                 <li><strong>価格フィルター</strong>: 指定した価格帯のアイテムのみ表示</li>
-                <li><strong>ズーム・パン</strong>: マウスホイールでズーム、ドラッグで移動</li>
-                <li><strong>ノードドラッグ</strong>: ノードをドラッグして位置調整可能</li>
-                <li><strong>深さ別ハイライト</strong>: ホバー時に関係性を色分け表示</li>
+                <li><strong>半径調整</strong>: 見やすさに応じてノード・ヒートマップの大きさを調整</li>
+                <li><strong>透明度調整</strong>: ヒートマップの透明度を調整して背景の見やすさを調整</li>
+                <li><strong>関数選択</strong>: アイテムの価格差を強調したい場合は指数関数を選択</li>
             </ul>
         </div>
         
@@ -502,6 +581,8 @@
         let heatmapLayers = {};
         let nodeRadiusMultiplier = 1.0;
         let heatmapRadiusMultiplier = 1.0;
+        let radiusChart = null;
+        let chartVisible = false;
         
         // ヒートマップ設定をグローバルに移動
         let heatmapEnabled = true;  // デフォルトでONに変更
@@ -1199,6 +1280,8 @@
             return minRadius + (maxRadius - minRadius) * scaledRatio;
         }
         
+        // プルダウン変更時の処理（削除 - 直接インラインで処理）
+        
         // 半径関数変更時の処理
         function updateRadiusFunction() {
             currentRadiusFunction = document.getElementById('radius-function').value;
@@ -1226,6 +1309,301 @@
             } else {
                 console.warn('グラフが初期化されていません');
             }
+            
+            // 関数グラフが存在する場合は常に更新（重複を避けるため削除）
+            // updateRadiusChart()は handleRadiusFunctionChange() で呼び出し済み
+        }
+        
+        // 半径関数グラフの表示/非表示を切り替え
+        function toggleRadiusChart() {
+            const container = document.getElementById('radius-chart-container');
+            const button = document.getElementById('chart-toggle-btn');
+            
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                button.textContent = '関数グラフを非表示';
+                chartVisible = true;
+                if (!radiusChart) {
+                    createRadiusChart();
+                } else {
+                    updateRadiusChart();
+                }
+            } else {
+                container.style.display = 'none';
+                button.textContent = '関数グラフを表示';
+                chartVisible = false;
+            }
+        }
+        
+        // 半径関数グラフの作成
+        function createRadiusChart() {
+            console.log('createRadiusChart() called');
+            const canvasElement = document.getElementById('radius-chart');
+            if (!canvasElement) {
+                console.error('Canvas element not found');
+                return;
+            }
+            
+            const ctx = canvasElement.getContext('2d');
+            
+            // 価格データポイント（0～5000G）
+            const pricePoints = [];
+            for (let i = 0; i <= 5000; i += 50) {
+                pricePoints.push(i);
+            }
+            
+            // 実例アイテム（価格で選択）
+            const exampleItems = [
+                { name: 'ドランブレード', price: 450, symbol: 'D', bgColor: '#ff6b6b' },
+                { name: 'ベルトリ', price: 1300, symbol: 'V', bgColor: '#4ecdc4' },
+                { name: 'インフィニティエッジ', price: 3400, symbol: 'IE', bgColor: '#45b7d1' }
+            ];
+            
+            const currentFunc = document.getElementById('radius-function').value;
+            const datasets = [];
+            
+            // 選択された関数のみ表示
+            const functionMap = {
+                'logarithmic': { name: '対数関数', color: '#FF6B6B' },
+                'exponential': { name: '指数関数', color: '#4ECDC4' },
+                'linear': { name: '線形関数', color: '#45B7D1' },
+                'sqrt': { name: 'ルート関数', color: '#96CEB4' }
+            };
+            
+            const selectedFunc = functionMap[currentFunc];
+            
+            const data = pricePoints.map(price => {
+                return {
+                    x: price,
+                    y: calculateRadius(price, currentFunc)
+                };
+            });
+            
+            datasets.push({
+                label: selectedFunc.name,
+                data: data,
+                borderColor: selectedFunc.color,
+                backgroundColor: selectedFunc.color + '20',
+                fill: false,
+                tension: 0.1,
+                pointRadius: 0,
+                pointHoverRadius: 4,
+                borderWidth: 3
+            });
+            
+            try {
+                radiusChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        datasets: datasets
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                type: 'linear',
+                                position: 'bottom',
+                                title: {
+                                    display: true,
+                                    text: 'アイテム価格（G）'
+                                },
+                                min: 0,
+                                max: 5000
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'ノード半径（px）'
+                                },
+                                min: 0,
+                                max: 60
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false  // 凡例を非表示
+                            },
+                            tooltip: {
+                                mode: 'nearest',
+                                intersect: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        return selectedFunc.name + ': ' + 
+                                               context.parsed.x + 'G → ' + 
+                                               context.parsed.y.toFixed(1) + 'px';
+                                    }
+                                }
+                            }
+                        },
+                        animation: {
+                            onComplete: function() {
+                                // アニメーション完了後にアイテム画像を描画
+                                drawItemImages(ctx, exampleItems, currentFunc);
+                            }
+                        }
+                    }
+                });
+                console.log('Chart created successfully');
+            } catch (error) {
+                console.error('Error creating chart:', error);
+            }
+        }
+        
+        // アイテム画像を描画する関数
+        function drawItemImages(ctx, items, functionType) {
+            items.forEach(item => {
+                const radius = calculateRadius(item.price, functionType);
+                
+                // グラフの座標系に変換
+                const chartArea = radiusChart.chartArea;
+                const xScale = radiusChart.scales.x;
+                const yScale = radiusChart.scales.y;
+                
+                const x = xScale.getPixelForValue(item.price);
+                const y = yScale.getPixelForValue(radius);
+                
+                // 画像サイズ（半径に応じて調整）
+                const imageSize = Math.max(24, radius * 1.2);
+                
+                // 背景円を描画
+                ctx.save();
+                ctx.fillStyle = item.bgColor;
+                ctx.beginPath();
+                ctx.arc(x, y, imageSize / 2, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // 枠線を描画
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(x, y, imageSize / 2, 0, 2 * Math.PI);
+                ctx.stroke();
+                
+                // アイテム名の最初の文字または特徴的な文字を表示
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold ' + Math.floor(imageSize * 0.4) + 'px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(item.symbol, x, y);
+                
+                ctx.restore();
+                
+                // アイテム名と価格を表示
+                ctx.fillStyle = '#333';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'alphabetic';
+                ctx.fillText(item.name, x, y + imageSize / 2 + 15);
+                ctx.fillText(item.price + 'G', x, y + imageSize / 2 + 28);
+            });
+        }
+        
+        // 半径関数グラフの更新
+        function updateRadiusChart() {
+            console.log('updateRadiusChart() called');
+            
+            if (!radiusChart) {
+                console.log('No chart exists, creating new chart');
+                createRadiusChart();
+                return;
+            }
+            
+            try {
+                console.log('Updating existing chart data');
+                
+                // 現在選択されている関数を取得
+                const currentFunc = document.getElementById('radius-function').value;
+                console.log('Current function:', currentFunc);
+                
+                // 価格データポイント（0～5000G）
+                const pricePoints = [];
+                for (let i = 0; i <= 5000; i += 50) {
+                    pricePoints.push(i);
+                }
+                
+                // 関数マッピング
+                const functionMap = {
+                    'logarithmic': { name: '対数関数', color: '#FF6B6B' },
+                    'exponential': { name: '指数関数', color: '#4ECDC4' },
+                    'linear': { name: '線形関数', color: '#45B7D1' },
+                    'sqrt': { name: 'ルート関数', color: '#96CEB4' }
+                };
+                
+                const selectedFunc = functionMap[currentFunc];
+                
+                // 新しいデータを計算
+                const newData = pricePoints.map(price => {
+                    return {
+                        x: price,
+                        y: calculateRadius(price, currentFunc)
+                    };
+                });
+                
+                // チャートデータを更新
+                radiusChart.data.datasets[0].data = newData;
+                radiusChart.data.datasets[0].label = selectedFunc.name;
+                radiusChart.data.datasets[0].borderColor = selectedFunc.color;
+                radiusChart.data.datasets[0].backgroundColor = selectedFunc.color + '20';
+                
+                // チャートを更新
+                radiusChart.update();
+                
+                // 実例アイテムを再描画
+                const exampleItems = [
+                    { name: 'ドランブレード', price: 450, symbol: 'D', bgColor: '#ff6b6b' },
+                    { name: 'ベルトリ', price: 1300, symbol: 'V', bgColor: '#4ecdc4' },
+                    { name: 'インフィニティエッジ', price: 3400, symbol: 'IE', bgColor: '#45b7d1' }
+                ];
+                
+                setTimeout(() => {
+                    const ctx = document.getElementById('radius-chart').getContext('2d');
+                    // 前のアイテム画像をクリア
+                    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                    // チャートを再描画
+                    radiusChart.update();
+                    // 新しいアイテムを描画
+                    drawItemImages(ctx, exampleItems, currentFunc);
+                }, 100);
+                
+                console.log('Chart updated successfully');
+                
+            } catch (error) {
+                console.error('Error updating chart:', error);
+                // エラーの場合は再作成
+                radiusChart.destroy();
+                radiusChart = null;
+                createRadiusChart();
+            }
+        }
+        
+        // 半径計算関数（チャート用）
+        function calculateRadius(price, functionType) {
+            const minRadius = 15;
+            const maxRadius = 50;
+            const maxPrice = 5000;
+            
+            const ratio = Math.min(price / maxPrice, 1);
+            let scaledRatio;
+            
+            switch(functionType) {
+                case 'logarithmic':
+                    scaledRatio = Math.log(1 + ratio * 9) / Math.log(10);
+                    break;
+                case 'exponential':
+                    scaledRatio = Math.pow(ratio, 2);
+                    break;
+                case 'linear':
+                    scaledRatio = ratio;
+                    break;
+                case 'sqrt':
+                    scaledRatio = Math.sqrt(ratio);
+                    break;
+                default:
+                    scaledRatio = ratio;
+            }
+            
+            return minRadius + (maxRadius - minRadius) * scaledRatio;
         }
         
         function getNodeRadius(d) {
@@ -1726,29 +2104,22 @@
             }
         }
         
-        // 辺の色を動的に更新（ヒートマップ状態に応じて視認性を向上）
+        // 辺の色を動的に更新（シンプルに黒で統一）
         function updateEdgeColors() {
             if (!links) return;
             
-            let edgeColor = edgeColors.default;
+            let edgeColor = '#000000';  // 黒で統一
             let edgeWidth = 2;
             
             if (heatmapEnabled) {
-                // ヒートマップが有効な場合、主要な色を判定
-                const activeTypes = Object.keys(heatmapColors);
-                if (activeTypes.length > 0) {
-                    // 最初のアクティブなタイプの補色を使用
-                    const dominantType = activeTypes[0];
-                    edgeColor = edgeColors[dominantType] || edgeColors.default;
-                    edgeWidth = 3; // ヒートマップ有効時は太く
-                }
+                edgeWidth = 3; // ヒートマップ有効時は太く
             }
             
             // 辺の色とスタイルを更新
             links.attr('stroke', edgeColor)
                  .attr('stroke-width', edgeWidth)
                  .attr('stroke-opacity', 0.9) // 高い透明度で視認性確保
-                 .style('filter', 'drop-shadow(0 0 2px rgba(0,0,0,0.5))'); // 影効果
+                 .style('filter', 'drop-shadow(0 0 2px rgba(255,255,255,0.5))'); // 白い影効果
                  
             console.log('辺の色を更新:', edgeColor, 'width:', edgeWidth);
         }
