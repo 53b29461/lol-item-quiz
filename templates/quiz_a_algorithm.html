@@ -255,10 +255,11 @@
                 <div class="example-box">
                     <div class="example-title">マリグナンスの場合</div>
                     <div class="item-list">
-                        <span class="item-tag">悪魔の杖</span>
-                        <span class="item-tag">ブラスティングワンド</span>
-                        <span class="item-tag">アンプティングトーム</span>
-                        <span class="item-tag">アンプティングトーム</span>
+                        <span class="item-tag">ロスト チャプター</span>
+                        <span class="item-tag">ブラスティング ワンド</span>
+                        <span class="item-tag">増魔の書</span>
+                        <span class="item-tag">サファイア クリスタル</span>
+                        <span class="item-tag">輝きのモート</span>
                     </div>
                 </div>
                 <div class="graph-container" id="material-tree-graph">
@@ -297,21 +298,22 @@
                     <div style="margin: 10px 0;">
                         <strong>📍 正解の素材アイテム</strong><br>
                         <div class="item-list">
-                            <span class="item-tag correct-answer">悪魔の杖</span>
-                            <span class="item-tag correct-answer">ブラスティングワンド</span>
-                            <span class="item-tag correct-answer">アンプティングトーム</span>
-                            <span class="item-tag correct-answer">アンプティングトーム</span>
+                            <span class="item-tag correct-answer">ロスト チャプター</span>
+                            <span class="item-tag correct-answer">ブラスティング ワンド</span>
+                            <span class="item-tag correct-answer">増魔の書</span>
+                            <span class="item-tag correct-answer">サファイア クリスタル</span>
+                            <span class="item-tag correct-answer">輝きのモート</span>
                         </div>
                     </div>
                     <div style="margin: 10px 0;">
                         <strong>📍 拡張ファミリー（ひっかけ候補）</strong><br>
                         <div class="item-list">
                             <span class="item-tag">暗黒の印</span>
-                            <span class="item-tag">（アンプティングトーム使用）</span>
+                            <span class="item-tag">（増魔の書使用）</span>
                             <span class="item-tag">ナッシャーの歯</span>
-                            <span class="item-tag">（悪魔の杖使用）</span>
+                            <span class="item-tag">（ロスト チャプター使用）</span>
                             <span class="item-tag">ヘクステックオルタネーター</span>
-                            <span class="item-tag">（アンプティングトーム使用）</span>
+                            <span class="item-tag">（増魔の書使用）</span>
                         </div>
                     </div>
                 </div>
@@ -457,18 +459,20 @@
 
             // データ定義（マリグナンスの素材ツリー）
             const nodes = [
-                { id: "malignance", name: "マリグナンス", itemId: "6656", level: 0, color: "#9c27b0" },
-                { id: "lost_chapter", name: "悪魔の杖", itemId: "3802", level: 1, color: "#4caf50" },
-                { id: "blasting_wand", name: "ブラスティングワンド", itemId: "1026", level: 1, color: "#4caf50" },
-                { id: "amp_tome1", name: "アンプティングトーム", itemId: "1052", level: 2, color: "#2196f3" },
-                { id: "amp_tome2", name: "アンプティングトーム", itemId: "1052", level: 2, color: "#2196f3" }
+                { id: "malignance", name: "マリグナンス", itemId: "3118", level: 0, color: "#9c27b0" },
+                { id: "lost_chapter", name: "ロスト チャプター", itemId: "3802", level: 1, color: "#4caf50" },
+                { id: "blasting_wand", name: "ブラスティング ワンド", itemId: "1026", level: 1, color: "#4caf50" },
+                { id: "amp_tome", name: "増魔の書", itemId: "1052", level: 2, color: "#2196f3" },
+                { id: "sapphire_crystal", name: "サファイア クリスタル", itemId: "1027", level: 2, color: "#2196f3" },
+                { id: "glowing_mote", name: "輝きのモート", itemId: "2022", level: 2, color: "#2196f3" }
             ];
 
             const links = [
                 { source: "malignance", target: "lost_chapter" },
                 { source: "malignance", target: "blasting_wand" },
-                { source: "lost_chapter", target: "amp_tome1" },
-                { source: "lost_chapter", target: "amp_tome2" }
+                { source: "lost_chapter", target: "amp_tome" },
+                { source: "lost_chapter", target: "sapphire_crystal" },
+                { source: "lost_chapter", target: "glowing_mote" }
             ];
 
             // シミュレーション設定
@@ -543,11 +547,11 @@
 
             // データ定義（マリグナンスの拡張ファミリー）
             const nodes = [
-                { id: "malignance", name: "マリグナンス", itemId: "6656", type: "target", color: "#9c27b0" },
+                { id: "malignance", name: "マリグナンス", itemId: "3118", type: "target", color: "#9c27b0" },
                 // 正解素材
-                { id: "lost_chapter", name: "悪魔の杖", itemId: "3802", type: "correct", color: "#4caf50" },
-                { id: "blasting_wand", name: "ブラスティングワンド", itemId: "1026", type: "correct", color: "#4caf50" },
-                { id: "amp_tome1", name: "アンプティングトーム", itemId: "1052", type: "correct", color: "#4caf50" },
+                { id: "lost_chapter", name: "ロスト チャプター", itemId: "3802", type: "correct", color: "#4caf50" },
+                { id: "blasting_wand", name: "ブラスティング ワンド", itemId: "1026", type: "correct", color: "#4caf50" },
+                { id: "amp_tome", name: "増魔の書", itemId: "1052", type: "correct", color: "#4caf50" },
                 // ひっかけ候補
                 { id: "dark_seal", name: "暗黒の印", itemId: "1082", type: "decoy", color: "#ff5722" },
                 { id: "nashors_tooth", name: "ナッシャーの歯", itemId: "3115", type: "decoy", color: "#ff5722" },
@@ -559,11 +563,11 @@
                 // 正解の関係
                 { source: "malignance", target: "lost_chapter", type: "material" },
                 { source: "malignance", target: "blasting_wand", type: "material" },
-                { source: "lost_chapter", target: "amp_tome1", type: "material" },
+                { source: "lost_chapter", target: "amp_tome", type: "material" },
                 // ひっかけの関係
-                { source: "dark_seal", target: "amp_tome1", type: "family" },
+                { source: "dark_seal", target: "amp_tome", type: "family" },
                 { source: "nashors_tooth", target: "lost_chapter", type: "family" },
-                { source: "hextech_alternator", target: "amp_tome1", type: "family" },
+                { source: "hextech_alternator", target: "amp_tome", type: "family" },
                 { source: "mejais", target: "dark_seal", type: "family" }
             ];
 
