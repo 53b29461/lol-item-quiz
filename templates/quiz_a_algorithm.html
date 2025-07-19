@@ -344,12 +344,12 @@
                         </div>
                         <div style="margin-top: 6px; padding-top: 4px; border-top: 1px solid #ddd;">
                             <div style="font-size: 9px; color: #666;">
-                                緑実線=素材 | 赤点線=合成 | 黄点線=Level3
+                                一様デザイン | グレー実線
                             </div>
                         </div>
                         <div style="margin-top: 4px;">
                             <div style="font-size: 9px; color: #666;">
-                                総ノード: 23個 | 深さ3レベル網羅
+                                総ノード: 46個 | 総リンク: 62個 | 深さ3レベル完全網羅
                             </div>
                         </div>
                     </div>
@@ -597,7 +597,7 @@
         function drawExtendedFamilyGraph() {
             const container = d3.select("#extended-family-graph");
             const width = container.node().getBoundingClientRect().width;
-            const height = 400;
+            const height = width; // 正方形に設定
 
             const svg = container.append("svg")
                 .attr("width", width)
@@ -615,130 +615,138 @@
             // グラフ要素を含むグループ
             const g = svg.append("g");
 
-            // データ定義（マリグナンス中心の正確な深さ3網羅グラフ）
+            // 深さ3ルール完全網羅データ（46ノード・ユニークID対応）
             const nodes = [
-                // Level 0: マリグナンス
-                { id: "malignance", name: "マリグナンス", itemId: "3118", level: 0, type: "root", color: "#9c27b0" },
-                
-                // Level 1: マリグナンスの直接素材
-                { id: "lost_chapter", name: "ロスト チャプター", itemId: "3802", level: 1, type: "material", color: "#4caf50" },
-                { id: "blasting_wand", name: "ブラスティング ワンド", itemId: "1026", level: 1, type: "material", color: "#4caf50" },
-                
-                // Level 2: ロストチャプターの素材
-                { id: "amp_tome", name: "増魔の書", itemId: "1052", level: 2, type: "base_material", color: "#2196f3" },
-                { id: "sapphire", name: "サファイア クリスタル", itemId: "1027", level: 2, type: "base_material", color: "#2196f3" },
-                { id: "glowing_mote", name: "輝きのモート", itemId: "2022", level: 2, type: "base_material", color: "#2196f3" },
-                
-                // Level 2: ロストチャプターの合成先（有効なアイテムのみ）
-                { id: "archangel", name: "アークエンジェル スタッフ", itemId: "3003", level: 2, type: "composite", color: "#ff5722" },
-                { id: "ludens", name: "ルーデン コンパニオン", itemId: "6655", level: 2, type: "composite", color: "#ff5722" },
-                { id: "blackfire", name: "黒炎のトーチ", itemId: "2503", level: 2, type: "composite", color: "#ff5722" },
-                
-                // Level 2: ブラスティングワンドの合成先（有効なアイテムのみ）
-                { id: "lichbane", name: "リッチ ベイン", itemId: "3100", level: 2, type: "composite", color: "#ff5722" },
-                { id: "nashors", name: "ナッシャー トゥース", itemId: "3115", level: 2, type: "composite", color: "#ff5722" },
-                { id: "rylais", name: "リーライ クリスタル セプター", itemId: "3116", level: 2, type: "composite", color: "#ff5722" },
-                { id: "voidstaff", name: "ヴォイド スタッフ", itemId: "3135", level: 2, type: "composite", color: "#ff5722" },
-                { id: "morello", name: "モレロノミコン", itemId: "3165", level: 2, type: "composite", color: "#ff5722" },
-                { id: "horizon", name: "ホライゾン フォーカス", itemId: "4628", level: 2, type: "composite", color: "#ff5722" },
-                { id: "dawncore", name: "ドーンコア", itemId: "6621", level: 2, type: "composite", color: "#ff5722" },
-                { id: "rod", name: "ロッド オブ エイジス", itemId: "6657", level: 2, type: "composite", color: "#ff5722" },
-                
-                // Level 3: Level 2アイテムの素材・合成先（主要のみ）
-                { id: "kindlegem", name: "キンドルジェム", itemId: "3067", level: 3, type: "level3", color: "#ffc107" },
-                { id: "tear", name: "女神の涙", itemId: "3070", level: 3, type: "level3", color: "#ffc107" },
-                { id: "fiendish", name: "フィンディッシュの古書", itemId: "3108", level: 3, type: "level3", color: "#ffc107" },
-                { id: "hextech_alt", name: "ヘクステック オルタネーター", itemId: "3145", level: 3, type: "level3", color: "#ffc107" },
-                { id: "seeker", name: "シーカー アームガード", itemId: "2420", level: 3, type: "level3", color: "#ffc107" },
-                { id: "oblivion", name: "忘却のオーブ", itemId: "3916", level: 3, type: "level3", color: "#ffc107" },
-                { id: "catalyst", name: "カタリスト オブ エイオンズ", itemId: "3803", level: 3, type: "level3", color: "#ffc107" },
-                { id: "ruby", name: "ルビー クリスタル", itemId: "1011", level: 3, type: "level3", color: "#ffc107" }
+                { id: "3118-L0", name: "マリグナンス", itemId: "3118", level: 0, type: "target", color: "#9c27b0" },
+                { id: "1026-L1", name: "ブラスティング ワンド", itemId: "1026", level: 1, type: "direct_material", color: "#4caf50" },
+                { id: "3802-L1", name: "ロスト チャプター", itemId: "3802", level: 1, type: "direct_material", color: "#4caf50" },
+                { id: "1027-L2", name: "サファイア クリスタル", itemId: "1027", level: 2, type: "level2", color: "#ff5722" },
+                { id: "1052-L2", name: "増魔の書", itemId: "1052", level: 2, type: "level2", color: "#ff5722" },
+                { id: "2022-L2", name: "輝きのモート", itemId: "2022", level: 2, type: "level2", color: "#ff5722" },
+                { id: "2503-L2", name: "黒炎のトーチ", itemId: "2503", level: 2, type: "level2", color: "#ff5722" },
+                { id: "3003-L2", name: "アークエンジェル スタッフ", itemId: "3003", level: 2, type: "level2", color: "#ff5722" },
+                { id: "3100-L2", name: "リッチ ベイン", itemId: "3100", level: 2, type: "level2", color: "#ff5722" },
+                { id: "3115-L2", name: "ナッシャー トゥース", itemId: "3115", level: 2, type: "level2", color: "#ff5722" },
+                { id: "3116-L2", name: "リーライ クリスタル セプター", itemId: "3116", level: 2, type: "level2", color: "#ff5722" },
+                { id: "3118-L2", name: "マリグナンス", itemId: "3118", level: 2, type: "level2", color: "#ff5722" },
+                { id: "3135-L2", name: "ヴォイド スタッフ", itemId: "3135", level: 2, type: "level2", color: "#ff5722" },
+                { id: "3165-L2", name: "モレロノミコン", itemId: "3165", level: 2, type: "level2", color: "#ff5722" },
+                { id: "4628-L2", name: "ホライゾン フォーカス", itemId: "4628", level: 2, type: "level2", color: "#ff5722" },
+                { id: "6621-L2", name: "ドーンコア", itemId: "6621", level: 2, type: "level2", color: "#ff5722" },
+                { id: "6655-L2", name: "ルーデン コンパニオン", itemId: "6655", level: 2, type: "level2", color: "#ff5722" },
+                { id: "6657-L2", name: "ロッド オブ エイジス", itemId: "6657", level: 2, type: "level2", color: "#ff5722" },
+                { id: "1011-L3", name: "ジャイアント ベルト", itemId: "1011", level: 3, type: "level3", color: "#ffc107" },
+                { id: "1026-L3", name: "ブラスティング ワンド", itemId: "1026", level: 3, type: "level3", color: "#ffc107" },
+                { id: "1043-L3", name: "リカーブ ボウ", itemId: "1043", level: 3, type: "level3", color: "#ffc107" },
+                { id: "1052-L3", name: "増魔の書", itemId: "1052", level: 3, type: "level3", color: "#ffc107" },
+                { id: "2020-L3", name: "ブルータライザー", itemId: "2020", level: 3, type: "level3", color: "#ffc107" },
+                { id: "2420-L3", name: "シーカー アームガード", itemId: "2420", level: 3, type: "level3", color: "#ffc107" },
+                { id: "2421-L3", name: "砕けたアームガード", itemId: "2421", level: 3, type: "level3", color: "#ffc107" },
+                { id: "2508-L3", name: "運命の灰", itemId: "2508", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3024-L3", name: "グレイシャル バックラー", itemId: "3024", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3057-L3", name: "シーン", itemId: "3057", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3067-L3", name: "キンドルジェム", itemId: "3067", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3070-L3", name: "女神の涙", itemId: "3070", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3108-L3", name: "フィンディッシュの古書", itemId: "3108", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3113-L3", name: "エーテル ウィスプ", itemId: "3113", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3114-L3", name: "フォビドゥン アイドル", itemId: "3114", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3116-L3", name: "リーライ クリスタル セプター", itemId: "3116", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3124-L3", name: "グインソー レイジブレード", itemId: "3124", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3133-L3", name: "コールフィールド ウォーハンマー", itemId: "3133", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3145-L3", name: "ヘクステック オルタネーター", itemId: "3145", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3147-L3", name: "悲愴な仮面", itemId: "3147", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3802-L3", name: "ロスト チャプター", itemId: "3802", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3803-L3", name: "久遠のカタリスト", itemId: "3803", level: 3, type: "level3", color: "#ffc107" },
+                { id: "3916-L3", name: "忘却のオーブ", itemId: "3916", level: 3, type: "level3", color: "#ffc107" },
+                { id: "4630-L3", name: "枯死の宝石", itemId: "4630", level: 3, type: "level3", color: "#ffc107" },
+                { id: "4632-L3", name: "ヴァーダント バリア", itemId: "4632", level: 3, type: "level3", color: "#ffc107" },
+                { id: "4635-L3", name: "リーチング リア", itemId: "4635", level: 3, type: "level3", color: "#ffc107" },
+                { id: "4642-L3", name: "バンドルグラスの鏡", itemId: "4642", level: 3, type: "level3", color: "#ffc107" },
+                { id: "6660-L3", name: "バミ シンダー", itemId: "6660", level: 3, type: "level3", color: "#ffc107" }
             ];
 
+            // 一様デザインのリンク（62個・ユニークID対応）
             const links = [
-                // Level 0 → Level 1: マリグナンスの直接素材
-                { source: "malignance", target: "lost_chapter", type: "material", strength: 3 },
-                { source: "malignance", target: "blasting_wand", type: "material", strength: 3 },
-                
-                // Level 1 → Level 2: ロストチャプターの素材
-                { source: "lost_chapter", target: "amp_tome", type: "material", strength: 2 },
-                { source: "lost_chapter", target: "sapphire", type: "material", strength: 2 },
-                { source: "lost_chapter", target: "glowing_mote", type: "material", strength: 2 },
-                
-                // Level 1 → Level 2: ロストチャプターの合成先（有効なアイテムのみ）
-                { source: "lost_chapter", target: "archangel", type: "composite", strength: 1.5 },
-                { source: "lost_chapter", target: "ludens", type: "composite", strength: 1.5 },
-                { source: "lost_chapter", target: "blackfire", type: "composite", strength: 1.5 },
-                
-                // Level 1 → Level 2: ブラスティングワンドの合成先（有効なアイテムのみ）
-                { source: "blasting_wand", target: "lichbane", type: "composite", strength: 1.5 },
-                { source: "blasting_wand", target: "nashors", type: "composite", strength: 1.5 },
-                { source: "blasting_wand", target: "rylais", type: "composite", strength: 1.5 },
-                { source: "blasting_wand", target: "voidstaff", type: "composite", strength: 1.5 },
-                { source: "blasting_wand", target: "morello", type: "composite", strength: 1.5 },
-                { source: "blasting_wand", target: "horizon", type: "composite", strength: 1.5 },
-                { source: "blasting_wand", target: "dawncore", type: "composite", strength: 1.5 },
-                { source: "blasting_wand", target: "rod", type: "composite", strength: 1.5 },
-                
-                // Level 2 → Level 3: アークエンジェルの追加素材
-                { source: "archangel", target: "tear", type: "level3", strength: 1 },
-                { source: "archangel", target: "fiendish", type: "level3", strength: 1 },
-                
-                // Level 2 → Level 3: 増魔の書を使う主要アイテム
-                { source: "amp_tome", target: "hextech_alt", type: "level3", strength: 0.8 },
-                { source: "amp_tome", target: "seeker", type: "level3", strength: 0.8 },
-                
-                // Level 2 → Level 3: リーライの追加素材
-                { source: "rylais", target: "ruby", type: "level3", strength: 1 },
-                
-                // Level 2 → Level 3: モレロの追加素材
-                { source: "morello", target: "oblivion", type: "level3", strength: 1 },
-                
-                // Level 2 → Level 3: ロッドオブエイジスの追加素材
-                { source: "rod", target: "catalyst", type: "level3", strength: 1 },
-                
-                // Level 2 → Level 3: その他の主要関係
-                { source: "ludens", target: "hextech_alt", type: "level3", strength: 0.8 }
+                { source: "1052-L2", target: "3124-L3", type: "relation" },
+                { source: "1043-L3", target: "3124-L3", type: "relation" },
+                { source: "1052-L2", target: "2421-L3", type: "relation" },
+                { source: "1052-L2", target: "2421-L3", type: "relation" },
+                { source: "4630-L3", target: "3135-L2", type: "relation" },
+                { source: "1026-L1", target: "3135-L2", type: "relation" },
+                { source: "1052-L2", target: "4642-L3", type: "relation" },
+                { source: "2022-L2", target: "4642-L3", type: "relation" },
+                { source: "1052-L2", target: "3108-L3", type: "relation" },
+                { source: "2022-L2", target: "3108-L3", type: "relation" },
+                { source: "1026-L1", target: "3116-L2", type: "relation" },
+                { source: "1011-L3", target: "3116-L2", type: "relation" },
+                { source: "1052-L2", target: "3116-L2", type: "relation" },
+                { source: "3802-L1", target: "3118-L0", type: "relation" },
+                { source: "1026-L1", target: "3118-L0", type: "relation" },
+                { source: "1052-L2", target: "2420-L3", type: "relation" },
+                { source: "1052-L2", target: "2420-L3", type: "relation" },
+                { source: "3802-L1", target: "2503-L2", type: "relation" },
+                { source: "2508-L3", target: "2503-L2", type: "relation" },
+                { source: "1052-L2", target: "3113-L3", type: "relation" },
+                { source: "3070-L3", target: "3003-L2", type: "relation" },
+                { source: "3802-L1", target: "3003-L2", type: "relation" },
+                { source: "3108-L3", target: "3003-L2", type: "relation" },
+                { source: "1052-L2", target: "3916-L3", type: "relation" },
+                { source: "2022-L2", target: "6660-L3", type: "relation" },
+                { source: "3802-L1", target: "6655-L2", type: "relation" },
+                { source: "3145-L3", target: "6655-L2", type: "relation" },
+                { source: "2022-L2", target: "3067-L3", type: "relation" },
+                { source: "2022-L2", target: "3133-L3", type: "relation" },
+                { source: "3108-L3", target: "4628-L2", type: "relation" },
+                { source: "3108-L3", target: "4628-L2", type: "relation" },
+                { source: "1026-L1", target: "4628-L2", type: "relation" },
+                { source: "1052-L2", target: "4632-L3", type: "relation" },
+                { source: "1052-L2", target: "4632-L3", type: "relation" },
+                { source: "1043-L3", target: "3115-L2", type: "relation" },
+                { source: "1026-L1", target: "3115-L2", type: "relation" },
+                { source: "3108-L3", target: "3115-L2", type: "relation" },
+                { source: "1026-L1", target: "6621-L2", type: "relation" },
+                { source: "3114-L3", target: "6621-L2", type: "relation" },
+                { source: "3114-L3", target: "6621-L2", type: "relation" },
+                { source: "1027-L2", target: "3024-L3", type: "relation" },
+                { source: "2022-L2", target: "3024-L3", type: "relation" },
+                { source: "1026-L1", target: "6657-L2", type: "relation" },
+                { source: "3803-L3", target: "6657-L2", type: "relation" },
+                { source: "1052-L2", target: "4630-L3", type: "relation" },
+                { source: "3057-L3", target: "3100-L2", type: "relation" },
+                { source: "3113-L3", target: "3100-L2", type: "relation" },
+                { source: "1026-L1", target: "3100-L2", type: "relation" },
+                { source: "1052-L2", target: "4635-L3", type: "relation" },
+                { source: "1052-L2", target: "3802-L1", type: "relation" },
+                { source: "1027-L2", target: "3802-L1", type: "relation" },
+                { source: "2022-L2", target: "3802-L1", type: "relation" },
+                { source: "2022-L2", target: "3057-L3", type: "relation" },
+                { source: "2022-L2", target: "2020-L3", type: "relation" },
+                { source: "1052-L2", target: "3145-L3", type: "relation" },
+                { source: "1052-L2", target: "3145-L3", type: "relation" },
+                { source: "1027-L2", target: "3803-L3", type: "relation" },
+                { source: "1052-L2", target: "3147-L3", type: "relation" },
+                { source: "1052-L2", target: "2508-L3", type: "relation" },
+                { source: "3916-L3", target: "3165-L2", type: "relation" },
+                { source: "1026-L1", target: "3165-L2", type: "relation" },
+                { source: "3067-L3", target: "3165-L2", type: "relation" }
             ];
 
-            // シミュレーション設定（23ノード用に最適化）
+            // シミュレーション設定（46ノード用に最適化）
             const simulation = d3.forceSimulation(nodes)
-                .force("link", d3.forceLink(links).id(d => d.id).distance(d => {
-                    // 関係性タイプに応じた距離調整
-                    switch(d.type) {
-                        case "material": return 80;
-                        case "composite": return 120;
-                        case "level3": return 100;
-                        default: return 100;
-                    }
-                }))
+                .force("link", d3.forceLink(links).id(d => d.id).distance(100))
                 .force("charge", d3.forceManyBody().strength(-250))
                 .force("center", d3.forceCenter(width / 2, height / 2))
                 .force("collision", d3.forceCollide().radius(35));
 
-            // リンクの描画（関係性タイプ別視覚化）
+            // リンクの描画（一様デザイン）
             const link = g.append("g")
                 .selectAll("line")
                 .data(links)
                 .enter().append("line")
-                .attr("stroke", d => {
-                    switch(d.type) {
-                        case "material": return "#4caf50";
-                        case "composite": return "#ff5722";
-                        case "level3": return "#ffc107";
-                        default: return "#999";
-                    }
-                })
-                .attr("stroke-width", d => d.strength * 2)
-                .attr("stroke-dasharray", d => {
-                    switch(d.type) {
-                        case "material": return "none";
-                        case "composite": return "5,5";
-                        case "level3": return "3,3";
-                        default: return "none";
-                    }
-                })
-                .attr("opacity", d => d.strength);
+                .attr("stroke", "#999")
+                .attr("stroke-width", 2)
+                .attr("stroke-dasharray", "none")
+                .attr("opacity", 0.8);
 
             // ノードの描画
             const node = g.append("g")
