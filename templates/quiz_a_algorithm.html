@@ -277,24 +277,27 @@
                             <span>間接素材</span>
                         </div>
                     </div>
+                    <div style="position: absolute; bottom: 10px; left: 10px; font-size: 12px; color: #666; background: rgba(255,255,255,0.9); padding: 5px; border-radius: 3px;">
+                        ドラッグで移動 | マウスホイールで拡大縮小
+                    </div>
                 </div>
             </div>
 
             <div class="step-card">
                 <div class="step-number">5</div>
-                <div class="step-title">拡張ファミリーの取得</div>
+                <div class="step-title">関連アイテム群の取得</div>
                 <div class="step-description">
-                    選択されたアイテムの「拡張ファミリー」を取得します。これは、そのアイテムと何らかの関係性を持つアイテムの集合です。
-                    具体的には以下の関係を持つアイテムが含まれます：
+                    選択されたアイテムの「関連アイテム群」を取得します。これは、そのアイテムと何らかの関係性を持つアイテムの集合で、
+                    巧妙なひっかけ選択肢を生成するために使用されます。具体的には以下の関係を持つアイテムが含まれます：
                     <ul>
-                        <li><strong>直接的な親子関係</strong>: 素材アイテムと完成品アイテム</li>
-                        <li><strong>兄弟関係</strong>: 同じ素材から作られるアイテム</li>
-                        <li><strong>親戚関係</strong>: 共通の素材を持つアイテム</li>
-                        <li><strong>2次的な関係</strong>: 関連アイテムの関連アイテム</li>
+                        <li><strong>姉妹アイテム</strong>: 同じ素材から作られる他のアイテム</li>
+                        <li><strong>類似カテゴリ</strong>: 同じ効果系統（AP、マナなど）のアイテム</li>
+                        <li><strong>間接的関連</strong>: 素材を部分的に共有するアイテム</li>
+                        <li><strong>2段階関係</strong>: 関連アイテムの関連アイテム</li>
                     </ul>
                 </div>
                 <div class="example-box">
-                    <div class="example-title">マリグナンスの拡張ファミリー例</div>
+                    <div class="example-title">マリグナンスの関連アイテム群の例</div>
                     <div style="margin: 10px 0;">
                         <strong>📍 正解の素材アイテム</strong><br>
                         <div class="item-list">
@@ -306,31 +309,47 @@
                         </div>
                     </div>
                     <div style="margin: 10px 0;">
-                        <strong>📍 拡張ファミリー（ひっかけ候補）</strong><br>
+                        <strong>📍 姉妹アイテム（ひっかけ候補）</strong><br>
                         <div class="item-list">
-                            <span class="item-tag">暗黒の印</span>
-                            <span class="item-tag">（増魔の書使用）</span>
-                            <span class="item-tag">ナッシャーの歯</span>
+                            <span class="item-tag">エバーフロスト</span>
                             <span class="item-tag">（ロスト チャプター使用）</span>
-                            <span class="item-tag">ヘクステックオルタネーター</span>
-                            <span class="item-tag">（増魔の書使用）</span>
+                            <span class="item-tag">ナッシャー トゥース</span>
+                            <span class="item-tag">（ブラスティング ワンド使用）</span>
+                            <span class="item-tag">リーライ クリスタル セプター</span>
+                            <span class="item-tag">（ブラスティング ワンド使用）</span>
                         </div>
                     </div>
                 </div>
                 <div class="graph-container" id="extended-family-graph">
-                    <div class="graph-legend">
+                    <div class="graph-legend" style="font-size: 11px; padding: 8px; width: 180px;">
                         <div class="legend-item">
                             <div class="legend-color" style="background: #9c27b0;"></div>
-                            <span>出題アイテム</span>
+                            <span>Lv0: 出題アイテム</span>
                         </div>
                         <div class="legend-item">
                             <div class="legend-color" style="background: #4caf50;"></div>
-                            <span>正解素材</span>
+                            <span>Lv1: 直接素材</span>
                         </div>
                         <div class="legend-item">
                             <div class="legend-color" style="background: #ff5722;"></div>
-                            <span>ひっかけ候補</span>
+                            <span>Lv2: 姉妹アイテム</span>
                         </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #2196f3;"></div>
+                            <span>Lv2: 基本素材</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #ffc107;"></div>
+                            <span>Lv3: 拡張関係</span>
+                        </div>
+                        <div style="margin-top: 8px; padding-top: 5px; border-top: 1px solid #ddd;">
+                            <div style="font-size: 10px; color: #666;">
+                                線の種類: 実線=素材 | 点線=関連
+                            </div>
+                        </div>
+                    </div>
+                    <div style="position: absolute; bottom: 10px; left: 10px; font-size: 12px; color: #666; background: rgba(255,255,255,0.9); padding: 5px; border-radius: 3px;">
+                        ドラッグで移動 | マウスホイールで拡大縮小
                     </div>
                 </div>
             </div>
@@ -457,6 +476,18 @@
                 .attr("width", width)
                 .attr("height", height);
 
+            // ズーム機能を設定
+            const zoom = d3.zoom()
+                .scaleExtent([0.3, 3])
+                .on("zoom", (event) => {
+                    g.attr("transform", event.transform);
+                });
+
+            svg.call(zoom);
+
+            // グラフ要素を含むグループ
+            const g = svg.append("g");
+
             // データ定義（マリグナンスの素材ツリー）
             const nodes = [
                 { id: "malignance", name: "マリグナンス", itemId: "3118", level: 0, color: "#9c27b0" },
@@ -482,7 +513,7 @@
                 .force("center", d3.forceCenter(width / 2, height / 2));
 
             // リンクの描画
-            const link = svg.append("g")
+            const link = g.append("g")
                 .selectAll("line")
                 .data(links)
                 .enter().append("line")
@@ -490,13 +521,17 @@
                 .attr("stroke-width", 2);
 
             // ノードの描画
-            const node = svg.append("g")
+            const node = g.append("g")
                 .selectAll("g")
                 .data(nodes)
-                .enter().append("g");
+                .enter().append("g")
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended));
 
             // 画像用のクリップパスを定義
-            const defs = svg.append("defs");
+            const defs = g.append("defs");
             nodes.forEach((d, i) => {
                 defs.append("clipPath")
                     .attr("id", `clip-${d.id}`)
@@ -533,9 +568,27 @@
                 node
                     .attr("transform", d => `translate(${d.x},${d.y})`);
             });
+
+            // ドラッグ機能
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
         }
 
-        // 拡張ファミリーグラフ
+        // 関連アイテム群グラフ
         function drawExtendedFamilyGraph() {
             const container = d3.select("#extended-family-graph");
             const width = container.node().getBoundingClientRect().width;
@@ -545,81 +598,228 @@
                 .attr("width", width)
                 .attr("height", height);
 
-            // データ定義（マリグナンスの拡張ファミリー）
+            // ズーム機能を設定
+            const zoom = d3.zoom()
+                .scaleExtent([0.3, 3])
+                .on("zoom", (event) => {
+                    g.attr("transform", event.transform);
+                });
+
+            svg.call(zoom);
+
+            // グラフ要素を含むグループ
+            const g = svg.append("g");
+
+            // データ定義（マリグナンス中心の3次関係網羅グラフ）
             const nodes = [
-                { id: "malignance", name: "マリグナンス", itemId: "3118", type: "target", color: "#9c27b0" },
-                // 正解素材
-                { id: "lost_chapter", name: "ロスト チャプター", itemId: "3802", type: "correct", color: "#4caf50" },
-                { id: "blasting_wand", name: "ブラスティング ワンド", itemId: "1026", type: "correct", color: "#4caf50" },
-                { id: "amp_tome", name: "増魔の書", itemId: "1052", type: "correct", color: "#4caf50" },
-                // ひっかけ候補
-                { id: "dark_seal", name: "暗黒の印", itemId: "1082", type: "decoy", color: "#ff5722" },
-                { id: "nashors_tooth", name: "ナッシャーの歯", itemId: "3115", type: "decoy", color: "#ff5722" },
-                { id: "hextech_alternator", name: "ヘクステックオルタネーター", itemId: "3145", type: "decoy", color: "#ff5722" },
-                { id: "mejais", name: "メジャイのソウルスティーラー", itemId: "3041", type: "decoy", color: "#ff5722" }
+                // Level 0: Root
+                { id: "malignance", name: "マリグナンス", itemId: "3118", level: 0, type: "root", color: "#9c27b0" },
+                
+                // Level 1: 直接素材
+                { id: "lost_chapter", name: "ロスト チャプター", itemId: "3802", level: 1, type: "material", color: "#4caf50" },
+                { id: "blasting_wand", name: "ブラスティング ワンド", itemId: "1026", level: 1, type: "material", color: "#4caf50" },
+                
+                // Level 2: ロストチャプター姉妹アイテム
+                { id: "everfrost", name: "エバーフロスト", itemId: "6656", level: 2, type: "sibling", color: "#ff5722" },
+                { id: "ludens", name: "ルーデン コンパニオン", itemId: "6655", level: 2, type: "sibling", color: "#ff5722" },
+                { id: "archangel", name: "アークエンジェル スタッフ", itemId: "3003", level: 2, type: "sibling", color: "#ff5722" },
+                { id: "blackfire", name: "黒炎のトーチ", itemId: "2503", level: 2, type: "sibling", color: "#ff5722" },
+                
+                // Level 2: ブラスティングワンド姉妹アイテム  
+                { id: "nashors", name: "ナッシャー トゥース", itemId: "3115", level: 2, type: "sibling", color: "#ff5722" },
+                { id: "rylais", name: "リーライ クリスタル セプター", itemId: "3116", level: 2, type: "sibling", color: "#ff5722" },
+                { id: "lichbane", name: "リッチ ベイン", itemId: "3100", level: 2, type: "sibling", color: "#ff5722" },
+                { id: "voidstaff", name: "ヴォイド スタッフ", itemId: "3135", level: 2, type: "sibling", color: "#ff5722" },
+                { id: "morello", name: "モレロノミコン", itemId: "3165", level: 2, type: "sibling", color: "#ff5722" },
+                { id: "horizon", name: "ホライゾン フォーカス", itemId: "4628", level: 2, type: "sibling", color: "#ff5722" },
+                
+                // Level 2: ロストチャプターの基本素材
+                { id: "amp_tome", name: "増魔の書", itemId: "1052", level: 2, type: "base_material", color: "#2196f3" },
+                { id: "sapphire", name: "サファイア クリスタル", itemId: "1027", level: 2, type: "base_material", color: "#2196f3" },
+                { id: "glowing_mote", name: "輝きのモート", itemId: "2022", level: 2, type: "base_material", color: "#2196f3" },
+                
+                // Level 3: 基本素材を使う主要アイテム  
+                { id: "zhonyas", name: "ゾーニャの砂時計", itemId: "3157", level: 3, type: "extended", color: "#ffc107" },
+                { id: "mejais", name: "メジャイ ソウルスティーラー", itemId: "3041", level: 3, type: "extended", color: "#ffc107" },
+                { id: "dark_seal", name: "暗黒の印", itemId: "1082", level: 3, type: "extended", color: "#ffc107" },
+                { id: "seeker", name: "シーカー アームガード", itemId: "2420", level: 3, type: "extended", color: "#ffc107" },
+                { id: "hextech_alt", name: "ヘクステック オルタネーター", itemId: "3145", level: 3, type: "extended", color: "#ffc107" },
+                
+                // Level 3: サファイアクリスタル系
+                { id: "frozen_heart", name: "フローズン ハート", itemId: "3110", level: 3, type: "extended", color: "#ffc107" },
+                { id: "abyssal", name: "深淵の仮面", itemId: "3001", level: 3, type: "extended", color: "#ffc107" },
+                { id: "tear", name: "女神の涙", itemId: "3070", level: 3, type: "extended", color: "#ffc107" }
             ];
 
             const links = [
-                // 正解の関係
-                { source: "malignance", target: "lost_chapter", type: "material" },
-                { source: "malignance", target: "blasting_wand", type: "material" },
-                { source: "lost_chapter", target: "amp_tome", type: "material" },
-                // ひっかけの関係
-                { source: "dark_seal", target: "amp_tome", type: "family" },
-                { source: "nashors_tooth", target: "lost_chapter", type: "family" },
-                { source: "hextech_alternator", target: "amp_tome", type: "family" },
-                { source: "mejais", target: "dark_seal", type: "family" }
+                // Level 0 → Level 1: マリグナンスの直接素材
+                { source: "malignance", target: "lost_chapter", type: "material", strength: 3 },
+                { source: "malignance", target: "blasting_wand", type: "material", strength: 3 },
+                
+                // Level 1 → Level 2: ロストチャプター → 基本素材
+                { source: "lost_chapter", target: "amp_tome", type: "base_material", strength: 2 },
+                { source: "lost_chapter", target: "sapphire", type: "base_material", strength: 2 },
+                { source: "lost_chapter", target: "glowing_mote", type: "base_material", strength: 2 },
+                
+                // Level 1 → Level 2: ロストチャプター姉妹アイテム
+                { source: "lost_chapter", target: "everfrost", type: "sibling", strength: 1 },
+                { source: "lost_chapter", target: "ludens", type: "sibling", strength: 1 },
+                { source: "lost_chapter", target: "archangel", type: "sibling", strength: 1 },
+                { source: "lost_chapter", target: "blackfire", type: "sibling", strength: 1 },
+                
+                // Level 1 → Level 2: ブラスティングワンド姉妹アイテム
+                { source: "blasting_wand", target: "nashors", type: "sibling", strength: 1 },
+                { source: "blasting_wand", target: "rylais", type: "sibling", strength: 1 },
+                { source: "blasting_wand", target: "lichbane", type: "sibling", strength: 1 },
+                { source: "blasting_wand", target: "voidstaff", type: "sibling", strength: 1 },
+                { source: "blasting_wand", target: "morello", type: "sibling", strength: 1 },
+                { source: "blasting_wand", target: "horizon", type: "sibling", strength: 1 },
+                
+                // Level 2 → Level 3: 増魔の書を使うアイテム
+                { source: "amp_tome", target: "zhonyas", type: "extended", strength: 0.5 },
+                { source: "amp_tome", target: "dark_seal", type: "extended", strength: 0.5 },
+                { source: "amp_tome", target: "seeker", type: "extended", strength: 0.5 },
+                { source: "amp_tome", target: "hextech_alt", type: "extended", strength: 0.5 },
+                
+                // Level 2 → Level 3: サファイアクリスタルを使うアイテム
+                { source: "sapphire", target: "frozen_heart", type: "extended", strength: 0.5 },
+                { source: "sapphire", target: "abyssal", type: "extended", strength: 0.5 },
+                { source: "sapphire", target: "tear", type: "extended", strength: 0.5 },
+                
+                // Level 3: 特殊な関係性
+                { source: "dark_seal", target: "mejais", type: "upgrade", strength: 1 },
+                { source: "seeker", target: "zhonyas", type: "upgrade", strength: 1 },
+                
+                // Level 2 → Level 3: クロス関係（複数素材を共有）
+                { source: "rylais", target: "hextech_alt", type: "cross_relation", strength: 0.3 },
+                { source: "everfrost", target: "zhonyas", type: "cross_relation", strength: 0.3 }
             ];
 
-            // シミュレーション設定
+            // シミュレーション設定（23ノード用に最適化）
             const simulation = d3.forceSimulation(nodes)
-                .force("link", d3.forceLink(links).id(d => d.id).distance(120))
-                .force("charge", d3.forceManyBody().strength(-400))
-                .force("center", d3.forceCenter(width / 2, height / 2));
+                .force("link", d3.forceLink(links).id(d => d.id).distance(d => {
+                    // 関係性タイプに応じた距離調整
+                    switch(d.type) {
+                        case "material": return 80;
+                        case "base_material": return 60;
+                        case "sibling": return 120;
+                        case "extended": return 100;
+                        case "upgrade": return 70;
+                        case "cross_relation": return 150;
+                        default: return 100;
+                    }
+                }))
+                .force("charge", d3.forceManyBody().strength(-300))
+                .force("center", d3.forceCenter(width / 2, height / 2))
+                .force("collision", d3.forceCollide().radius(35));
 
-            // リンクの描画
-            const link = svg.append("g")
+            // リンクの描画（関係性タイプ別視覚化）
+            const link = g.append("g")
                 .selectAll("line")
                 .data(links)
                 .enter().append("line")
-                .attr("stroke", d => d.type === "material" ? "#4caf50" : "#ff5722")
-                .attr("stroke-width", d => d.type === "material" ? 3 : 1)
-                .attr("stroke-dasharray", d => d.type === "family" ? "5,5" : "none")
-                .attr("opacity", d => d.type === "material" ? 1 : 0.5);
+                .attr("stroke", d => {
+                    switch(d.type) {
+                        case "material": return "#4caf50";
+                        case "base_material": return "#2196f3";
+                        case "sibling": return "#ff5722";
+                        case "extended": return "#ffc107";
+                        case "upgrade": return "#9c27b0";
+                        case "cross_relation": return "#607d8b";
+                        default: return "#999";
+                    }
+                })
+                .attr("stroke-width", d => d.strength * 2)
+                .attr("stroke-dasharray", d => {
+                    switch(d.type) {
+                        case "material": return "none";
+                        case "base_material": return "none";
+                        case "sibling": return "5,5";
+                        case "extended": return "3,3";
+                        case "upgrade": return "8,3";
+                        case "cross_relation": return "2,2";
+                        default: return "none";
+                    }
+                })
+                .attr("opacity", d => d.strength);
 
             // ノードの描画
-            const node = svg.append("g")
+            const node = g.append("g")
                 .selectAll("g")
                 .data(nodes)
-                .enter().append("g");
+                .enter().append("g")
+                .call(d3.drag()
+                    .on("start", dragstarted2)
+                    .on("drag", dragged2)
+                    .on("end", dragended2));
 
-            // 画像用のクリップパスを定義
-            const defs2 = svg.append("defs");
+            // 画像用のクリップパスを定義（レベル別サイズ対応）
+            const defs2 = g.append("defs");
             nodes.forEach((d, i) => {
-                const radius = d.type === "target" ? 35 : 25;
+                const radius = d.level === 0 ? 40 : d.level === 1 ? 35 : d.level === 2 ? 30 : 25;
                 defs2.append("clipPath")
                     .attr("id", `clip-ext-${d.id}`)
                     .append("circle")
                     .attr("r", radius);
             });
 
-            // 背景の円
+            // 背景の円（レベル別サイズ調整）
             node.append("circle")
-                .attr("r", d => d.type === "target" ? 35 : 25)
+                .attr("r", d => {
+                    switch(d.level) {
+                        case 0: return 40; // Root
+                        case 1: return 35; // 直接素材
+                        case 2: return 30; // 2次関係
+                        case 3: return 25; // 3次関係
+                        default: return 25;
+                    }
+                })
                 .attr("fill", d => d.color)
                 .attr("stroke", "#333")
-                .attr("stroke-width", 3);
+                .attr("stroke-width", d => d.level === 0 ? 4 : 2);
 
-            // アイテム画像
+            // アイテム画像（レベル別サイズ調整）
             node.append("image")
                 .attr("xlink:href", d => `https://ddragon.leagueoflegends.com/cdn/{{ patch_version }}/img/item/${d.itemId}.png`)
-                .attr("width", d => d.type === "target" ? 56 : 40)
-                .attr("height", d => d.type === "target" ? 56 : 40)
-                .attr("x", d => d.type === "target" ? -28 : -20)
-                .attr("y", d => d.type === "target" ? -28 : -20)
+                .attr("width", d => {
+                    switch(d.level) {
+                        case 0: return 64; // Root
+                        case 1: return 56; // 直接素材
+                        case 2: return 48; // 2次関係
+                        case 3: return 40; // 3次関係
+                        default: return 40;
+                    }
+                })
+                .attr("height", d => {
+                    switch(d.level) {
+                        case 0: return 64;
+                        case 1: return 56;
+                        case 2: return 48;
+                        case 3: return 40;
+                        default: return 40;
+                    }
+                })
+                .attr("x", d => {
+                    switch(d.level) {
+                        case 0: return -32;
+                        case 1: return -28;
+                        case 2: return -24;
+                        case 3: return -20;
+                        default: return -20;
+                    }
+                })
+                .attr("y", d => {
+                    switch(d.level) {
+                        case 0: return -32;
+                        case 1: return -28;
+                        case 2: return -24;
+                        case 3: return -20;
+                        default: return -20;
+                    }
+                })
                 .attr("clip-path", d => `url(#clip-ext-${d.id})`)
                 .append("title")
-                .text(d => d.name);
+                .text(d => `${d.name} (Level ${d.level})`);
 
             // シミュレーションの更新
             simulation.on("tick", () => {
@@ -632,6 +832,24 @@
                 node
                     .attr("transform", d => `translate(${d.x},${d.y})`);
             });
+
+            // ドラッグ機能（関連アイテム群グラフ用）
+            function dragstarted2(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+
+            function dragged2(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+
+            function dragended2(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
         }
 
         // ページ読み込み時にグラフを描画
