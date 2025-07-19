@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>出題アルゴリズム解説 - League of Legends Item Quiz</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         .algorithm-container {
             max-width: 1200px;
@@ -151,6 +152,45 @@
         .back-link.secondary:hover {
             background: #5a6268;
         }
+        .graph-container {
+            width: 100%;
+            min-height: 400px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            background: white;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .graph-legend {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            border-radius: 50%;
+            border: 2px solid #333;
+        }
+        .node-text {
+            font-size: 12px;
+            font-weight: bold;
+            text-anchor: middle;
+            fill: white;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -213,13 +253,28 @@
                     素材の素材（間接的な素材）も全て含まれます。
                 </div>
                 <div class="example-box">
-                    <div class="example-title">インフィニティエッジの場合</div>
+                    <div class="example-title">マリグナンスの場合</div>
                     <div class="item-list">
-                        <span class="item-tag">B.F.ソード</span>
-                        <span class="item-tag">クリティカルクローク</span>
-                        <span class="item-tag">ピックアックス</span>
-                        <span class="item-tag">ロングソード</span>
-                        <span class="item-tag">ダガー</span>
+                        <span class="item-tag">悪魔の杖</span>
+                        <span class="item-tag">ブラスティングワンド</span>
+                        <span class="item-tag">アンプティングトーム</span>
+                        <span class="item-tag">アンプティングトーム</span>
+                    </div>
+                </div>
+                <div class="graph-container" id="material-tree-graph">
+                    <div class="graph-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #9c27b0;"></div>
+                            <span>出題アイテム</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #4caf50;"></div>
+                            <span>直接素材</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #2196f3;"></div>
+                            <span>間接素材</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -238,26 +293,41 @@
                     </ul>
                 </div>
                 <div class="example-box">
-                    <div class="example-title">インフィニティエッジの拡張ファミリー例</div>
+                    <div class="example-title">マリグナンスの拡張ファミリー例</div>
                     <div style="margin: 10px 0;">
                         <strong>📍 正解の素材アイテム</strong><br>
                         <div class="item-list">
-                            <span class="item-tag correct-answer">B.F.ソード</span>
-                            <span class="item-tag correct-answer">クリティカルクローク</span>
-                            <span class="item-tag correct-answer">ピックアックス</span>
-                            <span class="item-tag correct-answer">ロングソード</span>
-                            <span class="item-tag correct-answer">ダガー</span>
+                            <span class="item-tag correct-answer">悪魔の杖</span>
+                            <span class="item-tag correct-answer">ブラスティングワンド</span>
+                            <span class="item-tag correct-answer">アンプティングトーム</span>
+                            <span class="item-tag correct-answer">アンプティングトーム</span>
                         </div>
                     </div>
                     <div style="margin: 10px 0;">
                         <strong>📍 拡張ファミリー（ひっかけ候補）</strong><br>
                         <div class="item-list">
-                            <span class="item-tag">ストームレイザー</span>
-                            <span class="item-tag">（B.F.ソード使用）</span>
-                            <span class="item-tag">ラピッドファイアキャノン</span>
-                            <span class="item-tag">（ダガー使用）</span>
-                            <span class="item-tag">ベルトリ</span>
-                            <span class="item-tag">（ロングソード使用）</span>
+                            <span class="item-tag">暗黒の印</span>
+                            <span class="item-tag">（アンプティングトーム使用）</span>
+                            <span class="item-tag">ナッシャーの歯</span>
+                            <span class="item-tag">（悪魔の杖使用）</span>
+                            <span class="item-tag">ヘクステックオルタネーター</span>
+                            <span class="item-tag">（アンプティングトーム使用）</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="graph-container" id="extended-family-graph">
+                    <div class="graph-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #9c27b0;"></div>
+                            <span>出題アイテム</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #4caf50;"></div>
+                            <span>正解素材</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #ff5722;"></div>
+                            <span>ひっかけ候補</span>
                         </div>
                     </div>
                 </div>
@@ -373,5 +443,165 @@
             <a href="/quiz_a_full_graph" class="back-link secondary">関係性グラフを見る</a>
         </div>
     </div>
+
+    <script>
+        // マリグナンスの素材ツリーグラフ
+        function drawMaterialTreeGraph() {
+            const container = d3.select("#material-tree-graph");
+            const width = container.node().getBoundingClientRect().width;
+            const height = 400;
+
+            const svg = container.append("svg")
+                .attr("width", width)
+                .attr("height", height);
+
+            // データ定義（マリグナンスの素材ツリー）
+            const nodes = [
+                { id: "malignance", name: "マリグナンス", level: 0, color: "#9c27b0" },
+                { id: "lost_chapter", name: "悪魔の杖", level: 1, color: "#4caf50" },
+                { id: "blasting_wand", name: "ブラスティングワンド", level: 1, color: "#4caf50" },
+                { id: "amp_tome1", name: "アンプティングトーム", level: 2, color: "#2196f3" },
+                { id: "amp_tome2", name: "アンプティングトーム", level: 2, color: "#2196f3" }
+            ];
+
+            const links = [
+                { source: "malignance", target: "lost_chapter" },
+                { source: "malignance", target: "blasting_wand" },
+                { source: "lost_chapter", target: "amp_tome1" },
+                { source: "lost_chapter", target: "amp_tome2" }
+            ];
+
+            // シミュレーション設定
+            const simulation = d3.forceSimulation(nodes)
+                .force("link", d3.forceLink(links).id(d => d.id).distance(100))
+                .force("charge", d3.forceManyBody().strength(-300))
+                .force("center", d3.forceCenter(width / 2, height / 2));
+
+            // リンクの描画
+            const link = svg.append("g")
+                .selectAll("line")
+                .data(links)
+                .enter().append("line")
+                .attr("stroke", "#999")
+                .attr("stroke-width", 2);
+
+            // ノードの描画
+            const node = svg.append("g")
+                .selectAll("g")
+                .data(nodes)
+                .enter().append("g");
+
+            node.append("circle")
+                .attr("r", 30)
+                .attr("fill", d => d.color)
+                .attr("stroke", "#333")
+                .attr("stroke-width", 3);
+
+            node.append("text")
+                .attr("class", "node-text")
+                .text(d => d.name)
+                .style("font-size", d => d.name.length > 6 ? "10px" : "12px");
+
+            // シミュレーションの更新
+            simulation.on("tick", () => {
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
+                node
+                    .attr("transform", d => `translate(${d.x},${d.y})`);
+            });
+        }
+
+        // 拡張ファミリーグラフ
+        function drawExtendedFamilyGraph() {
+            const container = d3.select("#extended-family-graph");
+            const width = container.node().getBoundingClientRect().width;
+            const height = 400;
+
+            const svg = container.append("svg")
+                .attr("width", width)
+                .attr("height", height);
+
+            // データ定義（マリグナンスの拡張ファミリー）
+            const nodes = [
+                { id: "malignance", name: "マリグナンス", type: "target", color: "#9c27b0" },
+                // 正解素材
+                { id: "lost_chapter", name: "悪魔の杖", type: "correct", color: "#4caf50" },
+                { id: "blasting_wand", name: "ブラスティングワンド", type: "correct", color: "#4caf50" },
+                { id: "amp_tome1", name: "アンプティングトーム", type: "correct", color: "#4caf50" },
+                // ひっかけ候補
+                { id: "dark_seal", name: "暗黒の印", type: "decoy", color: "#ff5722" },
+                { id: "nashors_tooth", name: "ナッシャーの歯", type: "decoy", color: "#ff5722" },
+                { id: "hextech_alternator", name: "ヘクステックオルタネーター", type: "decoy", color: "#ff5722" },
+                { id: "mejais", name: "メジャイのソウルスティーラー", type: "decoy", color: "#ff5722" }
+            ];
+
+            const links = [
+                // 正解の関係
+                { source: "malignance", target: "lost_chapter", type: "material" },
+                { source: "malignance", target: "blasting_wand", type: "material" },
+                { source: "lost_chapter", target: "amp_tome1", type: "material" },
+                // ひっかけの関係
+                { source: "dark_seal", target: "amp_tome1", type: "family" },
+                { source: "nashors_tooth", target: "lost_chapter", type: "family" },
+                { source: "hextech_alternator", target: "amp_tome1", type: "family" },
+                { source: "mejais", target: "dark_seal", type: "family" }
+            ];
+
+            // シミュレーション設定
+            const simulation = d3.forceSimulation(nodes)
+                .force("link", d3.forceLink(links).id(d => d.id).distance(120))
+                .force("charge", d3.forceManyBody().strength(-400))
+                .force("center", d3.forceCenter(width / 2, height / 2));
+
+            // リンクの描画
+            const link = svg.append("g")
+                .selectAll("line")
+                .data(links)
+                .enter().append("line")
+                .attr("stroke", d => d.type === "material" ? "#4caf50" : "#ff5722")
+                .attr("stroke-width", d => d.type === "material" ? 3 : 1)
+                .attr("stroke-dasharray", d => d.type === "family" ? "5,5" : "none")
+                .attr("opacity", d => d.type === "material" ? 1 : 0.5);
+
+            // ノードの描画
+            const node = svg.append("g")
+                .selectAll("g")
+                .data(nodes)
+                .enter().append("g");
+
+            node.append("circle")
+                .attr("r", d => d.type === "target" ? 35 : 25)
+                .attr("fill", d => d.color)
+                .attr("stroke", "#333")
+                .attr("stroke-width", 3);
+
+            node.append("text")
+                .attr("class", "node-text")
+                .text(d => d.name)
+                .style("font-size", d => d.name.length > 8 ? "10px" : "12px");
+
+            // シミュレーションの更新
+            simulation.on("tick", () => {
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
+                node
+                    .attr("transform", d => `translate(${d.x},${d.y})`);
+            });
+        }
+
+        // ページ読み込み時にグラフを描画
+        window.addEventListener("DOMContentLoaded", () => {
+            drawMaterialTreeGraph();
+            drawExtendedFamilyGraph();
+        });
+    </script>
 </body>
 </html>
