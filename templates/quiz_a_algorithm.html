@@ -457,11 +457,11 @@
 
             // データ定義（マリグナンスの素材ツリー）
             const nodes = [
-                { id: "malignance", name: "マリグナンス", level: 0, color: "#9c27b0" },
-                { id: "lost_chapter", name: "悪魔の杖", level: 1, color: "#4caf50" },
-                { id: "blasting_wand", name: "ブラスティングワンド", level: 1, color: "#4caf50" },
-                { id: "amp_tome1", name: "アンプティングトーム", level: 2, color: "#2196f3" },
-                { id: "amp_tome2", name: "アンプティングトーム", level: 2, color: "#2196f3" }
+                { id: "malignance", name: "マリグナンス", itemId: "6656", level: 0, color: "#9c27b0" },
+                { id: "lost_chapter", name: "悪魔の杖", itemId: "3802", level: 1, color: "#4caf50" },
+                { id: "blasting_wand", name: "ブラスティングワンド", itemId: "1026", level: 1, color: "#4caf50" },
+                { id: "amp_tome1", name: "アンプティングトーム", itemId: "1052", level: 2, color: "#2196f3" },
+                { id: "amp_tome2", name: "アンプティングトーム", itemId: "1052", level: 2, color: "#2196f3" }
             ];
 
             const links = [
@@ -491,16 +491,32 @@
                 .data(nodes)
                 .enter().append("g");
 
+            // 画像用のクリップパスを定義
+            const defs = svg.append("defs");
+            nodes.forEach((d, i) => {
+                defs.append("clipPath")
+                    .attr("id", `clip-${d.id}`)
+                    .append("circle")
+                    .attr("r", 30);
+            });
+
+            // 背景の円
             node.append("circle")
                 .attr("r", 30)
                 .attr("fill", d => d.color)
                 .attr("stroke", "#333")
                 .attr("stroke-width", 3);
 
-            node.append("text")
-                .attr("class", "node-text")
-                .text(d => d.name)
-                .style("font-size", d => d.name.length > 6 ? "10px" : "12px");
+            // アイテム画像
+            node.append("image")
+                .attr("xlink:href", d => `https://ddragon.leagueoflegends.com/cdn/{{ patch_version }}/img/item/${d.itemId}.png`)
+                .attr("width", 48)
+                .attr("height", 48)
+                .attr("x", -24)
+                .attr("y", -24)
+                .attr("clip-path", d => `url(#clip-${d.id})`)
+                .append("title")
+                .text(d => d.name);
 
             // シミュレーションの更新
             simulation.on("tick", () => {
@@ -527,16 +543,16 @@
 
             // データ定義（マリグナンスの拡張ファミリー）
             const nodes = [
-                { id: "malignance", name: "マリグナンス", type: "target", color: "#9c27b0" },
+                { id: "malignance", name: "マリグナンス", itemId: "6656", type: "target", color: "#9c27b0" },
                 // 正解素材
-                { id: "lost_chapter", name: "悪魔の杖", type: "correct", color: "#4caf50" },
-                { id: "blasting_wand", name: "ブラスティングワンド", type: "correct", color: "#4caf50" },
-                { id: "amp_tome1", name: "アンプティングトーム", type: "correct", color: "#4caf50" },
+                { id: "lost_chapter", name: "悪魔の杖", itemId: "3802", type: "correct", color: "#4caf50" },
+                { id: "blasting_wand", name: "ブラスティングワンド", itemId: "1026", type: "correct", color: "#4caf50" },
+                { id: "amp_tome1", name: "アンプティングトーム", itemId: "1052", type: "correct", color: "#4caf50" },
                 // ひっかけ候補
-                { id: "dark_seal", name: "暗黒の印", type: "decoy", color: "#ff5722" },
-                { id: "nashors_tooth", name: "ナッシャーの歯", type: "decoy", color: "#ff5722" },
-                { id: "hextech_alternator", name: "ヘクステックオルタネーター", type: "decoy", color: "#ff5722" },
-                { id: "mejais", name: "メジャイのソウルスティーラー", type: "decoy", color: "#ff5722" }
+                { id: "dark_seal", name: "暗黒の印", itemId: "1082", type: "decoy", color: "#ff5722" },
+                { id: "nashors_tooth", name: "ナッシャーの歯", itemId: "3115", type: "decoy", color: "#ff5722" },
+                { id: "hextech_alternator", name: "ヘクステックオルタネーター", itemId: "3145", type: "decoy", color: "#ff5722" },
+                { id: "mejais", name: "メジャイのソウルスティーラー", itemId: "3041", type: "decoy", color: "#ff5722" }
             ];
 
             const links = [
@@ -573,16 +589,33 @@
                 .data(nodes)
                 .enter().append("g");
 
+            // 画像用のクリップパスを定義
+            const defs2 = svg.append("defs");
+            nodes.forEach((d, i) => {
+                const radius = d.type === "target" ? 35 : 25;
+                defs2.append("clipPath")
+                    .attr("id", `clip-ext-${d.id}`)
+                    .append("circle")
+                    .attr("r", radius);
+            });
+
+            // 背景の円
             node.append("circle")
                 .attr("r", d => d.type === "target" ? 35 : 25)
                 .attr("fill", d => d.color)
                 .attr("stroke", "#333")
                 .attr("stroke-width", 3);
 
-            node.append("text")
-                .attr("class", "node-text")
-                .text(d => d.name)
-                .style("font-size", d => d.name.length > 8 ? "10px" : "12px");
+            // アイテム画像
+            node.append("image")
+                .attr("xlink:href", d => `https://ddragon.leagueoflegends.com/cdn/{{ patch_version }}/img/item/${d.itemId}.png`)
+                .attr("width", d => d.type === "target" ? 56 : 40)
+                .attr("height", d => d.type === "target" ? 56 : 40)
+                .attr("x", d => d.type === "target" ? -28 : -20)
+                .attr("y", d => d.type === "target" ? -28 : -20)
+                .attr("clip-path", d => `url(#clip-ext-${d.id})`)
+                .append("title")
+                .text(d => d.name);
 
             // シミュレーションの更新
             simulation.on("tick", () => {
