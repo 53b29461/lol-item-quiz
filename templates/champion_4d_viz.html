@@ -249,6 +249,19 @@
             // const gridHelper = new THREE.GridHelper(20, 20, 0x444444, 0x888888);
             // scene.add(gridHelper);
             
+            // Floor plane - 床面を追加
+            const floorGeometry = new THREE.PlaneGeometry(20, 20);
+            const floorMaterial = new THREE.MeshBasicMaterial({ 
+                color: 0xf5f5f5, 
+                transparent: true, 
+                opacity: 0.3,
+                side: THREE.DoubleSide
+            });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = -Math.PI / 2; // 水平に回転
+            floor.position.y = -8; // 底面位置
+            scene.add(floor);
+            
             // Axis helper - 角に配置（邪魔にならない位置）
             const axesHelper = new THREE.AxesHelper(3);
             axesHelper.position.set(-8, -8, -8); // 左下角に移動
