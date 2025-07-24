@@ -249,9 +249,6 @@ def next_question_b():
 def etc():
     return render_template('etc.html', patch_version=patch_version)
 
-@app.route('/math-game')
-def math_game():
-    return render_template('math_game.html', patch_version=patch_version)
 
 @app.route('/champion-4d-viz')
 def champion_4d_viz():
