@@ -245,9 +245,9 @@
             raycaster = new THREE.Raycaster();
             mouse = new THREE.Vector2();
             
-            // Grid helper
-            const gridHelper = new THREE.GridHelper(20, 20, 0x444444, 0x888888);
-            scene.add(gridHelper);
+            // Grid helper - 削除（ユーザー要望）
+            // const gridHelper = new THREE.GridHelper(20, 20, 0x444444, 0x888888);
+            // scene.add(gridHelper);
             
             // Axis helper - 角に配置（邪魔にならない位置）
             const axesHelper = new THREE.AxesHelper(3);
