@@ -162,8 +162,8 @@ class MathGameApp {
         // UIリセット
         this.uiController.resetUI();
         
-        // 開始画面に戻る
-        this.uiController.showScreen('start');
+        // 難易度選択画面に直接遷移（もう一度プレイ用）
+        this.uiController.showScreen('difficulty');
     }
 }
 
