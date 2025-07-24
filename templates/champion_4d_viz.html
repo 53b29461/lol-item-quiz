@@ -279,10 +279,12 @@
             
             // Try multiple image sources for optimization
             const imageUrls = [
-                // 小さいサイズの画像を優先
+                // champion.nameを使用（Vex等の新チャンピオン対応）
+                `https://ddragon.leagueoflegends.com/cdn/15.14.1/img/champion/${champion.name}.png`,
+                // フォールバック用（keyベース）
                 `https://ddragon.leagueoflegends.com/cdn/15.14.1/img/champion/${champion.key}.png`,
-                // フォールバック用
-                `https://ddragon.leagueoflegends.com/cdn/img/champion/tiles/${champion.key}_0.jpg`
+                // 最終フォールバック
+                `https://ddragon.leagueoflegends.com/cdn/img/champion/tiles/${champion.name}_0.jpg`
             ];
             
             const texture = textureLoader.load(
@@ -298,19 +300,33 @@
                 },
                 undefined,
                 function(error) {
-                    console.warn(`Failed to load texture for ${champion.name}:`, error);
-                    // フォールバック画像を試す
-                    const fallbackTexture = textureLoader.load(
-                        imageUrls[1],
-                        function(fallbackLoaded) {
-                            fallbackLoaded.minFilter = THREE.LinearFilter;
-                            fallbackLoaded.magFilter = THREE.LinearFilter;
-                            fallbackLoaded.generateMipmaps = false;
-                            fallbackLoaded.format = THREE.RGBFormat;
+                    console.warn(`Failed to load primary texture for ${champion.name}:`, error);
+                    // 段階的フォールバック
+                    let fallbackIndex = 1;
+                    const tryFallback = () => {
+                        if (fallbackIndex < imageUrls.length) {
+                            const fallbackTexture = textureLoader.load(
+                                imageUrls[fallbackIndex],
+                                function(fallbackLoaded) {
+                                    fallbackLoaded.minFilter = THREE.LinearFilter;
+                                    fallbackLoaded.magFilter = THREE.LinearFilter;
+                                    fallbackLoaded.generateMipmaps = false;
+                                    fallbackLoaded.format = THREE.RGBFormat;
+                                    material.map = fallbackTexture;
+                                    material.needsUpdate = true;
+                                },
+                                undefined,
+                                function(fallbackError) {
+                                    console.warn(`Fallback ${fallbackIndex} failed for ${champion.name}:`, fallbackError);
+                                    fallbackIndex++;
+                                    tryFallback();
+                                }
+                            );
+                        } else {
+                            console.error(`All fallbacks failed for ${champion.name}`);
                         }
-                    );
-                    material.map = fallbackTexture;
-                    material.needsUpdate = true;
+                    };
+                    tryFallback();
                 }
             );
             
