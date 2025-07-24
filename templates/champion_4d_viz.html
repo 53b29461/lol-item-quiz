@@ -271,8 +271,8 @@
         }
         
         function createChampionMesh(champion) {
-            // Create smaller plane geometry for performance
-            const geometry = new THREE.PlaneGeometry(0.6, 0.6);
+            // Create circular geometry for champion portraits
+            const geometry = new THREE.CircleGeometry(0.3, 16); // 半径0.3、16セグメントで滑らかな円
             
             // Load champion texture with optimizations
             const textureLoader = new THREE.TextureLoader();
