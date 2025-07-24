@@ -5,6 +5,7 @@ class MathGameApp {
         this.timer = new Timer();
         this.uiController = new UIController();
         this.inputHandler = null;
+        this.lastDifficulty = 'normal'; // 前回の難易度を保存
         
         this.init();
     }
@@ -72,6 +73,9 @@ class MathGameApp {
 
     // ゲーム開始
     startGame(difficulty = 'normal') {
+        // 難易度を保存
+        this.lastDifficulty = difficulty;
+        
         // UIリセット
         this.uiController.resetUI();
         
@@ -154,16 +158,10 @@ class MathGameApp {
         }, 1000);
     }
 
-    // ゲームリセット
+    // ゲームリセット（前回と同じ難易度で即座に開始）
     resetGame() {
-        // タイマーリセット
-        this.timer.reset();
-        
-        // UIリセット
-        this.uiController.resetUI();
-        
-        // 難易度選択画面に直接遷移（もう一度プレイ用）
-        this.uiController.showScreen('difficulty');
+        // 前回と同じ難易度でゲーム開始
+        this.startGame(this.lastDifficulty);
     }
 }
 
