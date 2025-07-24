@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Champion 4D Analysis - LoL Item Quiz</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <style>
         .container {
             max-width: 1200px;
@@ -65,6 +66,35 @@
             padding: 20px;
             border: 1px solid #dee2e6;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        #champion-viz-canvas {
+            width: 100%;
+            height: 700px;
+            display: block;
+            filter: grayscale(80%);
+        }
+        
+        .loading-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            color: #666;
+        }
+        
+        .champion-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
         }
         
         .instructions {
@@ -167,7 +197,9 @@
         </div>
         
         <div class="viz-container">
-            <div id="champion-viz-plot" style="width:100%;height:700px;"></div>
+            <div class="loading-message" id="loading-message">チャンピオンデータを読み込み中...</div>
+            <canvas id="champion-viz-canvas"></canvas>
+            <div class="champion-tooltip" id="champion-tooltip"></div>
         </div>
         
         <div style="text-align: center; margin-top: 30px; color: #666;">
@@ -178,6 +210,167 @@
     </div>
     
     <script>
+        // Three.js scene setup
+        let scene, camera, renderer, controls;
+        let championMeshes = [];
+        let raycaster, mouse;
+        const tooltip = document.getElementById('champion-tooltip');
+        
+        function initThreeJS() {
+            // Scene setup
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xf0f0f0);
+            
+            // Camera setup  
+            camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+            camera.position.set(15, 15, 15);
+            
+            // Renderer setup
+            const canvas = document.getElementById('champion-viz-canvas');
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+            renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            
+            // Controls setup
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            
+            // Raycaster for mouse interactions
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+            
+            // Grid helper
+            const gridHelper = new THREE.GridHelper(20, 20, 0x444444, 0x888888);
+            scene.add(gridHelper);
+            
+            // Axis helper
+            const axesHelper = new THREE.AxesHelper(12);
+            scene.add(axesHelper);
+            
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.4);
+            directionalLight.position.set(10, 10, 5);
+            scene.add(directionalLight);
+            
+            // Mouse event listeners
+            canvas.addEventListener('mousemove', onMouseMove, false);
+            canvas.addEventListener('mouseout', onMouseOut, false);
+            
+            // Window resize handler
+            window.addEventListener('resize', onWindowResize, false);
+        }
+        
+        function createChampionMesh(champion) {
+            // Create plane geometry for champion image
+            const geometry = new THREE.PlaneGeometry(0.8, 0.8);
+            
+            // Load champion texture
+            const textureLoader = new THREE.TextureLoader();
+            const texture = textureLoader.load(
+                `https://ddragon.leagueoflegends.com/cdn/15.14.1/img/champion/${champion.key}.png`,
+                function(texture) {
+                    // Texture loaded successfully
+                },
+                undefined,
+                function(error) {
+                    console.warn(`Failed to load texture for ${champion.name}:`, error);
+                }
+            );
+            
+            // Create material with difficulty-based opacity
+            const material = new THREE.MeshBasicMaterial({
+                map: texture,
+                transparent: true,
+                opacity: 0.7 + (champion.difficulty * 0.03) // Slightly more opaque for higher difficulty
+            });
+            
+            // Create mesh
+            const mesh = new THREE.Mesh(geometry, material);
+            
+            // Position based on champion stats (scaled for better visualization)
+            mesh.position.set(
+                champion.attack - 5,     // Center around 0
+                champion.defense - 5,    // Y = Defense (height)
+                champion.magic - 5       // Z = Magic
+            );
+            
+            // Store champion data in mesh for interactions
+            mesh.userData = champion;
+            
+            // Make plane always face camera
+            mesh.lookAt(camera.position);
+            
+            return mesh;
+        }
+        
+        function onMouseMove(event) {
+            const canvas = document.getElementById('champion-viz-canvas');
+            const rect = canvas.getBoundingClientRect();
+            
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            
+            // Raycast to find intersected objects
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(championMeshes);
+            
+            if (intersects.length > 0) {
+                const champion = intersects[0].object.userData;
+                showTooltip(event.clientX, event.clientY, champion);
+            } else {
+                hideTooltip();
+            }
+        }
+        
+        function onMouseOut() {
+            hideTooltip();
+        }
+        
+        function showTooltip(x, y, champion) {
+            tooltip.style.display = 'block';
+            tooltip.style.left = (x + 10) + 'px';
+            tooltip.style.top = (y - 10) + 'px';
+            
+            tooltip.innerHTML = `
+                <strong>${champion.name}</strong><br>
+                <em>${champion.title}</em><br>
+                Role: ${champion.tags[0] || 'Unknown'}<br>
+                ⚔️ Attack: ${champion.attack}<br>
+                🔮 Magic: ${champion.magic}<br>
+                🛡️ Defense: ${champion.defense}<br>
+                📊 Difficulty: ${champion.difficulty}
+            `;
+        }
+        
+        function hideTooltip() {
+            tooltip.style.display = 'none';
+        }
+        
+        function onWindowResize() {
+            const canvas = document.getElementById('champion-viz-canvas');
+            camera.aspect = canvas.clientWidth / canvas.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Update controls
+            controls.update();
+            
+            // Make all champion planes face the camera
+            championMeshes.forEach(mesh => {
+                mesh.lookAt(camera.position);
+            });
+            
+            renderer.render(scene, camera);
+        }
+        
         // Champion data fetch and visualization
         fetch('https://ddragon.leagueoflegends.com/cdn/15.14.1/data/en_US/championFull.json')
             .then(response => response.json())
@@ -186,6 +379,7 @@
                 
                 for (const [key, champion] of Object.entries(data.data)) {
                     champions.push({
+                        key: key,
                         name: champion.name,
                         title: champion.title,
                         attack: champion.info.attack,
@@ -196,75 +390,27 @@
                     });
                 }
                 
-                createVisualization(champions);
+                // Hide loading message
+                document.getElementById('loading-message').style.display = 'none';
+                
+                // Initialize Three.js
+                initThreeJS();
+                
+                // Create champion meshes
+                champions.forEach(champion => {
+                    const mesh = createChampionMesh(champion);
+                    championMeshes.push(mesh);
+                    scene.add(mesh);
+                });
+                
+                // Start animation loop
+                animate();
             })
             .catch(error => {
                 console.error('Error fetching champion data:', error);
-                document.getElementById('champion-viz-plot').innerHTML = 
-                    '<div style="text-align:center;padding:50px;color:#666;">データの読み込みに失敗しました。しばらく待ってからリロードしてください。</div>';
+                document.getElementById('loading-message').innerHTML = 
+                    'データの読み込みに失敗しました。しばらく待ってからリロードしてください。';
             });
-        
-        function createVisualization(champions) {
-            const trace = {
-                x: champions.map(c => c.attack),
-                y: champions.map(c => c.magic),
-                z: champions.map(c => c.defense),
-                mode: 'markers',
-                marker: {
-                    size: 6,
-                    color: champions.map(c => c.difficulty),
-                    colorscale: 'Viridis',
-                    colorbar: {
-                        title: 'Difficulty Level',
-                        titleside: 'right'
-                    },
-                    line: {
-                        color: 'rgba(255, 255, 255, 0.3)',
-                        width: 0.5
-                    }
-                },
-                text: champions.map(c => 
-                    `<b>${c.name}</b><br>` +
-                    `Title: ${c.title}<br>` +
-                    `Role: ${c.tags[0] || 'Unknown'}<br>` +
-                    `⚔️ Attack: ${c.attack}<br>` +
-                    `🔮 Magic: ${c.magic}<br>` +
-                    `🛡️ Defense: ${c.defense}<br>` +
-                    `📊 Difficulty: ${c.difficulty}`
-                ),
-                hovertemplate: '%{text}<extra></extra>',
-                type: 'scatter3d'
-            };
-            
-            const layout = {
-                title: {
-                    text: '⚔️ LoL Champions 4D Battle Map',
-                    x: 0.5,
-                    font: { size: 20 }
-                },
-                scene: {
-                    xaxis: { title: '⚔️ Attack Power' },
-                    yaxis: { title: '🔮 Magic Power' },
-                    zaxis: { title: '🛡️ Defense' },
-                    bgcolor: 'rgba(240, 240, 240, 0.8)',
-                    camera: {
-                        eye: { x: 1.5, y: 1.5, z: 1.5 }
-                    }
-                },
-                width: undefined,
-                height: 700,
-                margin: { l: 0, r: 0, b: 0, t: 60 }
-            };
-            
-            const config = {
-                responsive: true,
-                displayModeBar: true,
-                displaylogo: false,
-                modeBarButtonsToRemove: ['pan2d', 'select2d', 'lasso2d']
-            };
-            
-            Plotly.newPlot('champion-viz-plot', [trace], layout, config);
-        }
     </script>
 </body>
 </html>
