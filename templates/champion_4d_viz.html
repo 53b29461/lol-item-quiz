@@ -225,11 +225,16 @@
             camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
             camera.position.set(15, 15, 15);
             
-            // Renderer setup
+            // Renderer setup with performance optimizations
             const canvas = document.getElementById('champion-viz-canvas');
-            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+            renderer = new THREE.WebGLRenderer({ 
+                canvas: canvas, 
+                antialias: true,
+                alpha: false,           // パフォーマンス向上
+                powerPreference: "high-performance"
+            });
             renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // 高解像度デバイスでの負荷軽減
             
             // Controls setup
             controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -265,19 +270,46 @@
         }
         
         function createChampionMesh(champion) {
-            // Create plane geometry for champion image
-            const geometry = new THREE.PlaneGeometry(0.8, 0.8);
+            // Create smaller plane geometry for performance
+            const geometry = new THREE.PlaneGeometry(0.6, 0.6);
             
-            // Load champion texture
+            // Load champion texture with optimizations
             const textureLoader = new THREE.TextureLoader();
-            const texture = textureLoader.load(
+            
+            // Try multiple image sources for optimization
+            const imageUrls = [
+                // 小さいサイズの画像を優先
                 `https://ddragon.leagueoflegends.com/cdn/15.14.1/img/champion/${champion.key}.png`,
-                function(texture) {
-                    // Texture loaded successfully
+                // フォールバック用
+                `https://ddragon.leagueoflegends.com/cdn/img/champion/tiles/${champion.key}_0.jpg`
+            ];
+            
+            const texture = textureLoader.load(
+                imageUrls[0],
+                function(loadedTexture) {
+                    // 画像読み込み成功時の最適化
+                    loadedTexture.minFilter = THREE.LinearFilter;
+                    loadedTexture.magFilter = THREE.LinearFilter;
+                    loadedTexture.generateMipmaps = false; // ミップマップ無効化で軽量化
+                    loadedTexture.format = THREE.RGBFormat; // メモリ使用量削減
+                    loadedTexture.wrapS = THREE.ClampToEdgeWrapping;
+                    loadedTexture.wrapT = THREE.ClampToEdgeWrapping;
                 },
                 undefined,
                 function(error) {
                     console.warn(`Failed to load texture for ${champion.name}:`, error);
+                    // フォールバック画像を試す
+                    const fallbackTexture = textureLoader.load(
+                        imageUrls[1],
+                        function(fallbackLoaded) {
+                            fallbackLoaded.minFilter = THREE.LinearFilter;
+                            fallbackLoaded.magFilter = THREE.LinearFilter;
+                            fallbackLoaded.generateMipmaps = false;
+                            fallbackLoaded.format = THREE.RGBFormat;
+                        }
+                    );
+                    material.map = fallbackTexture;
+                    material.needsUpdate = true;
                 }
             );
             
