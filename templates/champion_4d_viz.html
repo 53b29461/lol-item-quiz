@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Champion 4D Analysis - LoL Item Quiz</title>
+    <title>Champion 3D Analysis - LoL Item Quiz</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -142,7 +142,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>⚔️ LoL Champions 4D Analysis</h1>
+            <h1>⚔️ LoL Champions 3D Analysis</h1>
             <div class="subtitle">暇人ゲーマーのための171チャンピオンマッピング</div>
             
             <div class="stats-grid">
@@ -151,7 +151,7 @@
                     <div class="stat-label">チャンピオン</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">4</div>
+                    <div class="stat-number">3</div>
                     <div class="stat-label">指標分析</div>
                 </div>
                 <div class="stat-card">
@@ -183,10 +183,10 @@
                 Z軸: 🛡️ Defense
             </div>
             <div class="legend-item">
-                <strong>🎨 色情報</strong><br>
-                紫→緑→黄: 難易度レベル<br>
-                暗い色 = 簡単<br>
-                明るい色 = 困難
+                <strong>🎨 表示情報</strong><br>
+                チャンピオン画像: 円形ポートレート<br>
+                統一デザイン<br>
+                3D回転・ズーム対応
             </div>
             <div class="legend-item">
                 <strong>📊 発見ポイント</strong><br>
@@ -376,18 +376,10 @@
                 }
             );
             
-            // Create material with difficulty-based color tinting - より鮮明に
-            const difficultyColor = new THREE.Color();
-            difficultyColor.setHSL(
-                (1 - champion.difficulty / 10) * 0.33, // Hue: 緑(0.33) → 赤(0)
-                0.8,  // Saturation: より鮮やかに
-                0.7   // Lightness: 少し暗めで見やすく
-            );
-            
+            // Create material with simple unified color
             const material = new THREE.MeshBasicMaterial({
                 map: texture,
-                transparent: false,  // 透明度削除で色を鮮明に
-                color: difficultyColor
+                transparent: false
             });
             
             // Create mesh
@@ -443,8 +435,7 @@
                 Role: ${champion.tags[0] || 'Unknown'}<br>
                 ⚔️ Attack: ${champion.attack}<br>
                 🔮 Magic: ${champion.magic}<br>
-                🛡️ Defense: ${champion.defense}<br>
-                📊 Difficulty: ${champion.difficulty}
+                🛡️ Defense: ${champion.defense}
             `;
         }
         
@@ -487,7 +478,6 @@
                         attack: champion.info.attack,
                         defense: champion.info.defense,
                         magic: champion.info.magic,
-                        difficulty: champion.info.difficulty,
                         tags: champion.tags
                     });
                 }
