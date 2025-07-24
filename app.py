@@ -9,6 +9,7 @@ from urllib.parse import quote
 app = Flask(__name__)
 
 # Session configuration
+app.config['SECRET_KEY'] = 'lol-item-quiz-secret-key-for-session-management-2025'
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
