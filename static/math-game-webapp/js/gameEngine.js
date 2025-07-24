@@ -18,7 +18,7 @@ class GameEngine {
     // ゲーム開始
     startGame(difficulty = 'normal') {
         this.gameState = {
-            currentQuestion: 0,
+            currentQuestion: 1, // 1から開始
             totalQuestions: 10,
             correctAnswers: 0,
             problems: [],
@@ -28,8 +28,8 @@ class GameEngine {
             difficulty: difficulty
         };
         
-        // 最初の問題を生成
-        this.nextProblem();
+        // 最初の問題を生成（currentQuestionを増加させない）
+        this.currentProblem = this.generateProblem();
     }
 
     // 問題生成

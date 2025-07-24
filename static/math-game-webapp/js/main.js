@@ -85,6 +85,42 @@ class MathGameApp {
         // ゲームエンジン開始
         this.gameEngine.startGame(difficulty);
         
+        // カウントダウン開始
+        this.startCountdown();
+    }
+    
+    // カウントダウン開始
+    startCountdown() {
+        const countdownDiv = document.getElementById('countdown');
+        const countdownNumber = document.getElementById('countdownNumber');
+        let count = 3;
+        
+        // カウントダウン表示
+        countdownDiv.style.display = 'flex';
+        countdownNumber.textContent = count;
+        
+        const countdownInterval = setInterval(() => {
+            count--;
+            if (count > 0) {
+                countdownNumber.textContent = count;
+                // アニメーションをリスタート
+                countdownNumber.style.animation = 'none';
+                setTimeout(() => {
+                    countdownNumber.style.animation = 'countdownPulse 1s ease-in-out';
+                }, 10);
+            } else {
+                // カウントダウン終了
+                clearInterval(countdownInterval);
+                countdownDiv.style.display = 'none';
+                
+                // ゲーム開始
+                this.startActualGame();
+            }
+        }, 1000);
+    }
+    
+    // 実際のゲーム開始
+    startActualGame() {
         // タイマー開始
         this.timer.reset();
         this.timer.start();
