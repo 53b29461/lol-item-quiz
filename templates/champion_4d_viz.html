@@ -219,7 +219,7 @@
         function initThreeJS() {
             // Scene setup
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0xf0f0f0);
+            scene.background = new THREE.Color(0xe8f4f8); // 薄い青系の背景
             
             // Camera setup - より近い位置でズーム状態から開始
             camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
@@ -249,12 +249,12 @@
             // const gridHelper = new THREE.GridHelper(20, 20, 0x444444, 0x888888);
             // scene.add(gridHelper);
             
-            // Floor plane - 床面を追加
+            // Floor plane - 床面を追加（背景と区別できる色）
             const floorGeometry = new THREE.PlaneGeometry(20, 20);
             const floorMaterial = new THREE.MeshBasicMaterial({ 
-                color: 0xf5f5f5, 
+                color: 0xd4c5a9, // 薄い茶系で床らしい色
                 transparent: true, 
-                opacity: 0.3,
+                opacity: 0.4,
                 side: THREE.DoubleSide
             });
             const floor = new THREE.Mesh(floorGeometry, floorMaterial);
@@ -292,12 +292,16 @@
             
             // Try multiple image sources for optimization
             const imageUrls = [
-                // champion.nameを使用（Vex等の新チャンピオン対応）
+                // 最新パッチの champion.name
                 `https://ddragon.leagueoflegends.com/cdn/15.14.1/img/champion/${champion.name}.png`,
-                // フォールバック用（keyベース）
+                // champion.idを使用（一部チャンピオンはidとnameが異なる）
+                `https://ddragon.leagueoflegends.com/cdn/15.14.1/img/champion/${champion.id}.png`,
+                // keyベース（数値ID）
                 `https://ddragon.leagueoflegends.com/cdn/15.14.1/img/champion/${champion.key}.png`,
-                // 最終フォールバック
-                `https://ddragon.leagueoflegends.com/cdn/img/champion/tiles/${champion.name}_0.jpg`
+                // タイル画像フォールバック
+                `https://ddragon.leagueoflegends.com/cdn/img/champion/tiles/${champion.name}_0.jpg`,
+                // 古いバージョンフォールバック
+                `https://ddragon.leagueoflegends.com/cdn/13.24.1/img/champion/${champion.name}.png`
             ];
             
             const texture = textureLoader.load(
