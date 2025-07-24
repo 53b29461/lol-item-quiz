@@ -58,6 +58,16 @@ class MathGameApp {
         playAgainButton.addEventListener('click', () => {
             this.resetGame();
         });
+        
+        // キーボードイベント（結果画面でEnterキー対応）
+        document.addEventListener('keydown', (event) => {
+            // 結果画面が表示中かつEnterキーが押された場合
+            const resultScreen = document.getElementById('resultScreen');
+            if (resultScreen.style.display !== 'none' && event.key === 'Enter') {
+                event.preventDefault();
+                this.resetGame();
+            }
+        });
     }
 
     // ゲーム開始
