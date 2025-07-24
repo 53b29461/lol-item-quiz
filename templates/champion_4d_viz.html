@@ -73,7 +73,7 @@
             width: 100%;
             height: 700px;
             display: block;
-            filter: grayscale(30%);
+            filter: grayscale(10%);
         }
         
         .loading-message {
@@ -221,9 +221,9 @@
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0xf0f0f0);
             
-            // Camera setup  
+            // Camera setup - より近い位置でズーム状態から開始
             camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-            camera.position.set(15, 15, 15);
+            camera.position.set(8, 8, 8);
             
             // Renderer setup with performance optimizations
             const canvas = document.getElementById('champion-viz-canvas');
@@ -249,8 +249,9 @@
             const gridHelper = new THREE.GridHelper(20, 20, 0x444444, 0x888888);
             scene.add(gridHelper);
             
-            // Axis helper
-            const axesHelper = new THREE.AxesHelper(12);
+            // Axis helper - 角に配置（邪魔にならない位置）
+            const axesHelper = new THREE.AxesHelper(3);
+            axesHelper.position.set(-8, -8, -8); // 左下角に移動
             scene.add(axesHelper);
             
             // Lighting
@@ -313,20 +314,18 @@
                 }
             );
             
-            // Create material with difficulty-based color tinting
-            // 難易度に基づいた色合い調整：低難易度=緑、高難易度=赤
+            // Create material with difficulty-based color tinting - より鮮明に
             const difficultyColor = new THREE.Color();
             difficultyColor.setHSL(
                 (1 - champion.difficulty / 10) * 0.33, // Hue: 緑(0.33) → 赤(0)
-                0.4,  // Saturation: 色の鮮やかさ
-                0.8   // Lightness: 明度
+                0.8,  // Saturation: より鮮やかに
+                0.7   // Lightness: 少し暗めで見やすく
             );
             
             const material = new THREE.MeshBasicMaterial({
                 map: texture,
-                transparent: true,
-                opacity: 0.7 + (champion.difficulty * 0.03), // 難易度で透明度調整
-                color: difficultyColor // 難易度で色調整
+                transparent: false,  // 透明度削除で色を鮮明に
+                color: difficultyColor
             });
             
             // Create mesh
