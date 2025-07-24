@@ -165,6 +165,11 @@ class MathGameApp {
 
     // 次の問題へ
     nextQuestion() {
+        // 問題番号を増分（2問目以降）
+        if (this.gameEngine.getCurrentQuestionNumber() > 0) {
+            this.gameEngine.gameState.currentQuestion++;
+        }
+        
         const nextProblem = this.gameEngine.nextProblem();
         
         if (nextProblem) {

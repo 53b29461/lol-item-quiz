@@ -4,6 +4,8 @@ class InputHandler {
         this.onInputCallback = onInputCallback;
         this.isInputEnabled = true;
         this.softKeyboardButtons = [];
+        this.physicalKeyboardHandler = null; // 物理キーボードハンドラーを追跡
+        this.isProcessing = false; // 重複処理防止フラグ
     }
 
     // ソフトキーボードのセットアップ
@@ -24,8 +26,14 @@ class InputHandler {
 
     // 物理キーボードのセットアップ
     setupPhysicalKeyboard() {
-        document.addEventListener('keydown', (e) => {
-            if (!this.isInputEnabled) return;
+        // 既存のハンドラーを削除
+        if (this.physicalKeyboardHandler) {
+            document.removeEventListener('keydown', this.physicalKeyboardHandler);
+        }
+        
+        // 新しいハンドラーを作成
+        this.physicalKeyboardHandler = (e) => {
+            if (!this.isInputEnabled || this.isProcessing) return;
             
             // 数字キー（0-9）のみ受け付け
             if (e.key >= '0' && e.key <= '9') {
@@ -38,12 +46,17 @@ class InputHandler {
                 e.preventDefault();
                 this.processInput(e.key);
             }
-        });
+        };
+        
+        document.addEventListener('keydown', this.physicalKeyboardHandler);
     }
 
     // 入力処理
     processInput(digit) {
-        if (!this.validateInput(digit)) return;
+        if (!this.validateInput(digit) || this.isProcessing) return;
+        
+        // 重複処理防止
+        this.isProcessing = true;
         
         // 視覚的フィードバック
         this.provideVisualFeedback(digit);
@@ -52,6 +65,11 @@ class InputHandler {
         if (this.onInputCallback) {
             this.onInputCallback(digit);
         }
+        
+        // 処理完了後、フラグをリセット（少し遅延）
+        setTimeout(() => {
+            this.isProcessing = false;
+        }, 50);
     }
 
     // 入力検証

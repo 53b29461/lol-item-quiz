@@ -217,8 +217,10 @@ class GameEngine {
     nextProblem() {
         if (!this.gameState.isGameActive) return;
         
-        // 次の問題番号に進む
-        this.gameState.currentQuestion++;
+        // 最初の問題生成時のみ問題番号を増分
+        if (this.currentProblem === null) {
+            this.gameState.currentQuestion++;
+        }
         
         // 最後の問題を超えた場合はゲーム終了
         if (this.gameState.currentQuestion > this.gameState.totalQuestions) {
