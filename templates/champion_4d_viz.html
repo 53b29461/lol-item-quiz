@@ -73,7 +73,7 @@
             width: 100%;
             height: 700px;
             display: block;
-            filter: grayscale(80%);
+            filter: grayscale(30%);
         }
         
         .loading-message {
@@ -313,11 +313,20 @@
                 }
             );
             
-            // Create material with difficulty-based opacity
+            // Create material with difficulty-based color tinting
+            // 難易度に基づいた色合い調整：低難易度=緑、高難易度=赤
+            const difficultyColor = new THREE.Color();
+            difficultyColor.setHSL(
+                (1 - champion.difficulty / 10) * 0.33, // Hue: 緑(0.33) → 赤(0)
+                0.4,  // Saturation: 色の鮮やかさ
+                0.8   // Lightness: 明度
+            );
+            
             const material = new THREE.MeshBasicMaterial({
                 map: texture,
                 transparent: true,
-                opacity: 0.7 + (champion.difficulty * 0.03) // Slightly more opaque for higher difficulty
+                opacity: 0.7 + (champion.difficulty * 0.03), // 難易度で透明度調整
+                color: difficultyColor // 難易度で色調整
             });
             
             // Create mesh
