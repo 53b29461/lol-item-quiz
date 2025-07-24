@@ -28,6 +28,9 @@ class GameEngine {
             difficulty: difficulty
         };
         
+        // currentProblemを明示的にnullにリセット（もう一度プレイ時の問題番号増分のため）
+        this.currentProblem = null;
+        
         // 最初の問題を生成
         this.nextProblem();
     }
