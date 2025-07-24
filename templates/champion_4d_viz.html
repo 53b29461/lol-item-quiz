@@ -294,10 +294,10 @@
             zPlane.position.z = 0; // Z=0の位置に配置
             scene.add(zPlane);
             
-            // Axis helper - 角に配置（邪魔にならない位置）
-            const axesHelper = new THREE.AxesHelper(3);
-            axesHelper.position.set(-8, -8, -8); // 左下角に移動
-            scene.add(axesHelper);
+            // Axis helper - 削除（ユーザー要望）
+            // const axesHelper = new THREE.AxesHelper(3);
+            // axesHelper.position.set(-8, -8, -8);
+            // scene.add(axesHelper);
             
             // Lighting
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
