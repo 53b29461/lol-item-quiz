@@ -18,7 +18,7 @@ class GameEngine {
     // ゲーム開始
     startGame(difficulty = 'normal') {
         this.gameState = {
-            currentQuestion: 1, // 1から開始
+            currentQuestion: 0, // 0から開始して、最初の問題で1になる
             totalQuestions: 10,
             correctAnswers: 0,
             problems: [],
@@ -28,8 +28,8 @@ class GameEngine {
             difficulty: difficulty
         };
         
-        // 最初の問題を生成（currentQuestionを増加させない）
-        this.currentProblem = this.generateProblem();
+        // 最初の問題を生成
+        this.nextProblem();
     }
 
     // 問題生成
@@ -217,13 +217,16 @@ class GameEngine {
     nextProblem() {
         if (!this.gameState.isGameActive) return;
         
+        // 次の問題番号に進む
         this.gameState.currentQuestion++;
         
+        // 最後の問題を超えた場合はゲーム終了
         if (this.gameState.currentQuestion > this.gameState.totalQuestions) {
             this.endGame();
             return null;
         }
         
+        // 新しい問題を生成
         this.currentProblem = this.generateProblem();
         return this.currentProblem;
     }
