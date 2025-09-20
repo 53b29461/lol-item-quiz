@@ -16,7 +16,7 @@ app.config['SECRET_KEY'] = 'lol-item-quiz-secret-key-for-session-management-2025
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
-patch_version = "14.18.1"
+patch_version = "15.18.1"
 
 def get_items_data():
     url = f"https://ddragon.leagueoflegends.com/cdn/{patch_version}/data/ja_JP/item.json"
