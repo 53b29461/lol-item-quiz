@@ -1,0 +1,15 @@
+[Unit]
+Description=LoL Item Quiz Web Application
+After=network.target
+
+[Service]
+Type=simple
+User=user
+WorkingDirectory=/home/user/.pg/development-projects/lol-item-quiz
+Environment=PATH=/home/user/.pg/development-projects/lol-item-quiz/venv/bin
+ExecStart=/home/user/.pg/development-projects/lol-item-quiz/venv/bin/python app.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

@@ -4,6 +4,9 @@ import requests
 import random
 import os
 from urllib.parse import quote
+from argon2 import PasswordHasher
+import base64
+import hashlib
 
 
 app = Flask(__name__)
@@ -13,7 +16,7 @@ app.config['SECRET_KEY'] = 'lol-item-quiz-secret-key-for-session-management-2025
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
-patch_version = "15.13.1"
+patch_version = "14.18.1"
 
 def get_items_data():
     url = f"https://ddragon.leagueoflegends.com/cdn/{patch_version}/data/ja_JP/item.json"
@@ -257,6 +260,188 @@ def math_game():
 @app.route('/champion-4d-viz')
 def champion_4d_viz():
     return render_template('champion_4d_viz.html')
+
+def generate_argon_password(master_password, site_identifier, security_profile='default', 
+                          password_length=64, include_symbols=True, include_numbers=True, 
+                          include_uppercase=True, include_lowercase=True):
+    """
+    Argon2idを使用してカスタマイズ可能なパスワードを生成
+    argonpassアルゴリズムの実装 + カスタマイズ機能
+    """
+    # セキュリティプロファイル設定
+    profiles = {
+        'fast': {'time_cost': 10, 'memory_cost': 64 * 1024, 'parallelism': 1},
+        'balanced': {'time_cost': 25, 'memory_cost': 128 * 1024, 'parallelism': 1},
+        'paranoid': {'time_cost': 50, 'memory_cost': 512 * 1024, 'parallelism': 1},
+        'default': {'time_cost': 42, 'memory_cost': 256 * 1024, 'parallelism': 1}
+    }
+    
+    profile = profiles.get(security_profile, profiles['default'])
+    
+    # 文字セットの構築
+    charset = ""
+    if include_lowercase:
+        charset += "abcdefghijklmnopqrstuvwxyz"
+    if include_uppercase:
+        charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    if include_numbers:
+        charset += "0123456789"
+    if include_symbols:
+        charset += "!@#$%^&*()_+-=[]{}|;:,.<>?"
+    
+    # 最低限の文字セットチェック
+    if not charset:
+        charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    
+    # サイト識別子をソルトとして使用
+    salt = hashlib.sha256(site_identifier.encode()).digest()[:16]
+    
+    # Argon2idでキー導出
+    try:
+        from argon2.low_level import hash_secret_raw, Type
+        
+        # 充分な長さのキーを生成（最大128文字対応）
+        key_length = max(64, (password_length * 2) // 3 + 32)  
+        
+        key = hash_secret_raw(
+            secret=master_password.encode(),
+            salt=salt,
+            time_cost=profile['time_cost'],
+            memory_cost=profile['memory_cost'],
+            parallelism=profile['parallelism'],
+            hash_len=key_length,
+            type=Type.ID  # Argon2id
+        )
+        
+        # キーから指定文字セットでパスワード生成
+        password = ""
+        key_index = 0
+        
+        # 各文字タイプが最低1文字含まれるように最初に配置
+        required_chars = []
+        if include_lowercase and "abcdefghijklmnopqrstuvwxyz" in charset:
+            required_chars.append("abcdefghijklmnopqrstuvwxyz"[key[key_index % len(key)] % 26])
+            key_index += 1
+        if include_uppercase and "ABCDEFGHIJKLMNOPQRSTUVWXYZ" in charset:
+            required_chars.append("ABCDEFGHIJKLMNOPQRSTUVWXYZ"[key[key_index % len(key)] % 26])
+            key_index += 1
+        if include_numbers and "0123456789" in charset:
+            required_chars.append("0123456789"[key[key_index % len(key)] % 10])
+            key_index += 1
+        if include_symbols and "!@#$%^&*()_+-=[]{}|;:,.<>?" in charset:
+            symbols = "!@#$%^&*()_+-=[]{}|;:,.<>?"
+            required_chars.append(symbols[key[key_index % len(key)] % len(symbols)])
+            key_index += 1
+        
+        # 残りの文字を生成
+        for i in range(password_length - len(required_chars)):
+            if key_index >= len(key):
+                # キーが足りない場合は新しいキーを生成
+                additional_salt = hashlib.sha256((site_identifier + str(i)).encode()).digest()[:16]
+                additional_key = hash_secret_raw(
+                    secret=master_password.encode(),
+                    salt=additional_salt,
+                    time_cost=profile['time_cost'],
+                    memory_cost=profile['memory_cost'],
+                    parallelism=profile['parallelism'],
+                    hash_len=32,
+                    type=Type.ID
+                )
+                key = key + additional_key
+            
+            char_index = key[key_index % len(key)] % len(charset)
+            password += charset[char_index]
+            key_index += 1
+        
+        # 必須文字を結果に混合（シャッフル）
+        final_password = list(password + ''.join(required_chars))
+        
+        # キーベースでシャッフル（決定論的）
+        for i in range(len(final_password)):
+            j = key[(key_index + i) % len(key)] % len(final_password)
+            final_password[i], final_password[j] = final_password[j], final_password[i]
+        
+        return ''.join(final_password[:password_length])
+        
+    except Exception as e:
+        return None
+
+@app.route('/argon2-algorithm')
+def argon2_algorithm():
+    return render_template('argon2_algorithm.html', patch_version=patch_version)
+
+@app.route('/password-generator', methods=['GET', 'POST'])
+def password_generator():
+    generated_password = None
+    error_message = None
+    processing_time = None
+    password_settings = {}
+    
+    if request.method == 'POST':
+        master_password = request.form.get('master_password')
+        site_identifier = request.form.get('site_identifier')
+        security_profile = request.form.get('security_profile', 'default')
+        
+        # パスワードカスタマイズオプション
+        password_length = int(request.form.get('password_length', 64))
+        include_symbols = request.form.get('include_symbols') == 'on'
+        include_numbers = request.form.get('include_numbers') == 'on'
+        include_uppercase = request.form.get('include_uppercase') == 'on'
+        include_lowercase = request.form.get('include_lowercase') == 'on'
+        
+        # 設定を保持（フォーム再表示用）
+        password_settings = {
+            'password_length': password_length,
+            'include_symbols': include_symbols,
+            'include_numbers': include_numbers,
+            'include_uppercase': include_uppercase,
+            'include_lowercase': include_lowercase,
+            'security_profile': security_profile
+        }
+        
+        if not master_password or not site_identifier:
+            error_message = "マスターパスワードとサイト識別子の両方を入力してください"
+        elif password_length < 4 or password_length > 128:
+            error_message = "パスワード長は4-128文字の範囲で設定してください"
+        elif not (include_symbols or include_numbers or include_uppercase or include_lowercase):
+            error_message = "少なくとも1つの文字種を選択してください"
+        else:
+            import time
+            start_time = time.time()
+            
+            generated_password = generate_argon_password(
+                master_password=master_password,
+                site_identifier=site_identifier,
+                security_profile=security_profile,
+                password_length=password_length,
+                include_symbols=include_symbols,
+                include_numbers=include_numbers,
+                include_uppercase=include_uppercase,
+                include_lowercase=include_lowercase
+            )
+            
+            end_time = time.time()
+            processing_time = round(end_time - start_time, 2)
+            
+            if generated_password is None:
+                error_message = "パスワード生成に失敗しました"
+    else:
+        # デフォルト設定
+        password_settings = {
+            'password_length': 64,
+            'include_symbols': True,
+            'include_numbers': True,
+            'include_uppercase': True,
+            'include_lowercase': True,
+            'security_profile': 'default'
+        }
+    
+    return render_template('password_generator.html', 
+                         generated_password=generated_password,
+                         error_message=error_message,
+                         processing_time=processing_time,
+                         password_settings=password_settings,
+                         patch_version=patch_version)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))  # 環境変数PORTからポート番号を取得

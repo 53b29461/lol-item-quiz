@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Argon2id アルゴリズム解説</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+        }
+        .index-container {
+            max-width: none !important;
+            width: 100% !important;
+            padding: 20px !important;
+        }
+        .algorithm-container {
+            max-width: 800px !important;
+            width: 90% !important;
+            margin: 0 auto;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2d3748;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border-radius: 12px;
+            color: #333;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .section-intro {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 4px solid #2196f3;
+        }
+        .section-technical {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-left: 4px solid #9c27b0;
+        }
+        .section-security {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            border-left: 4px solid #4caf50;
+        }
+        .section-implementation {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffcc80 100%);
+            border-left: 4px solid #ff9800;
+        }
+        .section-features {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%);
+            border-left: 4px solid #e91e63;
+        }
+        .section h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            border: none;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-size: 14px;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+        .code-block::before {
+            content: 'Python';
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            font-size: 12px;
+            color: #a0aec0;
+            font-weight: bold;
+        }
+        .formula {
+            text-align: center;
+            font-family: 'Times New Roman', serif;
+            font-size: 1.5em;
+            font-weight: normal;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            margin: 25px 0;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15);
+            position: relative;
+        }
+        .formula::before {
+            content: '数式';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 12px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .variable-highlight {
+            color: #667eea;
+            font-weight: bold;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th, .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+            color: #333;
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+        .comparison-table tr:hover td {
+            background-color: #f7fafc;
+        }
+        .flow-diagram {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .flow-step {
+            display: inline-block;
+            padding: 15px 20px;
+            margin: 5px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            font-weight: 600;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+            transition: transform 0.2s ease;
+        }
+        .flow-step:hover {
+            transform: translateY(-2px);
+        }
+        .flow-arrow {
+            font-size: 1.5em;
+            margin: 0 10px;
+            color: #667eea;
+            font-weight: bold;
+        }
+        .navigation {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .index-link {
+            display: inline-block;
+            margin: 0 10px;
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+        }
+        .index-link:hover {
+            background: #5a67d8;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        
+        /* レスポンシブデザイン */
+        @media (max-width: 900px) {
+            .algorithm-container {
+                max-width: 95% !important;
+                width: 95% !important;
+                padding: 25px !important;
+            }
+            .flow-step {
+                display: block;
+                margin: 10px auto;
+                text-align: center;
+            }
+            .flow-arrow {
+                display: block;
+                transform: rotate(90deg);
+                margin: 10px auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="index-container">
+        <div class="algorithm-container">
+            <h1>🧮 Argon2id アルゴリズム解説</h1>
+            <p class="subtitle">パスワードハッシュ関数の最新標準について深く理解しよう</p>
+            
+            <div class="section section-intro">
+                <h2>📚 Argon2って何？</h2>
+                
+                <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-left: 4px solid #2196f3; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                    <h3 style="margin-top: 0; color: #1976d2; font-size: 18px;">🏆 世界チャンピオンのパスワード技術</h3>
+                    <p style="margin-bottom: 15px; color: #424242; font-size: 15px; line-height: 1.6;">
+                        <strong>Argon2</strong>は、2015年に開催された「世界一安全なパスワード技術を決める大会」で<span style="background: #fff3e0; padding: 2px 8px; border-radius: 4px; color: #f57c00; font-weight: bold;">堂々の1位</span>を獲得した最新技術です！
+                    </p>
+                    <div style="background: rgba(255, 255, 255, 0.8); padding: 15px; border-radius: 8px;">
+                        <p style="margin: 0; color: #1976d2; font-weight: bold; text-align: center; font-size: 16px;">
+                            🥇 世界中の暗号学者が認めた「最強のパスワード保護技術」
+                        </p>
+                    </div>
+                </div>
+
+                <h3 style="color: #1976d2;">🎯 なぜArgon2が選ばれたの？</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
+                    <div style="background: rgba(255, 255, 255, 0.8); padding: 18px; border-radius: 10px; border: 2px solid #4caf50;">
+                        <div style="text-align: center; margin-bottom: 10px;">
+                            <div style="font-size: 2.5em;">🛡️</div>
+                            <h4 style="margin: 5px 0; color: #388e3c;">超強力な防御</h4>
+                        </div>
+                        <p style="margin: 0; font-size: 14px; color: #424242; text-align: center;">
+                            どんな高性能コンピューターを使っても攻撃されにくい
+                        </p>
+                    </div>
+                    
+                    <div style="background: rgba(255, 255, 255, 0.8); padding: 18px; border-radius: 10px; border: 2px solid #ff9800;">
+                        <div style="text-align: center; margin-bottom: 10px;">
+                            <div style="font-size: 2.5em;">⚡</div>
+                            <h4 style="margin: 5px 0; color: #f57c00;">高速処理</h4>
+                        </div>
+                        <p style="margin: 0; font-size: 14px; color: #424242; text-align: center;">
+                            安全なのに処理速度も速い（普通に使える）
+                        </p>
+                    </div>
+                    
+                    <div style="background: rgba(255, 255, 255, 0.8); padding: 18px; border-radius: 10px; border: 2px solid #9c27b0;">
+                        <div style="text-align: center; margin-bottom: 10px;">
+                            <div style="font-size: 2.5em;">🔧</div>
+                            <h4 style="margin: 5px 0; color: #7b1fa2;">カスタマイズ可能</h4>
+                        </div>
+                        <p style="margin: 0; font-size: 14px; color: #424242; text-align: center;">
+                            用途に合わせて安全性レベルを調整できる
+                        </p>
+                    </div>
+                    
+                    <div style="background: rgba(255, 255, 255, 0.8); padding: 18px; border-radius: 10px; border: 2px solid #e91e63;">
+                        <div style="text-align: center; margin-bottom: 10px;">
+                            <div style="font-size: 2.5em;">🌍</div>
+                            <h4 style="margin: 5px 0; color: #c2185b;">世界標準</h4>
+                        </div>
+                        <p style="margin: 0; font-size: 14px; color: #424242; text-align: center;">
+                            大手アプリでも採用される信頼性
+                        </p>
+                    </div>
+                </div>
+
+                <h3 style="color: #1976d2; margin-top: 30px;">📱 どこで使われてるの？</h3>
+                <div style="background: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 12px; border: 2px solid #e3f2fd;">
+                    <div style="display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 20px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 2em; margin-bottom: 5px;">💬</div>
+                            <strong style="color: #1976d2;">Signal</strong><br>
+                            <small style="color: #666;">メッセージアプリ</small>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 2em; margin-bottom: 5px;">🔐</div>
+                            <strong style="color: #1976d2;">1Password</strong><br>
+                            <small style="color: #666;">パスワード管理</small>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 2em; margin-bottom: 5px;">🛡️</div>
+                            <strong style="color: #1976d2;">Bitwarden</strong><br>
+                            <small style="color: #666;">セキュリティツール</small>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 2em; margin-bottom: 5px;">🌐</div>
+                            <strong style="color: #1976d2;">その他多数</strong><br>
+                            <small style="color: #666;">世界中のサービス</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(76, 175, 80, 0.1); border: 3px solid #4caf50; border-radius: 15px; padding: 20px; margin-top: 25px; text-align: center;">
+                    <h4 style="margin-top: 0; color: #2e7d32; font-size: 16px;">🎯 つまり、Argon2は...</h4>
+                    <p style="margin: 0; color: #2e7d32; font-size: 15px; line-height: 1.6;">
+                        <strong>世界中の専門家が「これが一番安全！」と認めた、最新のパスワード保護技術</strong><br>
+                        あなたのパスワードを世界最高レベルで守ってくれます 🛡️✨
+                    </p>
+                </div>
+            </div>
+
+            <div class="section section-technical">
+                <h2>⚙️ どうやって動いてるの？</h2>
+                
+                <div style="background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); border-left: 4px solid #9c27b0; padding: 20px; border-radius: 12px; margin-bottom: 25px;">
+                    <h3 style="margin-top: 0; color: #7b1fa2; font-size: 18px;">🎭 魔法の材料を混ぜ合わせる工場</h3>
+                    <p style="margin-bottom: 0; color: #424242; font-size: 15px; line-height: 1.6;">
+                        Argon2idは、あなたの<span style="background: #fff3e0; padding: 2px 6px; border-radius: 4px; font-weight: bold;">マスターパスワード</span>と<span style="background: #fff3e0; padding: 2px 6px; border-radius: 4px; font-weight: bold;">サイト名</span>を特別な工場で加工して、
+                        <strong style="color: #7b1fa2;">世界に1つだけの強いパスワード</strong>を作り出します！
+                    </p>
+                </div>
+
+                <h3 style="color: #7b1fa2;">🏭 パスワード工場の製造ライン</h3>
+                
+                <div style="position: relative; background: rgba(255, 255, 255, 0.8); padding: 25px; border-radius: 15px; border: 2px solid #e1bee7;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+                        <div style="text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); min-width: 120px;">
+                            <div style="font-size: 1.5em; margin-bottom: 5px;">🔑</div>
+                            <strong>マスター<br>パスワード</strong>
+                        </div>
+                        
+                        <div style="font-size: 1.8em; color: #9c27b0; font-weight: bold;">+</div>
+                        
+                        <div style="text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); min-width: 120px;">
+                            <div style="font-size: 1.5em; margin-bottom: 5px;">🏷️</div>
+                            <strong>サイト<br>識別子</strong>
+                        </div>
+                        
+                        <div style="font-size: 2em; color: #9c27b0;">⚡</div>
+                        
+                        <div style="text-align: center; background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%); color: white; padding: 15px 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3); min-width: 120px;">
+                            <div style="font-size: 1.5em; margin-bottom: 5px;">🏭</div>
+                            <strong>Argon2id<br>工場</strong>
+                        </div>
+                        
+                        <div style="font-size: 2em; color: #9c27b0;">🎯</div>
+                        
+                        <div style="text-align: center; background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%); color: white; padding: 15px 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3); min-width: 120px;">
+                            <div style="font-size: 1.5em; margin-bottom: 5px;">💎</div>
+                            <strong>最強<br>パスワード</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="color: #7b1fa2; margin-top: 35px;">🔧 工場の設定パラメーター</h3>
+                
+                <div style="background: rgba(255, 255, 255, 0.9); border-radius: 15px; padding: 25px; border: 2px solid #e1bee7;">
+                    <p style="text-align: center; color: #7b1fa2; font-weight: bold; margin-bottom: 20px; font-size: 16px;">
+                        🏭 Argon2id工場には、安全性を調整する6つのダイヤルがあります
+                    </p>
+                    
+                    <div class="formula" style="margin-bottom: 25px;">
+                        <em>結果</em> = Argon2id工場(<span class="variable-highlight">材料1</span>, <span class="variable-highlight">材料2</span>, <span class="variable-highlight">ダイヤル1</span>, <span class="variable-highlight">ダイヤル2</span>, <span class="variable-highlight">ダイヤル3</span>, <span class="variable-highlight">ダイヤル4</span>)
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div style="background: rgba(102, 126, 234, 0.1); padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;">
+                            <h4 style="margin: 0 0 8px 0; color: #667eea;">🥄 <span class="variable-highlight">材料1</span>: マスターパスワード</h4>
+                            <p style="margin: 0; font-size: 14px; color: #424242;">あなただけが知っている秘密の言葉</p>
+                        </div>
+                        
+                        <div style="background: rgba(102, 126, 234, 0.1); padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;">
+                            <h4 style="margin: 0 0 8px 0; color: #667eea;">🧂 <span class="variable-highlight">材料2</span>: ソルト（サイト名）</h4>
+                            <p style="margin: 0; font-size: 14px; color: #424242;">サイトごとに違うパスワードにする調味料</p>
+                        </div>
+                        
+                        <div style="background: rgba(255, 152, 0, 0.1); padding: 15px; border-radius: 10px; border-left: 4px solid #ff9800;">
+                            <h4 style="margin: 0 0 8px 0; color: #f57c00;">⏱️ <span class="variable-highlight">ダイヤル1</span>: 時間コスト</h4>
+                            <p style="margin: 0; font-size: 14px; color: #424242;">何回混ぜるか（多いほど安全だけど時間かかる）</p>
+                        </div>
+                        
+                        <div style="background: rgba(255, 152, 0, 0.1); padding: 15px; border-radius: 10px; border-left: 4px solid #ff9800;">
+                            <h4 style="margin: 0 0 8px 0; color: #f57c00;">🧠 <span class="variable-highlight">ダイヤル2</span>: メモリコスト</h4>
+                            <p style="margin: 0; font-size: 14px; color: #424242;">どれくらい記憶力を使うか（多いほど攻撃されにくい）</p>
+                        </div>
+                        
+                        <div style="background: rgba(233, 30, 99, 0.1); padding: 15px; border-radius: 10px; border-left: 4px solid #e91e63;">
+                            <h4 style="margin: 0 0 8px 0; color: #c2185b;">⚡ <span class="variable-highlight">ダイヤル3</span>: 並列度</h4>
+                            <p style="margin: 0; font-size: 14px; color: #424242;">何個の作業台で同時作業するか</p>
+                        </div>
+                        
+                        <div style="background: rgba(233, 30, 99, 0.1); padding: 15px; border-radius: 10px; border-left: 4px solid #e91e63;">
+                            <h4 style="margin: 0 0 8px 0; color: #c2185b;">📏 <span class="variable-highlight">ダイヤル4</span>: 出力長</h4>
+                            <p style="margin: 0; font-size: 14px; color: #424242;">最終的に何文字のパスワードを作るか</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border: 3px solid #ffc107; border-radius: 15px; padding: 20px; margin-top: 25px;">
+                    <h4 style="margin-top: 0; color: #f57c00; text-align: center; font-size: 18px;">🔄 魔法の約束事</h4>
+                    <div style="background: rgba(255, 255, 255, 0.8); padding: 15px; border-radius: 10px;">
+                        <p style="margin: 0; color: #f57c00; font-size: 16px; text-align: center; line-height: 1.6;">
+                            <strong>🎯 同じ材料 + 同じダイヤル設定 = いつでも同じパスワード</strong><br>
+                            <span style="font-size: 14px;">でも、材料やダイヤルを少しでも変えると、全く違うパスワードになる！</span>
+                        </p>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                        <div style="background: rgba(76, 175, 80, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 1.5em; margin-bottom: 5px;">✅</div>
+                            <strong style="color: #2e7d32; font-size: 14px;">google.com → M7x&kP?9</strong>
+                        </div>
+                        <div style="background: rgba(76, 175, 80, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 1.5em; margin-bottom: 5px;">✅</div>
+                            <strong style="color: #2e7d32; font-size: 14px;">github.com → Q3z!vN&8</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section section-security">
+                <h2>🔒 セキュリティ特性</h2>
+                
+                <h3>🛡️ あなたのパスワードを守る4つの盾</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
+                    <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-left: 4px solid #2196f3; padding: 18px; border-radius: 12px; box-shadow: 0 3px 10px rgba(33, 150, 243, 0.2);">
+                        <h4 style="margin-top: 0; color: #1976d2; font-size: 16px;">🖥️ ゲーミングPC攻撃をブロック！</h4>
+                        <p style="margin-bottom: 0; font-size: 14px; color: #424242; line-height: 1.5;">
+                            <strong>どういうこと？</strong><br>
+                            悪い人が高性能なゲーミングPCを使ってパスワードを解析しようとしても、<span style="color: #1976d2; font-weight: bold;">メモリをたくさん使うので処理が重くて諦める</span>
+                        </p>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%); border-left: 4px solid #4caf50; padding: 18px; border-radius: 12px; box-shadow: 0 3px 10px rgba(76, 175, 80, 0.2);">
+                        <h4 style="margin-top: 0; color: #388e3c; font-size: 16px;">⚡ 専用マシン攻撃も無効化！</h4>
+                        <p style="margin-bottom: 0; font-size: 14px; color: #424242; line-height: 1.5;">
+                            <strong>どういうこと？</strong><br>
+                            パスワード解析専用の特別なコンピューターを作っても、<span style="color: #388e3c; font-weight: bold;">普通のコンピューターと大差ない速度しか出ない</span>
+                        </p>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #fff3e0 0%, #ffcc80 100%); border-left: 4px solid #ff9800; padding: 18px; border-radius: 12px; box-shadow: 0 3px 10px rgba(255, 152, 0, 0.2);">
+                        <h4 style="margin-top: 0; color: #f57c00; font-size: 16px;">🔄 複数台同時攻撃も効果薄！</h4>
+                        <p style="margin-bottom: 0; font-size: 14px; color: #424242; line-height: 1.5;">
+                            <strong>どういうこと？</strong><br>
+                            100台のコンピューターを同時に使っても、<span style="color: #f57c00; font-weight: bold;">100倍速くはならない。せいぜい数倍程度</span>
+                        </p>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%); border-left: 4px solid #e91e63; padding: 18px; border-radius: 12px; box-shadow: 0 3px 10px rgba(233, 30, 99, 0.2);">
+                        <h4 style="margin-top: 0; color: #c2185b; font-size: 16px;">⏱️ 時間測定攻撃も防御！</h4>
+                        <p style="margin-bottom: 0; font-size: 14px; color: #424242; line-height: 1.5;">
+                            <strong>どういうこと？</strong><br>
+                            処理にかかる時間のわずかな違いからパスワードを推測する高度な攻撃も、<span style="color: #c2185b; font-weight: bold;">情報が漏れないように設計されている</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%); border: 3px solid #4caf50; border-radius: 15px; padding: 25px; margin-top: 30px; box-shadow: 0 5px 20px rgba(76, 175, 80, 0.3);">
+                    <h4 style="margin-top: 0; color: #2e7d32; font-size: 18px; text-align: center;">🎯 結局、あなたにとって何が良いの？</h4>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 20px;">
+                        <div style="text-align: center; padding: 15px; background: rgba(255, 255, 255, 0.7); border-radius: 10px;">
+                            <div style="font-size: 2.5em; margin-bottom: 8px;">💰</div>
+                            <h5 style="margin: 0 0 8px 0; color: #2e7d32;">超高コスト</h5>
+                            <p style="margin: 0; font-size: 13px; color: #424242;">攻撃に必要な電気代・機器代が数百万円レベル</p>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: rgba(255, 255, 255, 0.7); border-radius: 10px;">
+                            <div style="font-size: 2.5em; margin-bottom: 8px;">⏰</div>
+                            <h5 style="margin: 0 0 8px 0; color: #2e7d32;">超長時間</h5>
+                            <p style="margin: 0; font-size: 13px; color: #424242;">1つのパスワード解析に何年も何十年もかかる</p>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: rgba(255, 255, 255, 0.7); border-radius: 10px;">
+                            <div style="font-size: 2.5em; margin-bottom: 8px;">🛡️</div>
+                            <h5 style="margin: 0 0 8px 0; color: #2e7d32;">安心安全</h5>
+                            <p style="margin: 0; font-size: 13px; color: #424242;">あなたのパスワードは実質的に破られない</p>
+                        </div>
+                    </div>
+                    
+                    <div style="background: rgba(46, 125, 50, 0.1); padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center;">
+                        <p style="margin: 0; color: #2e7d32; font-weight: bold; font-size: 16px;">
+                            🔒 つまり、悪い人があなたのパスワードを盗むのは「現実的に不可能」！
+                        </p>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 40px;">🏆 なぜArgon2idが一番なの？</h3>
+                <div style="background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border-radius: 15px; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); border: 2px solid #e9ecef;">
+                    <div style="display: flex; justify-content: space-around; align-items: flex-end; margin-bottom: 20px;">
+                        <div style="text-align: center; opacity: 0.7;">
+                            <div style="font-size: 3em; margin-bottom: 10px;">🥉</div>
+                            <div style="background: #cd7f32; color: white; padding: 8px 12px; border-radius: 20px; font-weight: bold; margin-bottom: 8px;">Argon2d</div>
+                            <small style="color: #666; font-size: 12px;">ビットコイン採掘向け<br>一般用途には不向き</small>
+                        </div>
+                        <div style="text-align: center; opacity: 0.8;">
+                            <div style="font-size: 3em; margin-bottom: 10px;">🥈</div>
+                            <div style="background: #c0c0c0; color: white; padding: 8px 12px; border-radius: 20px; font-weight: bold; margin-bottom: 8px;">Argon2i</div>
+                            <small style="color: #666; font-size: 12px;">パスワード確認向け<br>生成には向かない</small>
+                        </div>
+                        <div style="text-align: center; position: relative; transform: scale(1.1);">
+                            <div style="font-size: 3em; margin-bottom: 10px;">🥇</div>
+                            <div style="background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%); color: white; padding: 10px 15px; border-radius: 25px; font-weight: bold; margin-bottom: 8px; box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);">Argon2id</div>
+                            <small style="color: #4caf50; font-weight: bold; font-size: 13px;"><strong>🎯 パスワード生成に最適！</strong></small>
+                            <div style="position: absolute; top: -10px; right: -10px; background: #ff6b35; color: white; border-radius: 50%; width: 25px; height: 25px; font-size: 14px; display: flex; align-items: center; justify-content: center; font-weight: bold; animation: pulse 2s infinite;">NEW</div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: rgba(76, 175, 80, 0.1); padding: 20px; border-radius: 12px; text-align: center;">
+                        <h4 style="margin-top: 0; color: #4caf50;">🎯 Argon2idの特別なところ</h4>
+                        <p style="margin-bottom: 0; color: #2e7d32; font-size: 15px; line-height: 1.6;">
+                            <strong>両方のいいとこ取り！</strong><br>
+                            Argon2dの「攻撃されにくさ」+ Argon2iの「安全性」= <span style="background: #4caf50; color: white; padding: 2px 8px; border-radius: 12px; font-weight: bold;">完璧なバランス</span>
+                        </p>
+                    </div>
+                </div>
+                
+                <style>
+                    @keyframes pulse {
+                        0% { transform: scale(1); }
+                        50% { transform: scale(1.1); }
+                        100% { transform: scale(1); }
+                    }
+                </style>
+            </div>
+
+            <div class="section section-implementation">
+                <h2>🔬 Argon2idの中身を徹底解剖！</h2>
+                
+                <div style="background: linear-gradient(135deg, #fff3e0 0%, #ffcc80 100%); border: 3px solid #ff9800; border-radius: 15px; padding: 25px; margin-bottom: 30px;">
+                    <h3 style="margin-top: 0; color: #f57c00; font-size: 20px; text-align: center;">🧪 Argon2idアルゴリズムの秘密を暴く</h3>
+                    <p style="margin-bottom: 15px; color: #424242; font-size: 16px; line-height: 1.6; text-align: center;">
+                        「<span style="background: #fff3e0; padding: 3px 8px; border-radius: 4px; font-family: monospace; font-weight: bold;">hello123</span>」+「<span style="background: #fff3e0; padding: 3px 8px; border-radius: 4px; font-family: monospace; font-weight: bold;">google.com</span>」が
+                        <strong style="color: #f57c00;">どうやって強力なパスワードに変身するのか</strong>、内部のメカニズムを詳しく見てみましょう！
+                    </p>
+                    <div style="background: rgba(245, 124, 0, 0.1); padding: 15px; border-radius: 10px; text-align: center;">
+                        <p style="margin: 0; color: #f57c00; font-weight: bold; font-size: 15px;">
+                            ⚠️ ここからは「Argon2idアルゴリズム」の核心部分です！
+                        </p>
+                    </div>
+                </div>
+
+                <div style="position: relative;">
+                    <!-- Step 1: 初期化とソルト準備 -->
+                    <div style="display: flex; align-items: flex-start; margin-bottom: 25px;">
+                        <div style="background: linear-gradient(135deg, #2196f3 0%, #21cbf3 100%); color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; margin-right: 20px; box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4); flex-shrink: 0;">1</div>
+                        <div style="flex: 1; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 20px; border-radius: 12px; border-left: 5px solid #2196f3; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
+                            <h4 style="margin: 0 0 12px 0; color: #1976d2; font-size: 16px;">🧂 入力準備とソルト生成</h4>
+                            <div style="background: rgba(255, 255, 255, 0.8); padding: 15px; border-radius: 8px; margin-bottom: 12px;">
+                                <p style="margin: 0 0 8px 0; font-size: 14px; color: #424242;">
+                                    <strong>パスワード:</strong> 「hello123」(7バイト)<br>
+                                    <strong>サイト識別子:</strong> 「google.com」→ SHA-256ハッシュ → 16バイトのソルト
+                                </p>
+                                <code style="background: #e3f2fd; padding: 4px 8px; border-radius: 4px; font-size: 12px; display: block; margin-top: 8px;">
+                                    ソルト: a1b2c3d4e5f67890abcdef1234567890
+                                </code>
+                            </div>
+                            <div style="background: rgba(33, 150, 243, 0.1); padding: 12px; border-radius: 6px;">
+                                <p style="margin: 0; font-size: 13px; color: #1976d2; font-weight: bold;">
+                                    💡 ソルトがあることで、同じパスワードでもサイトごとに全く違う結果になる！
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Argon2idのメモリマトリックス構築 -->
+                    <div style="display: flex; align-items: flex-start; margin-bottom: 25px;">
+                        <div style="background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%); color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; margin-right: 20px; box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4); flex-shrink: 0;">2</div>
+                        <div style="flex: 1; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 20px; border-radius: 12px; border-left: 5px solid #4caf50; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
+                            <h4 style="margin: 0 0 12px 0; color: #388e3c; font-size: 16px;">🧠 Argon2id: メモリマトリックス構築</h4>
+                            <div style="background: rgba(255, 255, 255, 0.8); padding: 15px; border-radius: 8px; margin-bottom: 12px;">
+                                <p style="margin: 0 0 10px 0; font-size: 14px; color: #424242;">
+                                    <strong>設定値:</strong> 時間コスト=42, メモリ=256KB(2048ブロック), 並列度=1
+                                </p>
+                                <div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; margin: 10px 0;">
+                                    <div style="background: #e8f5e8; padding: 4px; text-align: center; font-size: 10px; border-radius: 3px;">B₀</div>
+                                    <div style="background: #e8f5e8; padding: 4px; text-align: center; font-size: 10px; border-radius: 3px;">B₁</div>
+                                    <div style="background: #e8f5e8; padding: 4px; text-align: center; font-size: 10px; border-radius: 3px;">B₂</div>
+                                    <div style="background: #e8f5e8; padding: 4px; text-align: center; font-size: 10px; border-radius: 3px;">B₃</div>
+                                    <div style="background: #c8e6c9; padding: 4px; text-align: center; font-size: 10px; border-radius: 3px;">...</div>
+                                    <div style="background: #c8e6c9; padding: 4px; text-align: center; font-size: 10px; border-radius: 3px;">...</div>
+                                    <div style="background: #a5d6a7; padding: 4px; text-align: center; font-size: 10px; border-radius: 3px;">B₂₀₄₆</div>
+                                    <div style="background: #81c784; padding: 4px; text-align: center; font-size: 10px; border-radius: 3px;">B₂₀₄₇</div>
+                                </div>
+                                <p style="margin: 0; font-size: 13px; color: #424242;">
+                                    各ブロック = 1024バイト、全体で256KB のメモリを確保
+                                </p>
+                            </div>
+                            <div style="background: rgba(76, 175, 80, 0.1); padding: 12px; border-radius: 6px;">
+                                <p style="margin: 0; font-size: 13px; color: #388e3c; font-weight: bold;">
+                                    🔧 大量のメモリを使うことで、GPUや専用機器による攻撃を困難にする！
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Phase 1 - 初期化フェーズ -->
+                    <div style="display: flex; align-items: flex-start; margin-bottom: 25px;">
+                        <div style="background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%); color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; margin-right: 20px; box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4); flex-shrink: 0;">3</div>
+                        <div style="flex: 1; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 20px; border-radius: 12px; border-left: 5px solid #ff9800; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
+                            <h4 style="margin: 0 0 12px 0; color: #f57c00; font-size: 16px;">🌱 Phase 1: 初期化フェーズ</h4>
+                            <div style="background: rgba(255, 255, 255, 0.8); padding: 15px; border-radius: 8px; margin-bottom: 12px;">
+                                <p style="margin: 0 0 10px 0; font-size: 14px; color: #424242;">
+                                    <strong>初期ブロック生成:</strong> パスワード + ソルト + 設定値から最初の2ブロックを生成
+                                </p>
+                                <div style="display: flex; align-items: center; gap: 10px; margin: 10px 0;">
+                                    <div style="background: #fff3e0; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-family: monospace;">
+                                        Blake2b(パスワード+ソルト+設定)
+                                    </div>
+                                    <span style="color: #ff9800; font-size: 16px;">→</span>
+                                    <div style="background: #ffcc80; padding: 8px 12px; border-radius: 6px; font-size: 12px;">
+                                        B₀, B₁
+                                    </div>
+                                </div>
+                                <p style="margin: 0; font-size: 13px; color: #424242;">
+                                    残りのブロック（B₂～B₂₀₄₇）を順次生成して全メモリを埋める
+                                </p>
+                            </div>
+                            <div style="background: rgba(255, 152, 0, 0.1); padding: 12px; border-radius: 6px;">
+                                <p style="margin: 0; font-size: 13px; color: #f57c00; font-weight: bold;">
+                                    🔄 この段階では「Argon2i方式」で安全にメモリを初期化
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Phase 2 - メインイテレーション（Argon2d + Argon2i ハイブリッド） -->
+                    <div style="display: flex; align-items: flex-start; margin-bottom: 25px;">
+                        <div style="background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%); color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; margin-right: 20px; box-shadow: 0 4px 15px rgba(156, 39, 176, 0.4); flex-shrink: 0;">4</div>
+                        <div style="flex: 1; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 20px; border-radius: 12px; border-left: 5px solid #9c27b0; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
+                            <h4 style="margin: 0 0 12px 0; color: #7b1fa2; font-size: 16px;">⚡ Phase 2: メインイテレーション（Argon2idの核心）</h4>
+                            <div style="background: rgba(255, 255, 255, 0.8); padding: 15px; border-radius: 8px; margin-bottom: 12px;">
+                                <p style="margin: 0 0 12px 0; font-size: 14px; color: #424242;">
+                                    <strong>42回のイテレーション</strong>で、各ブロックを複雑に相互参照・更新
+                                </p>
+                                
+                                <div style="background: #f3e5f5; padding: 12px; border-radius: 6px; margin-bottom: 10px;">
+                                    <h5 style="margin: 0 0 8px 0; color: #7b1fa2; font-size: 13px;">🎯 Argon2idの特殊な仕組み:</h5>
+                                    <ul style="margin: 0; padding-left: 20px; font-size: 12px; color: #424242;">
+                                        <li><strong>前半</strong>: Argon2i方式（タイミング攻撃に強い）</li>
+                                        <li><strong>後半</strong>: Argon2d方式（メモリ攻撃に強い）</li>
+                                        <li><strong>参照パターン</strong>: データ依存 + 独立のハイブリッド</li>
+                                    </ul>
+                                </div>
+
+                                <div style="display: flex; align-items: center; gap: 8px; margin: 10px 0; font-size: 12px;">
+                                    <div style="background: #e1bee7; padding: 6px 8px; border-radius: 4px;">現在ブロック</div>
+                                    <span style="color: #9c27b0;">⟷</span>
+                                    <div style="background: #ce93d8; padding: 6px 8px; border-radius: 4px;">参照ブロック1</div>
+                                    <span style="color: #9c27b0;">⟷</span>
+                                    <div style="background: #ba68c8; padding: 6px 8px; border-radius: 4px;">参照ブロック2</div>
+                                    <span style="color: #9c27b0;">→</span>
+                                    <div style="background: #ab47bc; padding: 6px 8px; border-radius: 4px; color: white;">新しい値</div>
+                                </div>
+                            </div>
+                            <div style="background: rgba(156, 39, 176, 0.1); padding: 12px; border-radius: 6px;">
+                                <p style="margin: 0; font-size: 13px; color: #7b1fa2; font-weight: bold;">
+                                    🔥 この相互参照により、1つのブロックを変えると全体が連鎖的に変化！
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 5: 最終出力生成 -->
+                    <div style="display: flex; align-items: flex-start; margin-bottom: 25px;">
+                        <div style="background: linear-gradient(135deg, #e91e63 0%, #f06292 100%); color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; margin-right: 20px; box-shadow: 0 4px 15px rgba(233, 30, 99, 0.4); flex-shrink: 0;">5</div>
+                        <div style="flex: 1; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 20px; border-radius: 12px; border-left: 5px solid #e91e63; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
+                            <h4 style="margin: 0 0 12px 0; color: #c2185b; font-size: 16px;">💎 最終出力とパスワード変換</h4>
+                            <div style="background: rgba(255, 255, 255, 0.8); padding: 15px; border-radius: 8px; margin-bottom: 12px;">
+                                <p style="margin: 0 0 10px 0; font-size: 14px; color: #424242;">
+                                    <strong>最終ブロック抽出:</strong> 全てのイテレーション完了後、最後のブロックを取得
+                                </p>
+                                <div style="background: #fce4ec; padding: 10px; border-radius: 6px; margin: 10px 0;">
+                                    <code style="font-size: 11px; color: #c2185b; display: block; margin-bottom: 5px;">
+                                        最終キー = B₂₀₄₇の前32バイト
+                                    </code>
+                                    <code style="font-size: 11px; color: #c2185b; display: block;">
+                                        7A2F91B6C3E7D8A4F5B2C9E1D6F3A8B7E4C1F9A2D5B8E7C3F6A9B2D5E8C1F4A7
+                                    </code>
+                                </div>
+                                <p style="margin: 0; font-size: 13px; color: #424242;">
+                                    このキーから各バイトを使って文字を選択 → パスワード完成
+                                </p>
+                            </div>
+                            <div style="background: rgba(233, 30, 99, 0.1); padding: 12px; border-radius: 6px;">
+                                <p style="margin: 0; font-size: 13px; color: #c2185b; font-weight: bold;">
+                                    ✨ この32バイトが「暗号学的に完璧にランダム」だけど「決定論的」なキー！
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Final Result -->
+                    <div style="background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%); border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4); border: 3px solid #388e3c;">
+                        <h3 style="margin-top: 0; color: white; font-size: 22px;">🎉 Argon2id処理完了！</h3>
+                        <div style="background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 12px; margin: 20px 0;">
+                            <p style="margin: 0 0 10px 0; color: #2e7d32; font-size: 16px; font-weight: bold;">
+                                生成されたキー（32バイト）:
+                            </p>
+                            <div style="background: #e8f5e8; padding: 10px; border-radius: 6px; font-family: monospace; font-size: 12px; color: #1b5e20; word-break: break-all; margin-bottom: 15px;">
+                                7A2F91B6C3E7D8A4F5B2C9E1D6F3A8B7E4C1F9A2D5B8E7C3F6A9B2D5E8C1F4A7
+                            </div>
+                            <p style="margin: 0; color: #2e7d32; font-size: 16px; font-weight: bold;">
+                                ↓ 文字セット変換 ↓<br>
+                                最終パスワード: <span style="font-family: monospace; font-size: 20px; background: #c8e6c9; padding: 8px 12px; border-radius: 6px; color: #1b5e20;">M7x&kP?9</span>
+                            </p>
+                        </div>
+                        <p style="margin: 0; color: rgba(255, 255, 255, 0.95); font-size: 15px;">
+                            🔒 256KB メモリ × 42回イテレーション = 超強力パスワード完成！
+                        </p>
+                    </div>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border: 3px solid #ffc107; border-radius: 15px; padding: 25px; margin-top: 30px;">
+                    <h4 style="margin-top: 0; color: #f57c00; text-align: center; font-size: 18px;">🧠 Argon2idが凄い理由</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                        <div style="background: rgba(255, 255, 255, 0.8); padding: 15px; border-radius: 10px;">
+                            <h5 style="margin: 0 0 8px 0; color: #f57c00;">🔄 複雑な相互依存</h5>
+                            <p style="margin: 0; font-size: 13px; color: #424242;">
+                                全ブロックが相互に影響し合うため、1バイト変更でも全体が激変
+                            </p>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.8); padding: 15px; border-radius: 10px;">
+                            <h5 style="margin: 0 0 8px 0; color: #f57c00;">💾 大量メモリ消費</h5>
+                            <p style="margin: 0; font-size: 13px; color: #424242;">
+                                256KBの連続メモリが必須で、GPU攻撃を物理的に困難にする
+                            </p>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.8); padding: 15px; border-radius: 10px;">
+                            <h5 style="margin: 0 0 8px 0; color: #f57c00;">⏱️ 時間的コスト</h5>
+                            <p style="margin: 0; font-size: 13px; color: #424242;">
+                                42回のイテレーションで十分な計算量を確保し、総当たり攻撃を遅延
+                            </p>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.8); padding: 15px; border-radius: 10px;">
+                            <h5 style="margin: 0 0 8px 0; color: #f57c00;">🎭 ハイブリッド方式</h5>
+                            <p style="margin: 0; font-size: 13px; color: #424242;">
+                                Argon2i + Argon2dの良いとこ取りで、あらゆる攻撃に対応
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section section-features">
+                <h2>🌟 このツールが他と違うところ</h2>
+                
+                <div style="background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%); border-left: 4px solid #e91e63; padding: 20px; border-radius: 12px; margin-bottom: 25px;">
+                    <h3 style="margin-top: 0; color: #c2185b; font-size: 18px;">🎯 普通のパスワード管理ツールとは全然違う！</h3>
+                    <p style="margin-bottom: 0; color: #424242; font-size: 15px; line-height: 1.6;">
+                        このツールは<strong style="color: #c2185b;">パスワードを保存しません</strong>。必要な時にその場で生成するから、
+                        <span style="background: #fff3e0; padding: 2px 6px; border-radius: 4px; font-weight: bold;">ハッキングされても盗まれるパスワードがない</span>んです！
+                    </p>
+                </div>
+
+                <h3 style="color: #c2185b;">🚀 6つのスゴいところ</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
+                    <div style="background: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 12px; border: 2px solid #4caf50; position: relative; overflow: hidden;">
+                        <div style="position: absolute; top: 0; right: 0; background: #4caf50; color: white; padding: 4px 8px; font-size: 12px; font-weight: bold;">MAGIC</div>
+                        <div style="text-align: center; margin-bottom: 10px;">
+                            <div style="font-size: 2.5em;">🎭</div>
+                            <h4 style="margin: 5px 0; color: #388e3c;">決定論的生成</h4>
+                        </div>
+                        <p style="margin: 0; font-size: 14px; color: #424242; text-align: center; line-height: 1.5;">
+                            <strong>「同じ呪文→同じ魔法」</strong><br>
+                            同じマスターパスワードとサイト名なら、<span style="color: #388e3c; font-weight: bold;">いつでも全く同じパスワード</span>が出てくる
+                        </p>
+                    </div>
+                    
+                    <div style="background: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 12px; border: 2px solid #2196f3; position: relative; overflow: hidden;">
+                        <div style="position: absolute; top: 0; right: 0; background: #2196f3; color: white; padding: 4px 8px; font-size: 12px; font-weight: bold;">OFFLINE</div>
+                        <div style="text-align: center; margin-bottom: 10px;">
+                            <div style="font-size: 2.5em;">✈️</div>
+                            <h4 style="margin: 5px 0; color: #1976d2;">飛行機でもOK</h4>
+                        </div>
+                        <p style="margin: 0; font-size: 14px; color: #424242; text-align: center; line-height: 1.5;">
+                            <strong>インターネット不要</strong><br>
+                            WiFiがなくても、<span style="color: #1976d2; font-weight: bold;">圏外でも</span>パスワード生成できる
+                        </p>
+                    </div>
+                    
+                    <div style="background: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 12px; border: 2px solid #ff9800; position: relative; overflow: hidden;">
+                        <div style="position: absolute; top: 0; right: 0; background: #ff9800; color: white; padding: 4px 8px; font-size: 12px; font-weight: bold;">SECURE</div>
+                        <div style="text-align: center; margin-bottom: 10px;">
+                            <div style="font-size: 2.5em;">🤐</div>
+                            <h4 style="margin: 5px 0; color: #f57c00;">完全プライベート</h4>
+                        </div>
+                        <p style="margin: 0; font-size: 14px; color: #424242; text-align: center; line-height: 1.5;">
+                            <strong>秘密は頭の中だけ</strong><br>
+                            マスターパスワードは<span style="color: #f57c00; font-weight: bold;">サーバーに一切送信されない</span>
+                        </p>
+                    </div>
+                    
+                    <div style="background: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 12px; border: 2px solid #9c27b0; position: relative; overflow: hidden;">
+                        <div style="position: absolute; top: 0; right: 0; background: #9c27b0; color: white; padding: 4px 8px; font-size: 12px; font-weight: bold;">UNIVERSAL</div>
+                        <div style="text-align: center; margin-bottom: 10px;">
+                            <div style="font-size: 2.5em;">📱</div>
+                            <h4 style="margin: 5px 0; color: #7b1fa2;">どこでも同じ</h4>
+                        </div>
+                        <p style="margin: 0; font-size: 14px; color: #424242; text-align: center; line-height: 1.5;">
+                            <strong>スマホでもPCでも</strong><br>
+                            <span style="color: #7b1fa2; font-weight: bold;">どのデバイスでも同じパスワード</span>が生成される
+                        </p>
+                    </div>
+                    
+                    <div style="background: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 12px; border: 2px solid #607d8b; position: relative; overflow: hidden;">
+                        <div style="position: absolute; top: 0; right: 0; background: #607d8b; color: white; padding: 4px 8px; font-size: 12px; font-weight: bold;">CUSTOM</div>
+                        <div style="text-align: center; margin-bottom: 10px;">
+                            <div style="font-size: 2.5em;">🎛️</div>
+                            <h4 style="margin: 5px 0; color: #455a64;">自由自在</h4>
+                        </div>
+                        <p style="margin: 0; font-size: 14px; color: #424242; text-align: center; line-height: 1.5;">
+                            <strong>あなた好みに調整</strong><br>
+                            長さも文字種も<span style="color: #455a64; font-weight: bold;">完全カスタマイズ</span>
+                        </p>
+                    </div>
+                    
+                    <div style="background: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 12px; border: 2px solid #795548; position: relative; overflow: hidden;">
+                        <div style="position: absolute; top: 0; right: 0; background: #795548; color: white; padding: 4px 8px; font-size: 12px; font-weight: bold;">SIMPLE</div>
+                        <div style="text-align: center; margin-bottom: 10px;">
+                            <div style="font-size: 2.5em;">😊</div>
+                            <h4 style="margin: 5px 0; color: #5d4037;">超シンプル</h4>
+                        </div>
+                        <p style="margin: 0; font-size: 14px; color: #424242; text-align: center; line-height: 1.5;">
+                            <strong>おじいちゃんでも使える</strong><br>
+                            <span style="color: #5d4037; font-weight: bold;">直感的で迷わない</span>デザイン
+                        </p>
+                    </div>
+                </div>
+
+                <h3 style="color: #c2185b; margin-top: 35px;">🎨 自分好みにカスタマイズ</h3>
+                
+                <div style="background: rgba(255, 255, 255, 0.9); border-radius: 15px; padding: 25px; border: 2px solid #f8bbd9;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h4 style="margin: 0; color: #c2185b; font-size: 16px;">🎛️ あなた専用パスワードの作り方</h4>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                        <div style="background: rgba(233, 30, 99, 0.1); padding: 15px; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 1.8em; margin-bottom: 8px;">📏</div>
+                            <h5 style="margin: 0 0 8px 0; color: #c2185b;">長さ調整</h5>
+                            <p style="margin: 0; font-size: 13px; color: #424242;">4文字〜128文字<br>お好みで選択</p>
+                        </div>
+                        
+                        <div style="background: rgba(233, 30, 99, 0.1); padding: 15px; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 1.8em; margin-bottom: 8px;">🔤</div>
+                            <h5 style="margin: 0 0 8px 0; color: #c2185b;">文字種選択</h5>
+                            <p style="margin: 0; font-size: 13px; color: #424242;">大小英字・数字・記号<br>自由に組み合わせ</p>
+                        </div>
+                        
+                        <div style="background: rgba(233, 30, 99, 0.1); padding: 15px; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 1.8em; margin-bottom: 8px;">⚡</div>
+                            <h5 style="margin: 0 0 8px 0; color: #c2185b;">即座に反映</h5>
+                            <p style="margin: 0; font-size: 13px; color: #424242;">設定変更すると<br>すぐに新パスワード</p>
+                        </div>
+                    </div>
+                    
+                    <div style="background: rgba(233, 30, 99, 0.05); padding: 15px; border-radius: 10px; border: 1px dashed #e91e63;">
+                        <div style="display: flex; justify-content: space-around; align-items: center; text-align: center; font-size: 14px;">
+                            <div>
+                                <strong style="color: #c2185b;">小文字</strong><br>
+                                <code style="background: #fff; padding: 2px 4px; border-radius: 3px;">a-z</code>
+                            </div>
+                            <div style="color: #c2185b; font-size: 18px;">+</div>
+                            <div>
+                                <strong style="color: #c2185b;">大文字</strong><br>
+                                <code style="background: #fff; padding: 2px 4px; border-radius: 3px;">A-Z</code>
+                            </div>
+                            <div style="color: #c2185b; font-size: 18px;">+</div>
+                            <div>
+                                <strong style="color: #c2185b;">数字</strong><br>
+                                <code style="background: #fff; padding: 2px 4px; border-radius: 3px;">0-9</code>
+                            </div>
+                            <div style="color: #c2185b; font-size: 18px;">+</div>
+                            <div>
+                                <strong style="color: #c2185b;">記号</strong><br>
+                                <code style="background: #fff; padding: 2px 4px; border-radius: 3px;">!@#$%...</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%); border-radius: 15px; padding: 25px; margin-top: 25px; text-align: center; color: white; box-shadow: 0 5px 20px rgba(76, 175, 80, 0.3);">
+                    <h4 style="margin-top: 0; font-size: 18px;">🚀 さあ、実際に試してみよう！</h4>
+                    <div style="background: rgba(255, 255, 255, 0.2); padding: 15px; border-radius: 10px; margin: 15px 0;">
+                        <p style="margin: 0; font-size: 15px; line-height: 1.6;">
+                            <strong>📝 例:</strong> マスターパスワード「<code style="background: rgba(255,255,255,0.3); padding: 2px 6px; border-radius: 3px;">MySecret123</code>」<br>
+                            サイト識別子「<code style="background: rgba(255,255,255,0.3); padding: 2px 6px; border-radius: 3px;">github.com</code>」
+                        </p>
+                    </div>
+                    <div style="background: rgba(255, 255, 255, 0.9); color: #2e7d32; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 16px; font-weight: bold;">
+                        ↓ 毎回必ず同じ結果 ↓<br>
+                        <span style="font-size: 18px;">🔐 Q7m&vN#2</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="navigation">
+            <a href="/password-generator" class="index-link">🔐 パスワード生成ツール</a>
+            <a href="/etc" class="index-link">etcページに戻る</a>
+            <a href="/" class="index-link">メインページに戻る</a>
+        </div>
+    </div>
+</body>
+<footer>
+    <p>&copy; 2024 LoL Item Quiz. All rights reserved.</p>
+</footer>
+</html>
